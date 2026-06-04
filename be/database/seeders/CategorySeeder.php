@@ -39,7 +39,7 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $cat) {
-            Category::create($cat);
+            Category::updateOrCreate(['slug' => $cat['slug']], $cat);
         }
     }
 }
