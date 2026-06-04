@@ -12,39 +12,51 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         // Buat user admin
-        $admin = User::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@tanyaaksata.com',
-            'password' => Hash::make('password123'),
-            'reputation' => 0,
-            'is_banned' => false,
-        ]);
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@tanyaaksata.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('password123'),
+                'reputation' => 0,
+                'is_banned' => false,
+            ]
+        );
 
         // Ambil role admin
         $adminRole = Role::where('name', 'admin')->first();
 
-        // Assign role admin ke user
-        $admin->roles()->attach($adminRole->id);
+        // Assign role admin ke user jika belum punya
+        if ($adminRole && !$admin->roles()->where('role_id', $adminRole->id)->exists()) {
+            $admin->roles()->attach($adminRole->id);
+        }
 
         // Opsional: buat juga user moderator dan user biasa untuk testing
-        $moderator = User::create([
-            'name' => 'Moderator User',
-            'email' => 'moderator@tanyaaksata.com',
-            'password' => Hash::make('password123'),
-            'reputation' => 0,
-            'is_banned' => false,
-        ]);
+        $moderator = User::updateOrCreate(
+            ['email' => 'moderator@tanyaaksata.com'],
+            [
+                'name' => 'Moderator User',
+                'password' => Hash::make('password123'),
+                'reputation' => 0,
+                'is_banned' => false,
+            ]
+        );
         $modRole = Role::where('name', 'moderator')->first();
-        $moderator->roles()->attach($modRole->id);
+        if ($modRole && !$moderator->roles()->where('role_id', $modRole->id)->exists()) {
+            $moderator->roles()->attach($modRole->id);
+        }
 
-        $normalUser = User::create([
-            'name' => 'Regular User',
-            'email' => 'user@tanyaaksata.com',
-            'password' => Hash::make('password123'),
-            'reputation' => 0,
-            'is_banned' => false,
-        ]);
+        $normalUser = User::updateOrCreate(
+            ['email' => 'user@tanyaaksata.com'],
+            [
+                'name' => 'Regular User',
+                'password' => Hash::make('password123'),
+                'reputation' => 0,
+                'is_banned' => false,
+            ]
+        );
         $userRole = Role::where('name', 'user')->first();
-        $normalUser->roles()->attach($userRole->id);
+        if ($userRole && !$normalUser->roles()->where('role_id', $userRole->id)->exists()) {
+            $normalUser->roles()->attach($userRole->id);
+        }
     }
 }
