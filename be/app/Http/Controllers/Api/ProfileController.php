@@ -1,0 +1,106 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
+class ProfileController extends Controller
+{
+    /**
+     * Get user profile
+     * GET /api/v1/profile
+     */
+    public function show(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'success' => true,
+            'data' => $user
+        ], 200);
+    }
+
+    /**
+     * Update user profile
+     * PUT/PATCH /api/v1/profile
+     */
+    public function update(Request $request)
+    {
+        $user = $request->user();
+
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:255',
+            'bio' => 'nullable|string|max:1000',
+            'location' => 'nullable|string|max:255',
+            'website' => 'nullable|url|max:255',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB
+            'current_password' => 'required_with:new_password|string|min:6',
+            'new_password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Jika ada perubahan password
+        if ($request->filled('new_password')) {
+            // Cek current password
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Current password salah'
+                ], 401);
+            }
+
+            // Update password
+            $user->password = Hash::make($request->new_password);
+        }
+
+        // Update field lain
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+
+        if ($request->has('bio')) {
+            $user->bio = $request->bio;
+        }
+
+        if ($request->has('location')) {
+            $user->location = $request->location;
+        }
+
+        if ($request->has('website')) {
+            $user->website = $request->website;
+        }
+
+        // Proses upload avatar jika ada
+        if ($request->hasFile('avatar')) {
+            // Hapus avatar lama jika ada
+            if ($user->avatar && file_exists(public_path('storage/' . $user->avatar))) {
+                unlink(public_path('storage/' . $user->avatar));
+            }
+
+            // Simpan avatar baru
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $avatarPath;
+        }
+
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diupdate',
+            'data' => $user
+        ], 200);
+    }
+}

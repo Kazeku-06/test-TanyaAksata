@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RoleController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ProfileController;
 
 Route::prefix('v1')->group(function () {
 
@@ -32,6 +33,8 @@ Route::prefix('v1')->group(function () {
 
     // Protected user routes
     Route::middleware('auth:sanctum')->group(function () {
-        // Route untuk profile, post, dll bisa ditambahkan di sini
+        Route::get('/profile', [ProfileController::class, 'show']);
+        Route::put('/profile', [ProfileController::class, 'update']);
+        Route::patch('/profile', [ProfileController::class, 'update']);
     });
 });
