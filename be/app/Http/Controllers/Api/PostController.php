@@ -5,60 +5,39 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Tag;
-use App\Models\Category;
+use App\Models\PostEditHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    /**
-     * Daftar semua postingan (hanya yang belum dihapus)
-     */
+    // Daftar postingan (publik)
     public function index()
     {
         $posts = Post::with(['user', 'category', 'tags'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-
-        return response()->json([
-            'success' => true,
-            'data' => $posts
-        ]);
+        return response()->json(['success' => true, 'data' => $posts]);
     }
 
-    /**
-     * Detail satu postingan (termasuk komentar, tags, category, user)
-     */
+    // Detail postingan (publik) + flag is_edited
     public function show($id)
     {
-        $post = Post::with(['user', 'category', 'tags', 'comments.user' => function($q) {
-            $q->orderBy('created_at', 'asc');
-        }])->find($id);
-
+        $post = Post::with(['user', 'category', 'tags', 'comments.user'])->find($id);
         if (!$post) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Postingan tidak ditemukan'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
-
-        // Increment views
         $post->increment('views_count');
-
-        return response()->json([
-            'success' => true,
-            'data' => $post
-        ]);
+        $data = $post->toArray();
+        $data['is_edited'] = $post->is_edited;
+        return response()->json(['success' => true, 'data' => $data]);
     }
 
-    /**
-     * Buat postingan baru
-     */
+    // Membuat postingan baru
     public function store(Request $request)
     {
         $user = $request->user();
-
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'body' => 'required|string',
@@ -66,13 +45,8 @@ class PostController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50'
         ]);
-
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
         $post = Post::create([
@@ -85,16 +59,15 @@ class PostController extends Controller
             'comments_count' => 0,
             'views_count' => 0,
             'is_solved' => false,
+            'edit_count' => 0,
         ]);
 
-        // Handle tags (menerima array nama tag)
         if ($request->has('tags')) {
             $tagIds = [];
             foreach ($request->tags as $tagName) {
-                $tagName = trim($tagName);
                 $tag = Tag::firstOrCreate(
-                    ['name' => $tagName],
-                    ['slug' => Str::slug($tagName)]
+                    ['name' => trim($tagName)],
+                    ['slug' => Str::slug(trim($tagName))]
                 );
                 $tagIds[] = $tag->id;
             }
@@ -103,32 +76,28 @@ class PostController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Postingan berhasil dibuat',
+            'message' => 'Post created',
             'data' => $post->load(['user', 'category', 'tags'])
         ], 201);
     }
 
-    /**
-     * Update postingan
-     */
+    // Update postingan (hanya pemilik, maksimal 3 kali edit)
     public function update(Request $request, $id)
     {
         $user = $request->user();
         $post = Post::find($id);
-
         if (!$post) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Postingan tidak ditemukan'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
 
-        // Cek permission: pemilik, admin, atau moderator
-        if ($post->user_id !== $user->id && !$user->hasRole('admin') && !$user->hasRole('moderator')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki akses untuk mengedit postingan ini'
-            ], 403);
+        // Hanya pemilik yang boleh edit
+        if ($post->user_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => 'Forbidden: Anda tidak memiliki izin edit'], 403);
+        }
+
+        // Batasan maksimal edit = 3 kali
+        if ($post->edit_count >= 3) {
+            return response()->json(['success' => false, 'message' => 'Batas maksimal edit (3 kali) sudah tercapai'], 403);
         }
 
         $validator = Validator::make($request->all(), [
@@ -136,35 +105,55 @@ class PostController extends Controller
             'body' => 'sometimes|required|string',
             'category_id' => 'sometimes|required|string|exists:categories,id',
             'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50'
+            'tags.*' => 'string|max:50',
+            'edit_summary' => 'nullable|string|max:255'
         ]);
-
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        if ($request->has('title')) {
+        $oldTitle = $post->title;
+        $oldBody = $post->body;
+        $changes = false;
+
+        if ($request->has('title') && $request->title != $post->title) {
             $post->title = $request->title;
+            $changes = true;
         }
-        if ($request->has('body')) {
+        if ($request->has('body') && $request->body != $post->body) {
             $post->body = $request->body;
+            $changes = true;
         }
-        if ($request->has('category_id')) {
+        if ($request->has('category_id') && $request->category_id != $post->category_id) {
             $post->category_id = $request->category_id;
+            $changes = true;
         }
-        $post->save();
 
+        if ($changes) {
+            $post->edited_at = now();
+            $post->edit_count = $post->edit_count + 1;
+            $post->save();
+
+            PostEditHistory::create([
+                'post_id' => $post->id,
+                'edited_by' => $user->id,
+                'title_before' => $oldTitle,
+                'body_before' => $oldBody,
+                'title_after' => $post->title,
+                'body_after' => $post->body,
+                'edit_summary' => $request->edit_summary,
+            ]);
+        } else {
+            $post->save(); // jika tidak ada perubahan, tetap simpan (misal hanya update tags)
+        }
+
+        // Update tags (tidak mempengaruhi edit count)
         if ($request->has('tags')) {
             $tagIds = [];
             foreach ($request->tags as $tagName) {
-                $tagName = trim($tagName);
                 $tag = Tag::firstOrCreate(
-                    ['name' => $tagName],
-                    ['slug' => Str::slug($tagName)]
+                    ['name' => trim($tagName)],
+                    ['slug' => Str::slug(trim($tagName))]
                 );
                 $tagIds[] = $tag->id;
             }
@@ -173,95 +162,62 @@ class PostController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Postingan berhasil diperbarui',
+            'message' => 'Post updated',
             'data' => $post->load(['user', 'category', 'tags'])
         ]);
     }
 
-    /**
-     * Soft delete postingan
-     */
+    // Soft delete (pemilik, admin, moderator boleh)
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
         $post = Post::find($id);
-
         if (!$post) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Postingan tidak ditemukan'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
-
-        // Cek permission
         if ($post->user_id !== $user->id && !$user->hasRole('admin') && !$user->hasRole('moderator')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki akses untuk menghapus postingan ini'
-            ], 403);
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
-
-        $post->delete(); // soft delete
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Postingan berhasil dihapus'
-        ], 200);
+        $post->delete();
+        return response()->json(['success' => true, 'message' => 'Post deleted']);
     }
 
-    /**
-     * Postingan milik user tertentu
-     */
+    // Postingan milik user tertentu (publik)
     public function userPosts($userId)
     {
         $posts = Post::where('user_id', $userId)
             ->with(['category', 'tags'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-
-        return response()->json([
-            'success' => true,
-            'data' => $posts
-        ]);
+        return response()->json(['success' => true, 'data' => $posts]);
     }
 
-     /**
-     * Daftar postingan yang sudah dihapus (soft delete) - khusus admin
-     * GET /api/v1/admin/posts/trashed
-     */
+    // ========== ADMIN ONLY ==========
+    // Lihat daftar post yang dihapus (soft delete)
     public function trashed()
     {
-        $posts = Post::onlyTrashed() // hanya yang sudah dihapus
-            ->with(['user', 'category', 'tags'])
-            ->orderBy('deleted_at', 'desc')
-            ->paginate(15);
-
-        return response()->json([
-            'success' => true,
-            'data' => $posts
-        ]);
+        $posts = Post::onlyTrashed()->with(['user', 'category'])->paginate(15);
+        return response()->json(['success' => true, 'data' => $posts]);
     }
 
-     /**
-     * Detail postingan yang sudah dihapus (khusus admin)
-     * GET /api/v1/admin/posts/{id}/trashed
-     */
+    // Lihat detail post yang dihapus
     public function showTrashed($id)
     {
-        $post = Post::withTrashed()
-            ->with(['user', 'category', 'tags', 'comments.user'])
-            ->find($id);
-
+        $post = Post::withTrashed()->with(['user', 'category', 'tags'])->find($id);
         if (!$post) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Postingan tidak ditemukan'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
+        return response()->json(['success' => true, 'data' => $post]);
+    }
 
-        return response()->json([
-            'success' => true,
-            'data' => $post
-        ]);
+    // Lihat seluruh history edit (hanya admin)
+    public function history($id)
+    {
+        $post = Post::withTrashed()->find($id);
+        if (!$post) {
+            return response()->json(['success' => false, 'message' => 'Post not found'], 404);
+        }
+        $histories = $post->editHistories()->with('editor')->orderBy('created_at', 'desc')->get();
+        return response()->json(['success' => true, 'data' => $histories]);
     }
 }
