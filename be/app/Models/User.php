@@ -70,14 +70,16 @@ class User extends Authenticatable
     public function following()
     {
         return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id')
-                    ->withTimestamps();
+                ->using(Follow::class) // ← pakai model pivot
+                ->withTimestamps();
     }
 
     // Pengikut user (followers)
     public function followers()
     {
         return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id')
-                    ->withTimestamps();
+                ->using(Follow::class)
+                ->withTimestamps();
     }
 
     // Vote yang diberikan user
