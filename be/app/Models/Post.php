@@ -15,30 +15,24 @@ class Post extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'title',
-        'body',
-        'user_id',
-        'category_id',
-        'accepted_answer_id',
-        'votes_count',
-        'likes_count',
-        'comments_count',
-        'views_count',
-        'is_solved',
+        'title', 'body', 'user_id', 'category_id', 'accepted_answer_id',
+        'votes_count', 'likes_count', 'comments_count', 'views_count',
+        'is_solved', 'edited_at', 'edit_count'
     ];
 
     protected $casts = [
         'is_solved' => 'boolean',
+        'edited_at' => 'datetime',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(Category::class);
     }
 
     public function tags()
@@ -49,36 +43,17 @@ class Post extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class, 'post_id');
-    }
-
-    public function acceptedAnswer()
-    {
-        return $this->belongsTo(Comment::class, 'accepted_answer_id');
-    }
-
-    public function bookmarks()
-    {
-        return $this->hasMany(Bookmark::class, 'post_id');
+        return $this->hasMany(Comment::class);
     }
 
     public function editHistories()
     {
-        return $this->hasMany(PostEditHistory::class, 'post_id');
+        return $this->hasMany(PostEditHistory::class);
     }
 
-    public function votes()
+    // Accessor untuk mengecek apakah pernah diedit
+    public function getIsEditedAttribute()
     {
-        return $this->morphMany(Vote::class, 'target');
-    }
-
-    public function likes()
-    {
-        return $this->morphMany(Like::class, 'target');
-    }
-
-    public function reports()
-    {
-        return $this->morphMany(Report::class, 'target');
+        return $this->edit_count > 0;
     }
 }
