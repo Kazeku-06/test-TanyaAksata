@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Follow;
+use Illuminate\Http\Request;
 
 class FollowController extends Controller
 {
@@ -16,49 +16,6 @@ class FollowController extends Controller
     public function follow(Request $request, $userId)
     {
         $follower = $request->user();
-        $following = User::find($userId); // buat user yang mau di follow
-
-        if (!$following) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User tidak ditemukan'
-            ], 404);
-        }
-
-        //validattor biar gak follow diri sendiri
-        if ($follower->id === $following->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak bisa follow diri sendiri'
-            ], 400);
-        }
-
-        //cheker udah follow apa belum
-        if ($follower->following()->where('following_id', $following->id)->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda sudah mengikuti user ini'
-            ], 400);
-        }
-
-        // kalo belum follow bakalan di lakuin pake logic ini
-        $follower->following()->attach($following->id);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Berhasil mengikuti ' . $following->name
-        ], 200);
-
-
-    }
-
-    /**
-     * Unfollow user lain
-     * DELETE /api/v1/users/{userId}/unfollow
-     */
-    public function unfolow (Request $request, $userId)
-    {
-         $follower = $request->user();
         $following = User::find($userId);
 
         if (!$following) {
@@ -68,68 +25,124 @@ class FollowController extends Controller
             ], 404);
         }
 
-        // cek udah folow ap belum
-        if (!$follower->following()->where('following_id', $following->id)->exists()) {
+        if ($follower->id === $following->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda tidak mengikuti user ini'
+                'message' => 'Tidak bisa follow diri sendiri'
             ], 400);
         }
 
-        // kalo udah follow bakalan di unfoll pake logic ini
-        $follower->following()->detach($following->id);
+        // Cek apakah sudah follow
+        $exists = Follow::where('follower_id', $follower->id)
+                        ->where('following_id', $following->id)
+                        ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah mengikuti user ini'
+            ], 409);
+        }
+
+        // Create follow record (UUID akan auto generate oleh model)
+        Follow::create([
+            'follower_id' => $follower->id,
+            'following_id' => $following->id,
+        ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Berhenti mengikuti ' . $following->name
-        ], 200);
+            'message' => "Berhasil mengikuti {$following->name}"
+        ], 201);
     }
+
     /**
-     * Daftar followers (pengikut user tertentu)
-     * GET /api/v1/users/{userId}/followers
+     * Unfollow user lain
+     * DELETE /api/v1/users/{userId}/unfollow
      */
-    public function followersList($userId)
+    public function unfollow(Request $request, $userId)
     {
-         $user = User::find($userId);
-        if (!$user) {
+        $follower = $request->user();
+        $following = User::find($userId);
+
+        if (!$following) {
             return response()->json([
                 'success' => false,
                 'message' => 'User tidak ditemukan'
             ], 404);
         }
 
-        $followers = $user->followers()->get(['users.id', 'users.name', 'users.email', 'users.avatar', 'users.reputation']);
+        // Hapus record follow
+        $deleted = Follow::where('follower_id', $follower->id)
+                         ->where('following_id', $following->id)
+                         ->delete();
+
+        if (!$deleted) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak sedang mengikuti user ini'
+            ], 409);
+        }
 
         return response()->json([
             'success' => true,
-            'data' => $followers
+            'message' => "Berhasil berhenti mengikuti {$following->name}"
         ], 200);
     }
 
     /**
-     * Cek apakah user login sedang mengikuti user tertentu
+     * Cek apakah user login mengikuti user tertentu
      * GET /api/v1/users/{userId}/is-following
      */
     public function isFollowing(Request $request, $userId)
     {
         $follower = $request->user();
-        $target = User::find($userId);
+        $following = User::find($userId);
 
-        if (!$target) {
+        if (!$following) {
             return response()->json([
                 'success' => false,
                 'message' => 'User tidak ditemukan'
             ], 404);
         }
 
-        $isFollowing = $follower->following()->where('following_id', $target->id)->exists();
+        $isFollowing = Follow::where('follower_id', $follower->id)
+                             ->where('following_id', $following->id)
+                             ->exists();
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'is_following' => $isFollowing
-            ]
-        ], 200);
+            'data' => ['is_following' => $isFollowing]
+        ]);
     }
 
+    /**
+     * Daftar user yang diikuti oleh user login
+     * GET /api/v1/users/me/following
+     */
+    public function myFollowing(Request $request)
+    {
+        $user = $request->user();
+        $following = $user->following()->get(['id', 'name', 'email', 'avatar']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $following
+        ]);
+    }
+
+    /**
+     * Daftar pengikut user login
+     * GET /api/v1/users/me/followers
+     */
+    public function myFollowers(Request $request)
+    {
+        $user = $request->user();
+        $followers = $user->followers()->get(['id', 'name', 'email', 'avatar']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $followers
+        ]);
+    }
 }
