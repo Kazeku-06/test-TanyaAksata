@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\CommentController;
 
 Route::prefix('v1')->group(function () {
 
@@ -17,6 +18,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/posts', [PostController::class, 'index']);
     Route::get('/posts/{id}', [PostController::class, 'show']);
     Route::get('/users/{userId}/posts', [PostController::class, 'userPosts']); // method userPosts harus ada di controller
+
+    //comentaar
+    Route::get('/posts/{postId}/comments', [CommentController::class, 'index']);
 
     // ========== PROTECTED ROUTES (wajib token) ==========
     Route::middleware('auth:sanctum')->group(function () {
@@ -34,6 +38,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/posts/trashed', [PostController::class, 'trashed']);
         Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']); // method showTrashed harus ada
         Route::get('/posts/{id}/history', [PostController::class, 'history']);
+
+         Route::get('/comments/trashed', [CommentController::class, 'trashed']);
+        Route::get('/comments/{id}/trashed', [CommentController::class, 'showTrashed']);
+        Route::get('/comments/{id}/history', [CommentController::class, 'history']);
     });
 
     // ========== MODERATION ROUTES (admin atau moderator) ==========
@@ -63,5 +71,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/posts', [PostController::class, 'store']);
         Route::put('/posts/{id}', [PostController::class, 'update']);
         Route::delete('/posts/{id}', [PostController::class, 'destroy']);
+
+
+        //bikin comentar
+        Route::post('/comments', [CommentController::class, 'store']);
+        Route::put('/comments/{id}', [CommentController::class, 'update']);
+        Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
     });
 });

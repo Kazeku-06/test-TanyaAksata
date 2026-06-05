@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    public function up()
     {
         Schema::create('comment_edit_history', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -22,7 +22,7 @@ return new class extends Migration
         });
     }
 
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('comment_edit_history');
     }
