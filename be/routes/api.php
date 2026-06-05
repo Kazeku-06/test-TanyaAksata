@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\RoleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\FollowController;
+use App\Http\Controllers\Api\PostController;
 
 Route::prefix('v1')->group(function () {
 
@@ -18,11 +19,20 @@ Route::prefix('v1')->group(function () {
         Route::get('auth/me', [AuthController::class, 'me']);
     });
 
+    //public post
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::get('/posts/{id}', [PostController::class, 'show']);
+    Route::get('/users/{userId}/posts', [PostController::class, 'userPosts']);
+
     // Admin routes
     Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
         Route::get('/users', [RoleController::class, 'listUsersWithRoles']);
         Route::post('/users/{userId}/assign-role', [RoleController::class, 'assignRole']);
         Route::post('/users/{userId}/remove-role', [RoleController::class, 'removeRole']);
+
+        //route buat liat soft delete postingan
+        Route::get('/posts/trashed', [PostController::class, 'trashed']);
+        Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']);
     });
 
     // Moderation routes
@@ -46,5 +56,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/me/following', [FollowController::class, 'myFollowing']);
         Route::get('/me/followers', [FollowController::class, 'myFollowers']);
     });
-});
+
+    //routing untuk post
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::put('/posts/{id}', [PostController::class, 'update']);
+    Route::patch('/posts/{id}', [PostController::class, 'update']);
+    Route::delete('/posts/{id}', [PostController::class, 'destroy']);
+    });
 });
