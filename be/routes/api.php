@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RoleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\FollowController;
 
 Route::prefix('v1')->group(function () {
 
@@ -36,5 +37,15 @@ Route::prefix('v1')->group(function () {
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::put('/profile', [ProfileController::class, 'update']);
         Route::patch('/profile', [ProfileController::class, 'update']);
+
+
+        // routing buat follow unfollow user lain
+        Route::prefix('users')->group(function () {
+        Route::post('/{userId}/follow', [FollowController::class, 'follow']);
+        Route::delete('/{userId}/unfollow', [FollowController::class, 'unfollow']);
+        Route::get('/{userId}/following', [FollowController::class, 'followingList']);
+        Route::get('/{userId}/followers', [FollowController::class, 'followersList']);
+        Route::get('/{userId}/is-following', [FollowController::class, 'isFollowing']);
+    });
     });
 });
