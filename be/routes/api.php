@@ -34,18 +34,17 @@ Route::prefix('v1')->group(function () {
 
     // Protected user routes
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'show']);
-        Route::put('/profile', [ProfileController::class, 'update']);
-        Route::patch('/profile', [ProfileController::class, 'update']);
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::patch('/profile', [ProfileController::class, 'update']);
 
-
-        // routing buat follow unfollow user lain
-        Route::prefix('users')->group(function () {
+    // routing buat follow unfollow user lain
+    Route::prefix('users')->group(function () {
         Route::post('/{userId}/follow', [FollowController::class, 'follow']);
         Route::delete('/{userId}/unfollow', [FollowController::class, 'unfollow']);
-        Route::get('/{userId}/following', [FollowController::class, 'followingList']);
-        Route::get('/{userId}/followers', [FollowController::class, 'followersList']);
         Route::get('/{userId}/is-following', [FollowController::class, 'isFollowing']);
+        Route::get('/me/following', [FollowController::class, 'myFollowing']);
+        Route::get('/me/followers', [FollowController::class, 'myFollowers']);
     });
-    });
+});
 });
