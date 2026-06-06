@@ -83,9 +83,10 @@ class User extends Authenticatable
                 ->select('users.id', 'users.name', 'users.email', 'users.avatar');
     }
     // Vote yang diberikan user
+    // Di dalam model User, tambahkan relasi:
     public function votes()
     {
-        return $this->hasMany(Vote::class, 'user_id');
+        return $this->hasMany(Vote::class);
     }
 
     // Like yang diberikan user
@@ -142,4 +143,6 @@ class User extends Authenticatable
     {
         return $this->roles->contains('name', $roleName);
     }
+
+
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\VoteController;
 
 Route::prefix('v1')->group(function () {
 
@@ -51,6 +52,13 @@ Route::prefix('v1')->group(function () {
         Route::match(['put', 'patch'], '/comments/{id}', [CommentController::class, 'update']);
         Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
         Route::post('/comments/{id}/accept', [CommentController::class, 'accept']);
+
+
+        //voting postingan
+        Route::post('/posts/{postId}/vote', [VoteController::class, 'votePost']);
+        Route::post('/comments/{commentId}/vote', [VoteController::class, 'voteComment']);
+        Route::get('/posts/{postId}/user-vote', [VoteController::class, 'getUserPostVote']);
+        Route::get('/comments/{commentId}/user-vote', [VoteController::class, 'getUserCommentVote']);
 
         // Follow / Unfollow
         Route::prefix('users')->group(function () {
