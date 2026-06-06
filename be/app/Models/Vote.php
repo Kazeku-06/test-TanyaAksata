@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Vote extends Model
 {
-    use HasFactory, HasUuids;
+    use HasUuids;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -17,18 +16,16 @@ class Vote extends Model
         'user_id',
         'target_type',
         'target_id',
-        'vote', // 1 = upvote, -1 = downvote
+        'vote' // 1 = upvote, -1 = downvote
     ];
 
-    // Relasi polymorphic ke post atau comment
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function target()
     {
         return $this->morphTo();
-    }
-
-    // User pemberi vote
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
     }
 }

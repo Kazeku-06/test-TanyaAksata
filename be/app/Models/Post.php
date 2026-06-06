@@ -46,12 +46,23 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
+    public function acceptedAnswer()
+    {
+        return $this->belongsTo(Comment::class, 'accepted_answer_id');
+    }
+
     public function editHistories()
     {
         return $this->hasMany(PostEditHistory::class);
     }
 
-    // Accessor untuk mengecek apakah pernah diedit
+    // Polymorphic relasi untuk vote
+    public function votes()
+    {
+        return $this->morphMany(Vote::class, 'target');
+    }
+
+    // Accessor untuk is_edited
     public function getIsEditedAttribute()
     {
         return $this->edit_count > 0;

@@ -27,7 +27,7 @@ class CommentController extends Controller
     }
 
     // Membuat komentar baru (reply jika ada parent_id)
-        public function store(Request $request)
+     public function store(Request $request)
     {
         $user = $request->user();
         $validator = Validator::make($request->all(), [
@@ -44,15 +44,7 @@ class CommentController extends Controller
             return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
 
-        // 🔥 CEK APAKAH POST SUDAH SOLVED (CLOSED)
-        if ($post->is_solved) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Postingan sudah closed (terjawab), tidak bisa menambah komentar baru.'
-            ], 403);
-        }
-
-        // Cek jika user adalah pemilik postingan (batasi 4 komentar)
+        // Hanya batasi komentar untuk pemilik postingan (maksimal 4)
         if ($user->id == $post->user_id) {
             $commentCount = Comment::where('post_id', $request->post_id)
                 ->where('user_id', $user->id)

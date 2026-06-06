@@ -25,7 +25,6 @@ class Comment extends Model
         'edited_at' => 'datetime',
     ];
 
-    // Relasi
     public function post()
     {
         return $this->belongsTo(Post::class);
@@ -51,7 +50,13 @@ class Comment extends Model
         return $this->hasMany(CommentEditHistory::class);
     }
 
-    // Accessor
+    // Polymorphic relasi untuk vote
+    public function votes()
+    {
+        return $this->morphMany(Vote::class, 'target');
+    }
+
+    // Accessor untuk is_edited
     public function getIsEditedAttribute()
     {
         return $this->edit_count > 0;
