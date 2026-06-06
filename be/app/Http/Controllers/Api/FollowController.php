@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Follow;
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class FollowController extends Controller
 {
@@ -49,6 +50,16 @@ class FollowController extends Controller
             'follower_id' => $follower->id,
             'following_id' => $following->id,
         ]);
+
+        // Kirim notifikasi ke user yang diikuti
+        Notification::send(
+            $following->id,
+            $follower->id,
+            'follow',
+            User::class,
+            $follower->id,
+            "User {$follower->name} mulai mengikuti Anda"
+        );
 
         return response()->json([
             'success' => true,
