@@ -27,7 +27,7 @@ class CommentController extends Controller
     }
 
     // Membuat komentar baru (reply jika ada parent_id)
-    public function store(Request $request)
+        public function store(Request $request)
     {
         $user = $request->user();
         $validator = Validator::make($request->all(), [
@@ -44,9 +44,16 @@ class CommentController extends Controller
             return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
 
-        // Cek jika user adalah pemilik postingan
+        // 🔥 CEK APAKAH POST SUDAH SOLVED (CLOSED)
+        if ($post->is_solved) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Postingan sudah closed (terjawab), tidak bisa menambah komentar baru.'
+            ], 403);
+        }
+
+        // Cek jika user adalah pemilik postingan (batasi 4 komentar)
         if ($user->id == $post->user_id) {
-            // Hitung komentar yang sudah dibuat oleh pemilik di postingan ini (tidak termasuk yang sudah dihapus)
             $commentCount = Comment::where('post_id', $request->post_id)
                 ->where('user_id', $user->id)
                 ->whereNull('deleted_at')
@@ -173,5 +180,69 @@ class CommentController extends Controller
         }
         $histories = $comment->editHistories()->with('editor')->orderBy('created_at', 'desc')->get();
         return response()->json(['success' => true, 'data' => $histories]);
+    }
+    /**
+ * Mark or unmark comment as accepted answer.
+ * POST /api/v1/comments/{id}/accept
+ */
+    public function accept(Request $request, $id)
+    {
+        $user = $request->user();
+        $comment = Comment::find($id);
+        if (!$comment) {
+            return response()->json(['success' => false, 'message' => 'Comment not found'], 404);
+        }
+
+        $post = $comment->post;
+        if (!$post) {
+            return response()->json(['success' => false, 'message' => 'Post not found'], 404);
+        }
+
+        // Only post owner can accept/unaccept
+        if ($post->user_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => 'Only post owner can accept answer'], 403);
+        }
+
+        // If this comment is already accepted -> unmark it
+        if ($comment->is_accepted) {
+            $comment->is_accepted = false;
+            $comment->save();
+
+            $post->accepted_answer_id = null;
+            $post->is_solved = false;
+            $post->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Answer unmarked as accepted. Post is open again.'
+            ]);
+        }
+
+        // Otherwise, mark this comment as accepted
+        // First, remove any previous accepted answer
+        if ($post->accepted_answer_id) {
+            $oldAccepted = Comment::find($post->accepted_answer_id);
+            if ($oldAccepted) {
+                $oldAccepted->is_accepted = false;
+                $oldAccepted->save();
+            }
+        }
+
+        $comment->is_accepted = true;
+        $comment->save();
+
+        $post->accepted_answer_id = $comment->id;
+        $post->is_solved = true;
+        $post->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Answer accepted. Post is now closed for new comments and votes.',
+            'data' => [
+                'post_id' => $post->id,
+                'accepted_comment_id' => $comment->id,
+                'is_solved' => true
+            ]
+        ]);
     }
 }
