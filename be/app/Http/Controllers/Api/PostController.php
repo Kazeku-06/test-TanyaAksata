@@ -9,6 +9,7 @@ use App\Models\PostEditHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Models\Bookmark;
 
 class PostController extends Controller
 {
@@ -22,16 +23,23 @@ class PostController extends Controller
     }
 
     // Detail postingan (publik) + flag is_edited
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $post = Post::with(['user', 'category', 'tags', 'comments.user'])->find($id);
         if (!$post) {
             return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
         $post->increment('views_count');
+        $user = $request->user();
         $data = $post->toArray();
-        $data['is_edited'] = $post->is_edited;
-        return response()->json(['success' => true, 'data' => $data]);
+    $data['is_edited'] = $post->is_edited;
+    $data['is_bookmarked'] = false;
+    if ($user) {
+        $data['is_bookmarked'] = Bookmark::where('user_id', $user->id)
+            ->where('post_id', $post->id)
+            ->exists();
+}
+return response()->json(['success' => true, 'data' => $data]);
     }
 
     // Membuat postingan baru
