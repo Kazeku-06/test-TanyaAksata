@@ -220,4 +220,36 @@ class PostController extends Controller
         $histories = $post->editHistories()->with('editor')->orderBy('created_at', 'desc')->get();
         return response()->json(['success' => true, 'data' => $histories]);
     }
+
+        /**
+     * Search posts by title, body, or tags
+     * GET /api/v1/posts/search?q=keyword
+     */
+    public function search(Request $request)
+    {
+        $queryParam = $request->query('q');
+        if (!$queryParam) {
+            return response()->json(['success' => false, 'message' => 'Keyword is required'], 400);
+        }
+
+        // Split keyword by spaces to handle multi-word search
+        $keywords = array_filter(explode(' ', $queryParam));
+
+        $posts = Post::with(['user', 'category', 'tags'])
+            ->where(function ($query) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $query->where(function ($subQuery) use ($word) {
+                        $subQuery->where('title', 'LIKE', "%{$word}%")
+                            ->orWhere('body', 'LIKE', "%{$word}%")
+                            ->orWhereHas('tags', function ($tagQuery) use ($word) {
+                                $tagQuery->where('name', 'LIKE', "%{$word}%");
+                            });
+                    });
+                }
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return response()->json(['success' => true, 'data' => $posts]);
+    }
 }
