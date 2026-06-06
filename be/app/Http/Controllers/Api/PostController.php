@@ -230,28 +230,55 @@ class PostController extends Controller
      */
     public function search(Request $request)
     {
-        $queryParam = $request->query('q');
-        if (!$queryParam) {
-            return response()->json(['success' => false, 'message' => 'Keyword is required'], 400);
+        $query = Post::with(['user', 'category', 'tags']);
+
+        // Filter berdasarkan keyword (title atau body)
+        if ($request->filled('q')) {
+            $keyword = '%' . $request->q . '%';
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', $keyword)
+                ->orWhere('body', 'like', $keyword);
+            });
         }
 
-        // Split keyword by spaces to handle multi-word search
-        $keywords = array_filter(explode(' ', $queryParam));
+        // Filter berdasarkan kategori
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
 
-        $posts = Post::with(['user', 'category', 'tags'])
-            ->where(function ($query) use ($keywords) {
-                foreach ($keywords as $word) {
-                    $query->where(function ($subQuery) use ($word) {
-                        $subQuery->where('title', 'LIKE', "%{$word}%")
-                            ->orWhere('body', 'LIKE', "%{$word}%")
-                            ->orWhereHas('tags', function ($tagQuery) use ($word) {
-                                $tagQuery->where('name', 'LIKE', "%{$word}%");
-                            });
-                    });
-                }
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        // Filter berdasarkan tag (nama tag)
+        if ($request->filled('tag')) {
+            $query->whereHas('tags', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->tag . '%');
+            });
+        }
+
+        // Filter berdasarkan user (bisa pakai user_id atau username)
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        } elseif ($request->filled('username')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->username . '%');
+            });
+        }
+
+        // Sorting
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'most_voted':
+                $query->orderBy('votes_count', 'desc');
+                break;
+            case 'most_commented':
+                $query->orderBy('comments_count', 'desc');
+                break;
+            default: // latest
+                $query->orderBy('created_at', 'desc');
+        }
+
+        $posts = $query->paginate(15);
 
         return response()->json(['success' => true, 'data' => $posts]);
     }
