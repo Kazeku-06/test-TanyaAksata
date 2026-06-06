@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\CategoryController;
 
 Route::prefix('v1')->group(function () {
 
@@ -14,49 +15,41 @@ Route::prefix('v1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register']);
     Route::post('auth/login', [AuthController::class, 'login']);
 
-    // Public routes untuk melihat postingan (tidak perlu login)
+    // ========== CATEGORY ROUTES (Public) ==========
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
+    // ========== CATEGORY CRUD (Admin & Moderator) ==========
+    Route::middleware(['auth:sanctum', 'role:admin,moderator'])->group(function () {
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::match(['put', 'patch'], '/categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    });
+
+    // ========== PUBLIC POST ROUTES ==========
     Route::get('/posts', [PostController::class, 'index']);
     Route::get('/posts/{id}', [PostController::class, 'show']);
-    Route::get('/users/{userId}/posts', [PostController::class, 'userPosts']); // method userPosts harus ada di controller
-
-    //comentaar
+    Route::get('/users/{userId}/posts', [PostController::class, 'userPosts']);
     Route::get('/posts/{postId}/comments', [CommentController::class, 'index']);
 
     // ========== PROTECTED ROUTES (wajib token) ==========
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('auth/me', [AuthController::class, 'me']);
-    });
-
-    // ========== ADMIN ROUTES (hanya admin) ==========
-    Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
-        Route::get('/users', [RoleController::class, 'listUsersWithRoles']);
-        Route::post('/users/{userId}/assign-role', [RoleController::class, 'assignRole']);
-        Route::post('/users/{userId}/remove-role', [RoleController::class, 'removeRole']);
-
-        // Post management untuk admin (soft delete & history)
-        Route::get('/posts/trashed', [PostController::class, 'trashed']);
-        Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']); // method showTrashed harus ada
-        Route::get('/posts/{id}/history', [PostController::class, 'history']);
-
-         Route::get('/comments/trashed', [CommentController::class, 'trashed']);
-        Route::get('/comments/{id}/trashed', [CommentController::class, 'showTrashed']);
-        Route::get('/comments/{id}/history', [CommentController::class, 'history']);
-    });
-
-    // ========== MODERATION ROUTES (admin atau moderator) ==========
-    Route::middleware(['auth:sanctum', 'role:admin,moderator'])->prefix('moderation')->group(function () {
-        Route::get('/dashboard', function () {
-            return response()->json(['message' => 'Welcome, moderator or admin!']);
-        });
-    });
-
-    // ========== USER ROUTES (semua user yang login) ==========
-    Route::middleware('auth:sanctum')->group(function () {
+        
         // Profile
         Route::get('/profile', [ProfileController::class, 'show']);
-        Route::put('/profile', [ProfileController::class, 'update']);
-        Route::patch('/profile', [ProfileController::class, 'update']);
+        Route::match(['put', 'patch'], '/profile', [ProfileController::class, 'update']);
+
+        // CRUD Postingan
+        Route::post('/posts', [PostController::class, 'store']);
+        Route::match(['put', 'patch'], '/posts/{id}', [PostController::class, 'update']);
+        Route::delete('/posts/{id}', [PostController::class, 'destroy']);
+
+        // CRUD Komentar
+        Route::post('/comments', [CommentController::class, 'store']);
+        Route::match(['put', 'patch'], '/comments/{id}', [CommentController::class, 'update']);
+        Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
 
         // Follow / Unfollow
         Route::prefix('users')->group(function () {
@@ -66,16 +59,27 @@ Route::prefix('v1')->group(function () {
             Route::get('/me/following', [FollowController::class, 'myFollowing']);
             Route::get('/me/followers', [FollowController::class, 'myFollowers']);
         });
+    });
 
-        // CRUD Postingan (create, update, delete)
-        Route::post('/posts', [PostController::class, 'store']);
-        Route::put('/posts/{id}', [PostController::class, 'update']);
-        Route::delete('/posts/{id}', [PostController::class, 'destroy']);
+    // ========== ADMIN & MODERATOR SPECIAL ROUTES ==========
+    Route::middleware(['auth:sanctum', 'role:admin,moderator'])->prefix('moderation')->group(function () {
+        Route::get('/dashboard', function () {
+            return response()->json(['message' => 'Welcome, moderator or admin!']);
+        });
 
+        Route::get('/posts/trashed', [PostController::class, 'trashed']);
+        Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']);
+        Route::get('/posts/{id}/history', [PostController::class, 'history']);
 
-        //bikin comentar
-        Route::post('/comments', [CommentController::class, 'store']);
-        Route::put('/comments/{id}', [CommentController::class, 'update']);
-        Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+        Route::get('/comments/trashed', [CommentController::class, 'trashed']);
+        Route::get('/comments/{id}/trashed', [CommentController::class, 'showTrashed']);
+        Route::get('/comments/{id}/history', [CommentController::class, 'history']);
+    });
+
+    // ========== ADMIN ONLY ROUTES ==========
+    Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
+        Route::get('/users', [RoleController::class, 'listUsersWithRoles']);
+        Route::post('/users/{userId}/assign-role', [RoleController::class, 'assignRole']);
+        Route::post('/users/{userId}/remove-role', [RoleController::class, 'removeRole']);
     });
 });
