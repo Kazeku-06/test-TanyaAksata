@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\LikeController;
+use App\Http\Controllers\Api\BookmarkController;
 
 Route::prefix('v1')->group(function () {
 
@@ -67,6 +68,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/posts/{postId}/user-like', [LikeController::class, 'getUserLike']);
         Route::post('/comments/{commentId}/like', [LikeController::class, 'toggleLikeComment']);
         Route::get('/comments/{commentId}/user-like', [LikeController::class, 'getUserCommentLike']);
+
+        Route::post('/posts/{postId}/bookmark', [BookmarkController::class, 'toggle']);
+        Route::get('/bookmarks', [BookmarkController::class, 'index']);
+        Route::delete('/bookmarks/{id}', [BookmarkController::class, 'destroy']);
 
         // Follow / Unfollow
         Route::prefix('users')->group(function () {
