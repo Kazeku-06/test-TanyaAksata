@@ -12,12 +12,17 @@ use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\LeaderboardController;
 
 Route::prefix('v1')->group(function () {
 
     // ========== PUBLIC ROUTES (tanpa token) ==========
     Route::post('auth/register', [AuthController::class, 'register']);
     Route::post('auth/login', [AuthController::class, 'login']);
+
+
+    //leaderboard
+    Route::get('/leaderboard', [LeaderboardController::class, 'index']);
 
     // ========== CATEGORY ROUTES (Public) ==========
     Route::get('/categories', [CategoryController::class, 'index']);
