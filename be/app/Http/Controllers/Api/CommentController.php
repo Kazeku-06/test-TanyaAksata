@@ -8,6 +8,7 @@ use App\Models\CommentEditHistory;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Notification;
 
 class CommentController extends Controller
 {
@@ -70,8 +71,35 @@ class CommentController extends Controller
         ]);
 
         $post->increment('comments_count');
-
         $user->addReputation(2, 'create_comment', Comment::class, $comment->id);
+
+        // ================= NOTIFIKASI =================
+        // Notifikasi ke pemilik postingan jika komentator bukan pemilik
+        if ($post->user_id !== $user->id) {
+            Notification::send(
+                $post->user_id,
+                $user->id,
+                'comment',
+                Post::class,
+                $post->id,
+                "User {$user->name} berkomentar pada postingan Anda '{$post->title}'"
+            );
+        }
+
+        // Notifikasi ke pemilik komentar yang di-reply (jika ada parent_id)
+        if ($request->filled('parent_id')) {
+            $parentComment = Comment::find($request->parent_id);
+            if ($parentComment && $parentComment->user_id !== $user->id) {
+                Notification::send(
+                    $parentComment->user_id,
+                    $user->id,
+                    'reply',
+                    Comment::class,
+                    $parentComment->id,
+                    "User {$user->name} membalas komentar Anda"
+                );
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -191,20 +219,16 @@ class CommentController extends Controller
             return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
 
-        // Only post owner can accept/unaccept
         if ($post->user_id !== $user->id) {
             return response()->json(['success' => false, 'message' => 'Only post owner can accept answer'], 403);
         }
 
-        // If this comment is already accepted -> unmark it
         if ($comment->is_accepted) {
             $comment->is_accepted = false;
             $comment->save();
-
             $post->accepted_answer_id = null;
             $post->is_solved = false;
             $post->save();
-
             return response()->json([
                 'success' => true,
                 'message' => 'Answer unmarked as accepted. Post is open again.'
@@ -221,16 +245,25 @@ class CommentController extends Controller
 
         $comment->is_accepted = true;
         $comment->save();
-
         $post->accepted_answer_id = $comment->id;
         $post->is_solved = true;
         $post->save();
 
         $comment->user->addReputation(15, 'answer_accepted', Comment::class, $comment->id);
 
+        // ================= NOTIFIKASI =================
+        Notification::send(
+            $comment->user_id,
+            $user->id,
+            'accepted_answer',
+            Comment::class,
+            $comment->id,
+            "Jawaban Anda pada postingan '{$post->title}' telah diterima sebagai solusi"
+        );
+
         return response()->json([
             'success' => true,
-            'message' => 'Answer accepted. Post is now closed for new comments and votes.',
+            'message' => 'Answer accepted.',
             'data' => [
                 'post_id' => $post->id,
                 'accepted_comment_id' => $comment->id,

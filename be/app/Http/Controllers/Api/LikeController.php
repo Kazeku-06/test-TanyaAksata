@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\Like;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class LikeController extends Controller
 {
@@ -48,6 +49,8 @@ class LikeController extends Controller
             $post->save();
             $isLiked = true;
             $message = 'Post liked';
+            if ($isLiked) {
+            Notification::send($post->user_id, $user->id, 'like', Post::class, $post->id, "User {$user->name} menyukai postingan Anda '{$post->title}'");}
         }
 
         return response()->json([
