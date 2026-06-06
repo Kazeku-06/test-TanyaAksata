@@ -61,4 +61,9 @@ class Comment extends Model
     {
         return $this->edit_count > 0;
     }
+
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'target');
+    }
 }
