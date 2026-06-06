@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\VoteController;
+use App\Http\Controllers\Api\LikeController;
 
 Route::prefix('v1')->group(function () {
 
@@ -59,6 +60,12 @@ Route::prefix('v1')->group(function () {
         Route::post('/comments/{commentId}/vote', [VoteController::class, 'voteComment']);
         Route::get('/posts/{postId}/user-vote', [VoteController::class, 'getUserPostVote']);
         Route::get('/comments/{commentId}/user-vote', [VoteController::class, 'getUserCommentVote']);
+
+        //like postingan dan comentar
+        Route::post('/posts/{postId}/like', [LikeController::class, 'toggleLike']);
+        Route::get('/posts/{postId}/user-like', [LikeController::class, 'getUserLike']);
+        Route::post('/comments/{commentId}/like', [LikeController::class, 'toggleLikeComment']);
+        Route::get('/comments/{commentId}/user-like', [LikeController::class, 'getUserCommentLike']);
 
         // Follow / Unfollow
         Route::prefix('users')->group(function () {
