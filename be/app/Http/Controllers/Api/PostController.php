@@ -36,50 +36,53 @@ class PostController extends Controller
 
     // Membuat postingan baru
     public function store(Request $request)
-    {
-        $user = $request->user();
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'category_id' => 'required|string|exists:categories,id',
-            'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50'
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
-        }
-
-        $post = Post::create([
-            'title' => $request->title,
-            'body' => $request->body,
-            'user_id' => $user->id,
-            'category_id' => $request->category_id,
-            'votes_count' => 0,
-            'likes_count' => 0,
-            'comments_count' => 0,
-            'views_count' => 0,
-            'is_solved' => false,
-            'edit_count' => 0,
-        ]);
-
-        if ($request->has('tags')) {
-            $tagIds = [];
-            foreach ($request->tags as $tagName) {
-                $tag = Tag::firstOrCreate(
-                    ['name' => trim($tagName)],
-                    ['slug' => Str::slug(trim($tagName))]
-                );
-                $tagIds[] = $tag->id;
-            }
-            $post->tags()->sync($tagIds);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Post created',
-            'data' => $post->load(['user', 'category', 'tags'])
-        ], 201);
+{
+    $user = $request->user();
+    $validator = Validator::make($request->all(), [
+        'title' => 'required|string|max:255',
+        'body' => 'required|string',
+        'category_id' => 'required|string|exists:categories,id',
+        'tags' => 'nullable|array',
+        'tags.*' => 'string|max:50'
+    ]);
+    if ($validator->fails()) {
+        return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
     }
+
+    $post = Post::create([
+        'title' => $request->title,
+        'body' => $request->body,
+        'user_id' => $user->id,
+        'category_id' => $request->category_id,
+        'votes_count' => 0,
+        'likes_count' => 0,
+        'comments_count' => 0,
+        'views_count' => 0,
+        'is_solved' => false,
+        'edit_count' => 0,
+    ]);
+
+    if ($request->has('tags')) {
+        $tagIds = [];
+        foreach ($request->tags as $tagName) {
+            $tag = Tag::firstOrCreate(
+                ['name' => trim($tagName)],
+                ['slug' => Str::slug(trim($tagName))]
+            );
+            $tagIds[] = $tag->id;
+        }
+        $post->tags()->sync($tagIds);
+    }
+
+    // Tambah reputasi +10 untuk user karena membuat postingan
+    $user->addReputation(10, 'create_post', Post::class, $post->id);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Post created',
+        'data' => $post->load(['user', 'category', 'tags'])
+    ], 201);
+}
 
     // Update postingan (hanya pemilik, maksimal 3 kali edit)
     public function update(Request $request, $id)

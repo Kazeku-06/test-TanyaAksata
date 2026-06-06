@@ -38,13 +38,36 @@ class VoteController extends Controller
 
         if ($existing) {
             if ($existing->vote == $voteValue) {
-                // Hapus vote
+                // HAPUS VOTE: rollback reputasi
+                if ($existing->vote == 1) {
+                    // Sebelumnya upvote, beri -5 ke pemilik post
+                    $post->user->addReputation(-5, 'vote_removed_upvote_post', Post::class, $post->id);
+                } else {
+                    // Sebelumnya downvote, rollback: pemilik post +2, pemberi downvote +1
+                    $post->user->addReputation(2, 'vote_removed_downvote_post', Post::class, $post->id);
+                    $user->addReputation(1, 'vote_removed_downvote_giver', Post::class, $post->id);
+                }
                 $existing->delete();
                 $post->votes_count -= $voteValue;
                 $message = 'Vote removed';
                 $userVote = null;
             } else {
-                // Ubah vote (upvote ke downvote atau sebaliknya)
+                // UBAH VOTE: rollback reputasi lama, beri reputasi baru
+                // rollback dari vote lama
+                if ($existing->vote == 1) {
+                    $post->user->addReputation(-5, 'vote_changed_from_upvote', Post::class, $post->id);
+                } else {
+                    $post->user->addReputation(2, 'vote_changed_from_downvote', Post::class, $post->id);
+                    $user->addReputation(1, 'vote_changed_from_downvote_giver', Post::class, $post->id);
+                }
+                // beri reputasi untuk vote baru
+                if ($voteValue == 1) {
+                    $post->user->addReputation(5, 'vote_upvote_post', Post::class, $post->id);
+                } else {
+                    $post->user->addReputation(-2, 'vote_downvote_post', Post::class, $post->id);
+                    $user->addReputation(-1, 'vote_downvote_giver', Post::class, $post->id);
+                }
+                // update votes_count
                 $post->votes_count -= $existing->vote;
                 $existing->vote = $voteValue;
                 $existing->save();
@@ -53,7 +76,13 @@ class VoteController extends Controller
                 $userVote = $voteValue;
             }
         } else {
-            // Buat vote baru
+            // VOTE BARU
+            if ($voteValue == 1) {
+                $post->user->addReputation(5, 'vote_upvote_post', Post::class, $post->id);
+            } else {
+                $post->user->addReputation(-2, 'vote_downvote_post', Post::class, $post->id);
+                $user->addReputation(-1, 'vote_downvote_giver', Post::class, $post->id);
+            }
             Vote::create([
                 'user_id' => $user->id,
                 'target_type' => Post::class,
@@ -104,11 +133,31 @@ class VoteController extends Controller
 
         if ($existing) {
             if ($existing->vote == $voteValue) {
+                // Hapus vote: rollback reputasi
+                if ($existing->vote == 1) {
+                    $comment->user->addReputation(-3, 'vote_removed_upvote_comment', Comment::class, $comment->id);
+                } else {
+                    $comment->user->addReputation(1, 'vote_removed_downvote_comment', Comment::class, $comment->id);
+                    $user->addReputation(1, 'vote_removed_downvote_comment_giver', Comment::class, $comment->id);
+                }
                 $existing->delete();
                 $comment->votes_count -= $voteValue;
                 $message = 'Vote removed';
                 $userVote = null;
             } else {
+                // Ubah vote: rollback lama, beri baru
+                if ($existing->vote == 1) {
+                    $comment->user->addReputation(-3, 'vote_changed_from_upvote_comment', Comment::class, $comment->id);
+                } else {
+                    $comment->user->addReputation(1, 'vote_changed_from_downvote_comment', Comment::class, $comment->id);
+                    $user->addReputation(1, 'vote_changed_from_downvote_comment_giver', Comment::class, $comment->id);
+                }
+                if ($voteValue == 1) {
+                    $comment->user->addReputation(3, 'vote_upvote_comment', Comment::class, $comment->id);
+                } else {
+                    $comment->user->addReputation(-1, 'vote_downvote_comment', Comment::class, $comment->id);
+                    $user->addReputation(-1, 'vote_downvote_comment_giver', Comment::class, $comment->id);
+                }
                 $comment->votes_count -= $existing->vote;
                 $existing->vote = $voteValue;
                 $existing->save();
@@ -117,6 +166,13 @@ class VoteController extends Controller
                 $userVote = $voteValue;
             }
         } else {
+            // Vote baru
+            if ($voteValue == 1) {
+                $comment->user->addReputation(3, 'vote_upvote_comment', Comment::class, $comment->id);
+            } else {
+                $comment->user->addReputation(-1, 'vote_downvote_comment', Comment::class, $comment->id);
+                $user->addReputation(-1, 'vote_downvote_comment_giver', Comment::class, $comment->id);
+            }
             Vote::create([
                 'user_id' => $user->id,
                 'target_type' => Comment::class,
