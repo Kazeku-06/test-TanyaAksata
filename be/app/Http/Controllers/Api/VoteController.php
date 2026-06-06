@@ -19,8 +19,6 @@ class VoteController extends Controller
         if (!$post) {
             return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
-
-        // Cegah vote pada postingan sendiri
         if ($post->user_id === $user->id) {
             return response()->json(['success' => false, 'message' => 'Anda tidak bisa vote pada postingan Anda sendiri'], 403);
         }
@@ -38,12 +36,11 @@ class VoteController extends Controller
 
         if ($existing) {
             if ($existing->vote == $voteValue) {
-                // HAPUS VOTE: rollback reputasi
+                // Hapus vote: rollback reputasi
                 if ($existing->vote == 1) {
-                    // Sebelumnya upvote, beri -5 ke pemilik post
                     $post->user->addReputation(-5, 'vote_removed_upvote_post', Post::class, $post->id);
+                    // Tidak perlu notifikasi penghapusan
                 } else {
-                    // Sebelumnya downvote, rollback: pemilik post +2, pemberi downvote +1
                     $post->user->addReputation(2, 'vote_removed_downvote_post', Post::class, $post->id);
                     $user->addReputation(1, 'vote_removed_downvote_giver', Post::class, $post->id);
                 }
@@ -52,17 +49,19 @@ class VoteController extends Controller
                 $message = 'Vote removed';
                 $userVote = null;
             } else {
-                // UBAH VOTE: rollback reputasi lama, beri reputasi baru
-                // rollback dari vote lama
+                // Ubah vote
+                // rollback reputasi lama
                 if ($existing->vote == 1) {
                     $post->user->addReputation(-5, 'vote_changed_from_upvote', Post::class, $post->id);
                 } else {
                     $post->user->addReputation(2, 'vote_changed_from_downvote', Post::class, $post->id);
                     $user->addReputation(1, 'vote_changed_from_downvote_giver', Post::class, $post->id);
                 }
-                // beri reputasi untuk vote baru
+                // beri reputasi baru
                 if ($voteValue == 1) {
                     $post->user->addReputation(5, 'vote_upvote_post', Post::class, $post->id);
+                    // Notifikasi upvote
+                    \App\Models\Notification::send($post->user_id, $user->id, 'vote', Post::class, $post->id, "User {$user->name} memberi upvote pada postingan Anda '{$post->title}'");
                 } else {
                     $post->user->addReputation(-2, 'vote_downvote_post', Post::class, $post->id);
                     $user->addReputation(-1, 'vote_downvote_giver', Post::class, $post->id);
@@ -76,9 +75,10 @@ class VoteController extends Controller
                 $userVote = $voteValue;
             }
         } else {
-            // VOTE BARU
+            // Vote baru
             if ($voteValue == 1) {
                 $post->user->addReputation(5, 'vote_upvote_post', Post::class, $post->id);
+                \App\Models\Notification::send($post->user_id, $user->id, 'vote', Post::class, $post->id, "User {$user->name} memberi upvote pada postingan Anda '{$post->title}'");
             } else {
                 $post->user->addReputation(-2, 'vote_downvote_post', Post::class, $post->id);
                 $user->addReputation(-1, 'vote_downvote_giver', Post::class, $post->id);

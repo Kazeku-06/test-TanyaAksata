@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\BookmarkController;
+use App\Http\Controllers\Api\NotificationController;
 
 Route::prefix('v1')->group(function () {
 
@@ -55,6 +56,12 @@ Route::prefix('v1')->group(function () {
         Route::match(['put', 'patch'], '/comments/{id}', [CommentController::class, 'update']);
         Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
         Route::post('/comments/{id}/accept', [CommentController::class, 'accept']);
+
+
+        //notifikasi
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
 
         //voting postingan
