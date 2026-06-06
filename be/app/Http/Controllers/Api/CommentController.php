@@ -27,7 +27,7 @@ class CommentController extends Controller
     }
 
     // Membuat komentar baru (reply jika ada parent_id)
-     public function store(Request $request)
+    public function store(Request $request)
     {
         $user = $request->user();
         $validator = Validator::make($request->all(), [
@@ -70,6 +70,8 @@ class CommentController extends Controller
         ]);
 
         $post->increment('comments_count');
+
+        $user->addReputation(2, 'create_comment', Comment::class, $comment->id);
 
         return response()->json([
             'success' => true,
@@ -139,7 +141,6 @@ class CommentController extends Controller
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
         $comment->delete();
-        // Kurangi comments_count di post
         $post = Post::find($comment->post_id);
         if ($post) $post->decrement('comments_count');
         return response()->json(['success' => true, 'message' => 'Komentar dihapus']);
@@ -210,8 +211,6 @@ class CommentController extends Controller
             ]);
         }
 
-        // Otherwise, mark this comment as accepted
-        // First, remove any previous accepted answer
         if ($post->accepted_answer_id) {
             $oldAccepted = Comment::find($post->accepted_answer_id);
             if ($oldAccepted) {
@@ -226,6 +225,8 @@ class CommentController extends Controller
         $post->accepted_answer_id = $comment->id;
         $post->is_solved = true;
         $post->save();
+
+        $comment->user->addReputation(15, 'answer_accepted', Comment::class, $comment->id);
 
         return response()->json([
             'success' => true,
