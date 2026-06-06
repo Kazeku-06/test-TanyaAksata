@@ -30,6 +30,7 @@ Route::prefix('v1')->group(function () {
 
     // ========== PUBLIC POST ROUTES ==========
     Route::get('/posts', [PostController::class, 'index']);
+    Route::get('/posts/search', [PostController::class, 'search']); // Pindahkan ke atas
     Route::get('/posts/{id}', [PostController::class, 'show']);
     Route::get('/users/{userId}/posts', [PostController::class, 'userPosts']);
     Route::get('/posts/{postId}/comments', [CommentController::class, 'index']);
