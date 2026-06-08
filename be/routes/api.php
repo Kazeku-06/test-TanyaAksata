@@ -25,6 +25,10 @@ Route::prefix('v1')->group(function () {
     //leaderboard
     Route::get('/leaderboard', [LeaderboardController::class, 'index']);
 
+
+    //trending post
+    Route::get('/posts/trending', [PostController::class, 'trending']);
+
     // ========== CATEGORY ROUTES (Public) ==========
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{id}', [CategoryController::class, 'show']);
