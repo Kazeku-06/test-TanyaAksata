@@ -103,4 +103,12 @@ class ProfileController extends Controller
             'data' => $user
         ], 200);
     }
+
+        // Menampilkan badge user yang login
+    public function badges(Request $request)
+    {
+        $user = $request->user();
+        $badges = $user->badges()->get();
+        return response()->json(['success' => true, 'data' => $badges]);
+    }
 }

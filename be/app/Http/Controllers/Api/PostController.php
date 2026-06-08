@@ -84,6 +84,7 @@ return response()->json(['success' => true, 'data' => $data]);
 
     // Tambah reputasi +10 untuk user karena membuat postingan
     $user->addReputation(10, 'create_post', Post::class, $post->id);
+    $user->checkAndAwardBadges();
 
     return response()->json([
         'success' => true,

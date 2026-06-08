@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\LeaderboardController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\UserModerationController;
 
 Route::prefix('v1')->group(function () {
 
@@ -70,6 +71,7 @@ Route::prefix('v1')->group(function () {
         //laporan
         Route::post('/reports', [ReportController::class, 'store']);
 
+        Route::get('/my-badges', [ProfileController::class, 'badges']);
 
         //notifikasi
         Route::get('/notifications', [NotificationController::class, 'index']);
@@ -113,6 +115,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']);
         Route::get('/posts/{id}/history', [PostController::class, 'history']);
 
+        Route::post('/users/{userId}/ban', [UserModerationController::class, 'ban']);
+        Route::post('/users/{userId}/unban', [UserModerationController::class, 'unban']);
+
 
         //laoran
         Route::get('/reports', [ReportController::class, 'index']);
@@ -136,4 +141,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/reports/{id}', [ReportController::class, 'show']);
         Route::put('/reports/{id}/resolve', [ReportController::class, 'resolve']);
     });
+
+
+    Route::middleware(['auth:sanctum', 'banned'])->group(function () {
+    // semua route yang butuh login dan tidak boleh diakses banned user
+});
 });

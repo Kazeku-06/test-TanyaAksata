@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Badge;
+use App\Models\UserBadge;
+use App\Models\Notification;
 
 class User extends Authenticatable
 {
@@ -142,7 +145,11 @@ class User extends Authenticatable
             'related_type' => $relatedType,
             'related_id' => $relatedId,
         ]);
+
+         $this->checkAndAwardBadges();
     }
+
+    
 
     // Accessor untuk level reputasi (opsional)
     public function getReputationLevelAttribute()
@@ -151,5 +158,55 @@ class User extends Authenticatable
         if ($this->reputation < 500) return 'Regular';
         if ($this->reputation < 2000) return 'Pro';
         return 'Expert';
+    }
+
+    public function checkAndAwardBadges()
+    {
+        $badgesToAward = [];
+
+        // Hitung stat user
+        $postCount = $this->posts()->count();
+        $commentCount = $this->comments()->count();
+        $acceptedCount = $this->comments()->where('is_accepted', true)->count();
+
+        $badges = Badge::all();
+        foreach ($badges as $badge) {
+            // Cek apakah sudah punya
+            if ($this->badges->contains($badge->id)) {
+                continue;
+            }
+
+            $earned = false;
+            switch ($badge->achievement_type) {
+                case 'points':
+                    if ($this->reputation >= $badge->threshold) $earned = true;
+                    break;
+                case 'post_count':
+                    if ($postCount >= $badge->threshold) $earned = true;
+                    break;
+                case 'comment_count':
+                    if ($commentCount >= $badge->threshold) $earned = true;
+                    break;
+                case 'accepted_count':
+                    if ($acceptedCount >= $badge->threshold) $earned = true;
+                    break;
+            }
+
+            if ($earned) {
+                $badgesToAward[] = $badge;
+            }
+        }
+
+        foreach ($badgesToAward as $badge) {
+            UserBadge::create([
+                'user_id' => $this->id,
+                'badge_id' => $badge->id
+            ]);
+            // Notifikasi badge baru
+            Notification::send($this->id, null, 'badge', Badge::class, $badge->id, "Selamat! Anda mendapatkan badge '{$badge->name}'.");
+        }
+
+        // Reload badges relationship
+        $this->load('badges');
     }
 }
