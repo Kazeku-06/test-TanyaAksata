@@ -115,6 +115,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']);
         Route::get('/posts/{id}/history', [PostController::class, 'history']);
 
+        Route::post('/users/{userId}/warn', [UserModerationController::class, 'warn']);
         Route::post('/users/{userId}/ban', [UserModerationController::class, 'ban']);
         Route::post('/users/{userId}/unban', [UserModerationController::class, 'unban']);
 
