@@ -107,4 +107,34 @@ class UserModerationController extends Controller
             'message' => "User {$user->name} berhasil di-unban"
         ]);
     }
+
+    public function warn(Request $request, $userId)
+    {
+        $moderator = $request->user();
+        if (!$moderator->hasRole('admin') && !$moderator->hasRole('moderator')) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+        }
+        if ($user->is_banned) {
+            return response()->json(['success' => false, 'message' => 'User sudah dibanned, tidak bisa diberi warning'], 409);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'reason' => 'required|string|max:255',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $user->addWarning($moderator->id, $request->reason);
+
+        return response()->json([
+            'success' => true,
+            'message' => "User {$user->name} mendapat peringatan ke-{$user->warning_count}"
+        ]);
+    }
 }
