@@ -111,4 +111,39 @@ class ProfileController extends Controller
         $badges = $user->badges()->get();
         return response()->json(['success' => true, 'data' => $badges]);
     }
+
+    /**
+     * Get public profile of any user
+     * GET /api/v1/users/{id}
+     */
+    public function showPublic(Request $request, $id)
+    {
+        $user = \App\Models\User::with('badges')->find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id'               => $user->id,
+                'name'             => $user->name,
+                'avatar'           => $user->avatar,
+                'bio'              => $user->bio,
+                'location'         => $user->location,
+                'website'          => $user->website,
+                'reputation'       => $user->reputation,
+                'reputation_level' => $user->reputation_level,
+                'posts_count'      => $user->posts()->count(),
+                'followers_count'  => $user->followers()->count(),
+                'following_count'  => $user->following()->count(),
+                'badges'           => $user->badges,
+                'created_at'       => $user->created_at,
+            ]
+        ]);
+    }
 }
