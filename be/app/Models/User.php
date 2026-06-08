@@ -149,7 +149,7 @@ class User extends Authenticatable
          $this->checkAndAwardBadges();
     }
 
-    
+
 
     // Accessor untuk level reputasi (opsional)
     public function getReputationLevelAttribute()
@@ -208,5 +208,40 @@ class User extends Authenticatable
 
         // Reload badges relationship
         $this->load('badges');
+    }
+
+    public function addWarning($moderatorId, $reason)
+    {
+        $this->warning_count += 1;
+        $this->save();
+
+        ModerationLog::create([
+            'moderator_id' => $moderatorId,
+            'target_user_id' => $this->id,
+            'action' => 'warn_user',
+            'target_type' => null,
+            'target_id' => null,
+            'reason' => $reason,
+        ]);
+
+        Notification::send($this->id, $moderatorId, 'warning', null, null, "Anda menerima peringatan ke-{$this->warning_count}. Alasan: {$reason}");
+
+        // Auto ban jika mencapai threshold (misal 3)
+        if ($this->warning_count >= 3) {
+            $this->is_banned = true;
+            $this->banned_until = now()->addDays(30);
+            $this->save();
+
+            ModerationLog::create([
+                'moderator_id' => $moderatorId,
+                'target_user_id' => $this->id,
+                'action' => 'auto_ban_after_warnings',
+                'target_type' => null,
+                'target_id' => null,
+                'reason' => "Mencapai {$this->warning_count} peringatan",
+            ]);
+
+            Notification::send($this->id, $moderatorId, 'ban', null, null, "Akun Anda dibanned otomatis setelah mencapai 3 peringatan.");
+        }
     }
 }
