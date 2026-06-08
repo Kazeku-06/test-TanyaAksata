@@ -3,23 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ModerationLog extends Model
 {
-    use HasFactory, HasUuids;
-
+    use HasUuids;
     public $incrementing = false;
     protected $keyType = 'string';
-
     protected $fillable = [
-        'moderator_id',
-        'target_user_id',
-        'action',
-        'target_type',
-        'target_id',
-        'reason',
+        'moderator_id', 'target_user_id', 'action', 'target_type', 'target_id', 'reason'
     ];
 
     public function moderator()
@@ -32,7 +24,6 @@ class ModerationLog extends Model
         return $this->belongsTo(User::class, 'target_user_id');
     }
 
-    // Polymorphic ke post/comment (jika aksi menghapus konten)
     public function target()
     {
         return $this->morphTo();
