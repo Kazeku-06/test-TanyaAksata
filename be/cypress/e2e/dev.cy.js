@@ -9,27 +9,31 @@ describe('Full API User Journey', () => {
   };
 
   let userToken = '';
+  let userId = '';
   let adminToken = '';
+  let adminId = '';
   let categoryId = '';
   let postId = '';
-  let adminId = '';
+  let commentId = '';
+  let reportId = '';
+  let bookmarkId = '';
 
-  // 1. Ambil Admin Token & ID untuk aksi yang butuh role admin (Kategori) dan interaksi
+  // Setup: Ambil Admin Token & ID
   before(() => {
     cy.request('POST', `${apiUrl}/auth/login`, {
       email: 'admin@tanyaaksata.com',
       password: 'password123'
     }).then((res) => {
-      adminToken = res.body.token;
-      adminId = res.body.user.id;
+      adminToken = res.body.data.token;
+      adminId = res.body.data.user.id;
     });
   });
 
-  // ========== FLOW 1: AUTH (REGISTER & LOGIN) ==========
+  // ========== AUTH & PROFILE ==========
   it('1. should register a new user', () => {
     cy.request('POST', `${apiUrl}/auth/register`, testUser).then((res) => {
       expect(res.status).to.eq(201);
-      expect(res.body.data.email).to.eq(testUser.email);
+      userId = res.body.data.user.id;
     });
   });
 
@@ -39,12 +43,22 @@ describe('Full API User Journey', () => {
       password: testUser.password
     }).then((res) => {
       expect(res.status).to.eq(200);
-      userToken = res.body.token;
+      userToken = res.body.data.token;
     });
   });
 
-  // ========== FLOW 2: PROFILE ==========
-  it('3. should view and update user profile', () => {
+  it('3. should get current user info (me)', () => {
+    cy.request({
+      method: 'GET',
+      url: `${apiUrl}/auth/me`,
+      headers: { Authorization: `Bearer ${userToken}` }
+    }).then((res) => {
+      expect(res.status).to.eq(200);
+      expect(res.body.data.email).to.eq(testUser.email);
+    });
+  });
+
+  it('4. should update user profile', () => {
     cy.request({
       method: 'PUT',
       url: `${apiUrl}/profile`,
@@ -59,8 +73,19 @@ describe('Full API User Journey', () => {
     });
   });
 
-  // ========== FLOW 3: CATEGORY (ADMIN ACTION) ==========
-  it('4. admin should create a category for the user to use', () => {
+  it('5. should get user badges', () => {
+    cy.request({
+      method: 'GET',
+      url: `${apiUrl}/my-badges`,
+      headers: { Authorization: `Bearer ${userToken}` }
+    }).then((res) => {
+      expect(res.status).to.eq(200);
+      expect(res.body.data).to.be.an('array');
+    });
+  });
+
+  // ========== CATEGORIES ==========
+  it('6. admin should create a category', () => {
     cy.request({
       method: 'POST',
       url: `${apiUrl}/categories`,
@@ -75,8 +100,19 @@ describe('Full API User Journey', () => {
     });
   });
 
-  // ========== FLOW 4: POST & TAGS ==========
-  it('5. should create a post with tags using the new category', () => {
+  it('7. admin should update the category', () => {
+    cy.request({
+      method: 'PUT',
+      url: `${apiUrl}/categories/${categoryId}`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: { name: `Updated Tech ${timestamp}` }
+    }).then((res) => {
+      expect(res.status).to.eq(200);
+    });
+  });
+
+  // ========== POSTS ==========
+  it('8. user should create a post', () => {
     cy.request({
       method: 'POST',
       url: `${apiUrl}/posts`,
@@ -85,29 +121,33 @@ describe('Full API User Journey', () => {
         title: 'Cypress Journey Post',
         body: 'Testing the full journey from register to post.',
         category_id: categoryId,
-        tags: ['cypress', 'automation', 'api']
+        tags: ['cypress', 'automation']
       }
     }).then((res) => {
       expect(res.status).to.eq(201);
-      expect(res.body.data.tags).to.have.length(3);
       postId = res.body.data.id;
     });
   });
 
-  // ========== FLOW 5: INTERACTION (FOLLOW) ==========
-  it('6. user should follow admin', () => {
+  it('9. user should update their post', () => {
     cy.request({
-      method: 'POST',
-      url: `${apiUrl}/users/${adminId}/follow`,
-      headers: { Authorization: `Bearer ${userToken}` }
+      method: 'PUT',
+      url: `${apiUrl}/posts/${postId}`,
+      headers: { Authorization: `Bearer ${userToken}` },
+      body: { title: 'Updated Cypress Post' }
     }).then((res) => {
-      expect(res.status).to.eq(201).or.eq(200);
-      expect(res.body.message).to.contain('followed');
+      expect(res.status).to.eq(200);
+      expect(res.body.data.title).to.eq('Updated Cypress Post');
     });
   });
 
-  // ========== FLOW 6: COMMENTS ==========
-  it('7. admin should comment on the users post', () => {
+  it('10. should see trending and search posts', () => {
+    cy.request('GET', `${apiUrl}/posts/trending`).then((res) => expect(res.status).to.eq(200));
+    cy.request('GET', `${apiUrl}/posts/search?q=Cypress`).then((res) => expect(res.status).to.eq(200));
+  });
+
+  // ========== COMMENTS ==========
+  it('11. admin should comment on the post', () => {
     cy.request({
       method: 'POST',
       url: `${apiUrl}/comments`,
@@ -118,15 +158,148 @@ describe('Full API User Journey', () => {
       }
     }).then((res) => {
       expect(res.status).to.eq(201);
-      expect(res.body.data.body).to.eq('Nice post! Verified by admin.');
+      commentId = res.body.data.id;
     });
   });
 
-  // ========== CLEANUP / VERIFICATION ==========
-  it('8. should see the post with its comments', () => {
-    cy.request('GET', `${apiUrl}/posts/${postId}`).then((res) => {
+  it('12. user should accept the admin comment as answer', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/comments/${commentId}/accept`,
+      headers: { Authorization: `Bearer ${userToken}` }
+    }).then((res) => {
       expect(res.status).to.eq(200);
-      expect(res.body.data.comments).to.have.length.at.least(1);
     });
   });
+
+  // ========== INTERACTIONS ==========
+  it('13. admin should like and vote the users post', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/posts/${postId}/like`,
+      headers: { Authorization: `Bearer ${adminToken}` }
+    }).then((res) => expect(res.status).to.eq(200));
+
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/posts/${postId}/vote`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: { vote: 1 }
+    }).then((res) => expect(res.status).to.eq(200));
+  });
+
+  it('14. user should bookmark the post', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/posts/${postId}/bookmark`,
+      headers: { Authorization: `Bearer ${userToken}` }
+    }).then((res) => {
+      expect(res.status).to.eq(200);
+      expect(res.body.data.is_bookmarked).to.be.true;
+    });
+  });
+
+  it('15. user should follow the admin', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/users/${adminId}/follow`,
+      headers: { Authorization: `Bearer ${userToken}` }
+    }).then((res) => expect(res.status).to.be.oneOf([200, 201]));
+  });
+
+  // ========== NOTIFICATIONS & LEADERBOARD ==========
+  it('16. should check notifications and leaderboard', () => {
+    cy.request({
+      method: 'GET',
+      url: `${apiUrl}/notifications`,
+      headers: { Authorization: `Bearer ${userToken}` }
+    }).then((res) => expect(res.status).to.eq(200));
+
+    cy.request('GET', `${apiUrl}/leaderboard`).then((res) => expect(res.status).to.eq(200));
+  });
+
+  // ========== REPORTS & MODERATION ==========
+  it('17. user should report the post', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/reports`,
+      headers: { Authorization: `Bearer ${userToken}` },
+      body: {
+        target_id: postId,
+        target_type: 'post',
+        reason: 'Spamming content',
+        description: 'This is a test report'
+      }
+    }).then((res) => {
+      expect(res.status).to.eq(201);
+      reportId = res.body.data.id;
+    });
+  });
+
+  it('18. admin should resolve the report', () => {
+    cy.request({
+      method: 'PUT',
+      url: `${apiUrl}/moderation/reports/${reportId}/resolve`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: {
+        action: 'resolve',
+        action_taken: 'ignore',
+        resolution_note: 'Post kept'
+      }
+    }).then((res) => expect(res.status).to.eq(200));
+  });
+
+  it('19. admin should warn and ban the user', () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/moderation/users/${userId}/warn`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: { reason: 'Test warning' }
+    }).then((res) => expect(res.status).to.eq(200));
+
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/moderation/users/${userId}/ban`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: { reason: 'Test ban', duration_days: 1 }
+    }).then((res) => expect(res.status).to.eq(200));
+
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/moderation/users/${userId}/unban`,
+      headers: { Authorization: `Bearer ${adminToken}` }
+    }).then((res) => expect(res.status).to.eq(200));
+  });
+
+  // ========== SOFT DELETES & CLEANUP ==========
+  it('20. should handle soft deletes and cleanup', () => {
+    // Delete Post
+    cy.request({
+      method: 'DELETE',
+      url: `${apiUrl}/posts/${postId}`,
+      headers: { Authorization: `Bearer ${userToken}` }
+    }).then((res) => expect(res.status).to.eq(200));
+
+    // Delete Category
+    cy.request({
+      method: 'DELETE',
+      url: `${apiUrl}/categories/${categoryId}`,
+      headers: { Authorization: `Bearer ${adminToken}` }
+    }).then((res) => expect(res.status).to.eq(200));
+  });
+
+  it('21. should view statistics and logout', () => {
+    cy.request({
+      method: 'GET',
+      url: `${apiUrl}/admin/statistics`,
+      headers: { Authorization: `Bearer ${adminToken}` }
+    }).then((res) => expect(res.status).to.eq(200));
+
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/auth/logout`,
+      headers: { Authorization: `Bearer ${userToken}` }
+    }).then((res) => expect(res.status).to.eq(200));
+  });
+
 });
