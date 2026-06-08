@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Report extends Model
 {
-    use HasFactory, HasUuids;
+    use HasUuids;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -22,27 +21,31 @@ class Report extends Model
         'status',
         'resolved_by',
         'resolution_note',
+        'action_taken',
     ];
 
     protected $casts = [
         'status' => 'string',
     ];
 
-    // Pelapor
     public function reporter()
     {
         return $this->belongsTo(User::class, 'reporter_id');
     }
 
-    // Target yang dilaporkan (polymorphic: post/comment)
+    public function resolver()
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
+    }
+
     public function target()
     {
         return $this->morphTo();
     }
 
-    // Admin/moderator yang menyelesaikan
-    public function resolver()
+    // Scope untuk laporan pending
+    public function scopePending($query)
     {
-        return $this->belongsTo(User::class, 'resolved_by');
+        return $query->where('status', 'pending');
     }
 }

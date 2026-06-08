@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\LeaderboardController;
+use App\Http\Controllers\Api\ReportController;
 
 Route::prefix('v1')->group(function () {
 
@@ -62,6 +63,9 @@ Route::prefix('v1')->group(function () {
         Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
         Route::post('/comments/{id}/accept', [CommentController::class, 'accept']);
 
+        //laporan
+        Route::post('/reports', [ReportController::class, 'store']);
+
 
         //notifikasi
         Route::get('/notifications', [NotificationController::class, 'index']);
@@ -105,6 +109,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']);
         Route::get('/posts/{id}/history', [PostController::class, 'history']);
 
+
+        //laoran
+        Route::get('/reports', [ReportController::class, 'index']);
+        Route::get('/reports/{id}', [ReportController::class, 'show']);
+        Route::put('/reports/{id}/resolve', [ReportController::class, 'resolve']);
+
         Route::get('/comments/trashed', [CommentController::class, 'trashed']);
         Route::get('/comments/{id}/trashed', [CommentController::class, 'showTrashed']);
         Route::get('/comments/{id}/history', [CommentController::class, 'history']);
@@ -115,5 +125,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/users', [RoleController::class, 'listUsersWithRoles']);
         Route::post('/users/{userId}/assign-role', [RoleController::class, 'assignRole']);
         Route::post('/users/{userId}/remove-role', [RoleController::class, 'removeRole']);
+
+
+                //laoran
+        Route::get('/reports', [ReportController::class, 'index']);
+        Route::get('/reports/{id}', [ReportController::class, 'show']);
+        Route::put('/reports/{id}/resolve', [ReportController::class, 'resolve']);
     });
 });
