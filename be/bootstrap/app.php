@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Di sinilah kita mendaftarkan alias untuk middleware kita
         $middleware->alias([
             'role' => CheckRole::class,
+            'banned' => \App\Http\Middleware\CheckBanned::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -24,3 +25,5 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
     })->create();
+
+
