@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\CommentEditHistory;
 use App\Models\Post;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Notification;
 
 class CommentController extends Controller
 {
@@ -45,7 +45,7 @@ class CommentController extends Controller
             return response()->json(['success' => false, 'message' => 'Post not found'], 404);
         }
 
-        // Hanya batasi komentar untuk pemilik postingan (maksimal 4)
+        // Batasi komentar untuk pemilik postingan (maksimal 4)
         if ($user->id == $post->user_id) {
             $commentCount = Comment::where('post_id', $request->post_id)
                 ->where('user_id', $user->id)
@@ -74,7 +74,6 @@ class CommentController extends Controller
         $user->addReputation(2, 'create_comment', Comment::class, $comment->id);
 
         // ================= NOTIFIKASI =================
-        // Notifikasi ke pemilik postingan jika komentator bukan pemilik
         if ($post->user_id !== $user->id) {
             Notification::send(
                 $post->user_id,
@@ -86,7 +85,6 @@ class CommentController extends Controller
             );
         }
 
-        // Notifikasi ke pemilik komentar yang di-reply (jika ada parent_id)
         if ($request->filled('parent_id')) {
             $parentComment = Comment::find($request->parent_id);
             if ($parentComment && $parentComment->user_id !== $user->id) {
@@ -100,6 +98,9 @@ class CommentController extends Controller
                 );
             }
         }
+
+        // Cek badge setelah membuat komentar
+        $user->checkAndAwardBadges();
 
         return response()->json([
             'success' => true,
@@ -117,12 +118,10 @@ class CommentController extends Controller
             return response()->json(['success' => false, 'message' => 'Komentar tidak ditemukan'], 404);
         }
 
-        // Hanya pemilik yang boleh edit
         if ($comment->user_id !== $user->id) {
             return response()->json(['success' => false, 'message' => 'Forbidden: Anda tidak memiliki izin'], 403);
         }
 
-        // Batasan edit maksimal 1 kali
         if ($comment->edit_count >= 1) {
             return response()->json(['success' => false, 'message' => 'Batas maksimal edit (1 kali) sudah tercapai'], 403);
         }
@@ -141,7 +140,6 @@ class CommentController extends Controller
         $comment->edit_count = 1;
         $comment->save();
 
-        // Simpan history
         CommentEditHistory::create([
             'comment_id' => $comment->id,
             'edited_by' => $user->id,
@@ -175,14 +173,12 @@ class CommentController extends Controller
     }
 
     // ========== ADMIN ONLY ==========
-    // Lihat daftar komentar yang dihapus (soft delete)
     public function trashed()
     {
         $comments = Comment::onlyTrashed()->with(['user', 'post'])->paginate(15);
         return response()->json(['success' => true, 'data' => $comments]);
     }
 
-    // Lihat detail komentar yang dihapus by ID
     public function showTrashed($id)
     {
         $comment = Comment::withTrashed()->with(['user', 'post'])->find($id);
@@ -192,7 +188,6 @@ class CommentController extends Controller
         return response()->json(['success' => true, 'data' => $comment]);
     }
 
-    // Lihat history edit komentar (admin only)
     public function history($id)
     {
         $comment = Comment::withTrashed()->find($id);
@@ -202,10 +197,10 @@ class CommentController extends Controller
         $histories = $comment->editHistories()->with('editor')->orderBy('created_at', 'desc')->get();
         return response()->json(['success' => true, 'data' => $histories]);
     }
+
     /**
- * Mark or unmark comment as accepted answer.
- * POST /api/v1/comments/{id}/accept
- */
+     * Mark or unmark comment as accepted answer.
+     */
     public function accept(Request $request, $id)
     {
         $user = $request->user();
@@ -223,6 +218,7 @@ class CommentController extends Controller
             return response()->json(['success' => false, 'message' => 'Only post owner can accept answer'], 403);
         }
 
+        // Unmark if already accepted
         if ($comment->is_accepted) {
             $comment->is_accepted = false;
             $comment->save();
@@ -235,6 +231,7 @@ class CommentController extends Controller
             ]);
         }
 
+        // Remove previous accepted answer if any
         if ($post->accepted_answer_id) {
             $oldAccepted = Comment::find($post->accepted_answer_id);
             if ($oldAccepted) {
@@ -249,9 +246,12 @@ class CommentController extends Controller
         $post->is_solved = true;
         $post->save();
 
+        // Beri reputasi
         $comment->user->addReputation(15, 'answer_accepted', Comment::class, $comment->id);
+        // Cek badge untuk penulis komentar
+        $comment->user->checkAndAwardBadges();
 
-        // ================= NOTIFIKASI =================
+        // Notifikasi
         Notification::send(
             $comment->user_id,
             $user->id,
