@@ -308,4 +308,24 @@ return response()->json(['success' => true, 'data' => $data]);
 
         return response()->json(['success' => true, 'data' => $posts]);
     }
+
+
+        /**
+     * Get trending posts from the last 7 days
+     * GET /api/v1/posts/trending
+     */
+    public function trending(Request $request)
+    {
+        $limit = $request->get('limit', 10);
+        $days = 7;
+
+        // Bobot: vote=2, comment=1.5, like=1, view=0.5
+        $posts = Post::with(['user', 'category', 'tags'])
+            ->where('created_at', '>=', now()->subDays($days))
+            ->orderByRaw('(votes_count * 2 + comments_count * 1.5 + likes_count * 1 + views_count * 0.5) DESC')
+            ->limit($limit)
+            ->get();
+
+        return response()->json(['success' => true, 'data' => $posts]);
+    }
 }
