@@ -43,6 +43,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // ========== PUBLIC POST ROUTES ==========
+    Route::get('/users/{id}', [ProfileController::class, 'showPublic']);
     Route::get('/posts', [PostController::class, 'index']);
     Route::get('/posts/search', [PostController::class, 'search']);
     Route::get('/posts/{id}', [PostController::class, 'show']);

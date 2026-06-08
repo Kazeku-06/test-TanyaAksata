@@ -531,6 +531,53 @@ Mendapatkan detail post. Menambah `views_count` setiap kali diakses.
 
 ---
 
+### Get Public User Profile
+**`GET /api/v1/users/{id}`** — Public
+
+Menampilkan profil publik user manapun.
+
+**Path Parameter:** `id` (UUID user)
+
+**Response `200 OK`:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "name": "John Doe",
+    "avatar": "avatars/photo.jpg",
+    "bio": "Saya seorang developer",
+    "location": "Jakarta",
+    "website": "https://example.com",
+    "reputation": 250,
+    "reputation_level": "Regular",
+    "posts_count": 12,
+    "followers_count": 34,
+    "following_count": 10,
+    "badges": [
+      {
+        "id": "uuid",
+        "name": "First Post",
+        "slug": "first-post",
+        "description": "Membuat postingan pertama",
+        "icon": "🏆"
+      }
+    ],
+    "created_at": "2026-06-08T00:00:00Z"
+  }
+}
+```
+
+**Response `404 Not Found`:**
+```json
+{
+  "success": false,
+  "message": "User tidak ditemukan"
+}
+```
+
+---
+
 ### Get Posts by User
 **`GET /api/v1/users/{userId}/posts`** — Public
 
