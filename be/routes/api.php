@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\LeaderboardController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\UserModerationController;
+use App\Http\Controllers\Api\AdminStatisticController;
 
 Route::prefix('v1')->group(function () {
 
@@ -141,6 +142,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/reports', [ReportController::class, 'index']);
         Route::get('/reports/{id}', [ReportController::class, 'show']);
         Route::put('/reports/{id}/resolve', [ReportController::class, 'resolve']);
+
+        Route::get('/statistics', [AdminStatisticController::class, 'index']);
+        Route::get('/statistics/trend', [AdminStatisticController::class, 'activityTrend']);
     });
 
 
