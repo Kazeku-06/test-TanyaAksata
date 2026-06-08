@@ -233,14 +233,24 @@ return response()->json(['success' => true, 'data' => $data]);
     }
 
         /**
-     * Search posts by title, body, or tags
-     * GET /api/v1/posts/search?q=keyword
+     * Search postingan dengan filter lengkap.
+     * GET /api/v1/posts/search
+     *
+     * Parameters:
+     * - q (string) keyword pencarian di title/body
+     * - category_id (uuid) filter kategori
+     * - tag (string) filter nama tag
+     * - user_id (uuid) filter user
+     * - username (string) filter username
+     * - created_from (date) filter dari tanggal
+     * - created_to (date) filter sampai tanggal
+     * - sort (string) latest, oldest, most_voted, most_commented
      */
     public function search(Request $request)
     {
         $query = Post::with(['user', 'category', 'tags']);
 
-        // Filter berdasarkan keyword (title atau body)
+        // Filter keyword
         if ($request->filled('q')) {
             $keyword = '%' . $request->q . '%';
             $query->where(function ($q) use ($keyword) {
@@ -249,25 +259,33 @@ return response()->json(['success' => true, 'data' => $data]);
             });
         }
 
-        // Filter berdasarkan kategori
+        // Filter kategori
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        // Filter berdasarkan tag (nama tag)
+        // Filter tag
         if ($request->filled('tag')) {
             $query->whereHas('tags', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->tag . '%');
             });
         }
 
-        // Filter berdasarkan user (bisa pakai user_id atau username)
+        // Filter user
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         } elseif ($request->filled('username')) {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->username . '%');
             });
+        }
+
+        // Filter rentang tanggal (created_at)
+        if ($request->filled('created_from')) {
+            $query->whereDate('created_at', '>=', $request->created_from);
+        }
+        if ($request->filled('created_to')) {
+            $query->whereDate('created_at', '<=', $request->created_to);
         }
 
         // Sorting
@@ -282,7 +300,7 @@ return response()->json(['success' => true, 'data' => $data]);
             case 'most_commented':
                 $query->orderBy('comments_count', 'desc');
                 break;
-            default: // latest
+            default:
                 $query->orderBy('created_at', 'desc');
         }
 
