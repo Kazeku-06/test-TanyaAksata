@@ -36,6 +36,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = ['reputation_level'];
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_banned' => 'boolean',
