@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateComment } from "@/hooks/useComments";
 import Button from "@/components/ui/Button";
-import { getErrorMessage } from "@/lib/utils";
+import { createCommentSchema, type CreateCommentFormData } from "@/lib/schemas";
 
 interface CommentFormProps {
   postId: string;
@@ -21,39 +22,53 @@ export default function CommentForm({
   placeholder = "Tulis jawabanmu di sini...",
 }: CommentFormProps) {
   const { mutate: createComment, isPending } = useCreateComment();
-  const [body, setBody] = useState("");
-  const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!body.trim()) return setError("Komentar tidak boleh kosong");
-    if (body.trim().length < 10) return setError("Komentar minimal 10 karakter");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm<CreateCommentFormData>({
+    resolver: zodResolver(createCommentSchema),
+  });
 
+  function onSubmit(data: CreateCommentFormData) {
     createComment(
-      { post_id: postId, body: body.trim(), parent_id: parentId },
+      { post_id: postId, body: data.body, parent_id: parentId },
       {
         onSuccess: () => {
-          setBody("");
-          setError("");
+          reset();
           onSuccess?.();
         },
-        onError: (err: unknown) => setError(getErrorMessage(err)),
+        onError: (err: unknown) => {
+          const axiosErr = err as {
+            response?: { data?: { message?: string } };
+          };
+          setError("root", {
+            message: axiosErr?.response?.data?.message || "Terjadi kesalahan",
+          });
+        },
       }
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" noValidate>
       <textarea
-        value={body}
-        onChange={(e) => { setBody(e.target.value); setError(""); }}
         placeholder={placeholder}
         rows={4}
         className={`w-full px-3 py-2 text-sm border rounded bg-white text-[#232629] placeholder-[#babfc4] resize-y
           focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20
-          ${error ? "border-[#c91d2e]" : "border-[#babfc4] hover:border-[#838c95]"}`}
+          ${errors.body ? "border-[#c91d2e]" : "border-[#babfc4] hover:border-[#838c95]"}`}
+        {...register("body")}
       />
-      {error && <p className="text-xs text-[#c91d2e]">{error}</p>}
+      {errors.body && (
+        <p className="text-xs text-[#c91d2e]">{errors.body.message}</p>
+      )}
+      {errors.root && (
+        <p className="text-xs text-[#c91d2e]">{errors.root.message}</p>
+      )}
       <div className="flex items-center gap-2">
         <Button type="submit" variant="primary" size="sm" loading={isPending}>
           {parentId ? "Kirim Balasan" : "Kirim Jawaban"}
