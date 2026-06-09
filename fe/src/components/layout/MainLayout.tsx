@@ -1,0 +1,40 @@
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
+
+interface MainLayoutProps {
+  children: React.ReactNode;
+  /** Optional right sidebar content */
+  rightSidebar?: React.ReactNode;
+  /** Set to false to disable the left sidebar (e.g. auth pages) */
+  showSidebar?: boolean;
+}
+
+export default function MainLayout({
+  children,
+  rightSidebar,
+  showSidebar = true,
+}: MainLayoutProps) {
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Navbar />
+      <div className="flex-1 flex">
+        <div className="max-w-[1264px] mx-auto w-full flex gap-0">
+          {/* Left sidebar */}
+          {showSidebar && <Sidebar />}
+
+          {/* Main content */}
+          <main className="flex-1 min-w-0 border-l border-r border-[#e3e6eb]">
+            <div className="max-w-full">{children}</div>
+          </main>
+
+          {/* Right sidebar */}
+          {rightSidebar && (
+            <div className="hidden lg:block w-[300px] flex-shrink-0 px-4 pt-4">
+              <div className="flex flex-col gap-4">{rightSidebar}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
