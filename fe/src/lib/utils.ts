@@ -42,7 +42,7 @@ export function truncate(text: string, maxLength: number): string {
 /** Get avatar URL or fallback to initials-based URL */
 export function getAvatarUrl(avatar: string | null | undefined, name: string): string {
   if (avatar) {
-    const base = process.env.NEXT_PUBLIC_STORAGE_URL || "http://localhost:8000/storage";
+    const base = process.env.NEXT_PUBLIC_STORAGE_URL;
     return `${base}/${avatar}`;
   }
   // Use UI Avatars as fallback
