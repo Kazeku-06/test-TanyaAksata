@@ -1,53 +1,43 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRegister } from "@/hooks/useAuth";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { getErrorMessage } from "@/lib/utils";
+import { registerSchema, type RegisterFormData } from "@/lib/schemas";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { mutate: register, isPending } = useRegister();
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
+
+  const {
+    register: registerField,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [globalError, setGlobalError] = useState("");
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
-    setGlobalError("");
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const newErrors: Record<string, string> = {};
-    if (!form.name.trim()) newErrors.name = "Nama wajib diisi";
-    if (!form.email) newErrors.email = "Email wajib diisi";
-    if (!form.password) newErrors.password = "Password wajib diisi";
-    if (form.password.length < 6) newErrors.password = "Password minimal 6 karakter";
-    if (form.password !== form.password_confirmation)
-      newErrors.password_confirmation = "Konfirmasi password tidak cocok";
-    if (Object.keys(newErrors).length) return setErrors(newErrors);
-
-    register(form, {
+  function onSubmit(data: RegisterFormData) {
+    register(data, {
       onSuccess: () => router.replace("/"),
       onError: (err: unknown) => {
-        const axiosErr = err as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } };
+        const axiosErr = err as {
+          response?: { data?: { errors?: Record<string, string[]>; message?: string } };
+        };
         const apiErrors = axiosErr?.response?.data?.errors;
         if (apiErrors) {
-          const mapped: Record<string, string> = {};
-          for (const [k, v] of Object.entries(apiErrors)) mapped[k] = v[0];
-          setErrors(mapped);
+          for (const [key, messages] of Object.entries(apiErrors)) {
+            setError(key as keyof RegisterFormData, { message: messages[0] });
+          }
         } else {
-          setGlobalError(getErrorMessage(err));
+          setError("root", {
+            message: axiosErr?.response?.data?.message || "Terjadi kesalahan saat mendaftar",
+          });
         }
       },
     });
@@ -56,7 +46,6 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f6f6f6] px-4 py-8">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex justify-center mb-6">
           <Link href="/" className="flex flex-col items-center gap-1">
             <div className="w-10 h-10 rounded-lg bg-[#0a95ff] flex items-center justify-center">
@@ -71,56 +60,44 @@ export default function RegisterPage() {
             Buat Akun Baru
           </h1>
 
-          {globalError && (
+          {errors.root && (
             <div className="mb-4 p-3 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e]">
-              {globalError}
+              {errors.root.message}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
             <Input
               label="Nama Lengkap"
               type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
               placeholder="Nama kamu"
-              error={errors.name}
-              required
+              error={errors.name?.message}
               autoComplete="name"
+              {...registerField("name")}
             />
             <Input
               label="Email"
               type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
               placeholder="nama@email.com"
-              error={errors.email}
-              required
+              error={errors.email?.message}
               autoComplete="email"
+              {...registerField("email")}
             />
             <Input
               label="Password"
               type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
               placeholder="Minimal 6 karakter"
-              error={errors.password}
-              required
+              error={errors.password?.message}
               autoComplete="new-password"
+              {...registerField("password")}
             />
             <Input
               label="Konfirmasi Password"
               type="password"
-              name="password_confirmation"
-              value={form.password_confirmation}
-              onChange={handleChange}
               placeholder="Ulangi password"
-              error={errors.password_confirmation}
-              required
+              error={errors.password_confirmation?.message}
               autoComplete="new-password"
+              {...registerField("password_confirmation")}
             />
 
             <p className="text-xs text-[#6a737c]">
