@@ -19,83 +19,82 @@ use App\Http\Controllers\Api\AdminStatisticController;
 
 Route::prefix('v1')->group(function () {
 
-    // ========== PUBLIC ROUTES (tanpa token) ==========
-    Route::post('auth/register', [AuthController::class, 'register']);
-    Route::post('auth/login', [AuthController::class, 'login']);
-
-
-    //leaderboard
-    Route::get('/leaderboard', [LeaderboardController::class, 'index']);
-
-
-    //trending post
-    Route::get('/posts/trending', [PostController::class, 'trending']);
-
-    // ========== CATEGORY ROUTES (Public) ==========
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/categories/{id}', [CategoryController::class, 'show']);
-
-    // ========== CATEGORY CRUD (Admin & Moderator) ==========
-    Route::middleware(['auth:sanctum', 'role:admin,moderator'])->group(function () {
-        Route::post('/categories', [CategoryController::class, 'store']);
-        Route::match(['put', 'patch'], '/categories/{id}', [CategoryController::class, 'update']);
-        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    // ========== AUTH ROUTES ==========
+    // Rate limit ketat: 10 req/menit per IP (brute force protection)
+    Route::middleware('throttle:auth')->group(function () {
+        Route::post('auth/register', [AuthController::class, 'register']);
+        Route::post('auth/login', [AuthController::class, 'login']);
     });
 
-    // ========== PUBLIC POST ROUTES ==========
-    Route::get('/users/{id}', [ProfileController::class, 'showPublic']);
-    Route::get('/posts', [PostController::class, 'index']);
-    Route::get('/posts/search', [PostController::class, 'search']);
-    Route::get('/posts/{id}', [PostController::class, 'show']);
-    Route::get('/users/{userId}/posts', [PostController::class, 'userPosts']);
-    Route::get('/posts/{postId}/comments', [CommentController::class, 'index']);
+    // ========== PUBLIC READ ROUTES ==========
+    // Rate limit: 60 req/menit per IP
+    Route::middleware('throttle:public')->group(function () {
+        Route::get('/leaderboard', [LeaderboardController::class, 'index']);
+        Route::get('/posts/trending', [PostController::class, 'trending']);
+        Route::get('/categories', [CategoryController::class, 'index']);
+        Route::get('/categories/{id}', [CategoryController::class, 'show']);
+        Route::get('/users/{id}', [ProfileController::class, 'showPublic']);
+        Route::get('/posts', [PostController::class, 'index']);
+        Route::get('/posts/search', [PostController::class, 'search']);
+        Route::get('/posts/{id}', [PostController::class, 'show']);
+        Route::get('/users/{userId}/posts', [PostController::class, 'userPosts']);
+        Route::get('/posts/{postId}/comments', [CommentController::class, 'index']);
+    });
 
-    // ========== PROTECTED ROUTES (wajib token) ==========
-    Route::middleware('auth:sanctum')->group(function () {
+    // ========== PROTECTED ROUTES ==========
+    // Rate limit: 120 req/menit per user
+    Route::middleware(['auth:sanctum', 'banned', 'throttle:api'])->group(function () {
+
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('auth/me', [AuthController::class, 'me']);
 
         // Profile
         Route::get('/profile', [ProfileController::class, 'show']);
-        Route::match(['put', 'patch'], '/profile', [ProfileController::class, 'update']);
-
-        // CRUD Postingan
-        Route::post('/posts', [PostController::class, 'store']);
-        Route::match(['put', 'patch'], '/posts/{id}', [PostController::class, 'update']);
-        Route::delete('/posts/{id}', [PostController::class, 'destroy']);
-
-        // CRUD Komentar
-        Route::post('/comments', [CommentController::class, 'store']);
-        Route::match(['put', 'patch'], '/comments/{id}', [CommentController::class, 'update']);
-        Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
-        Route::post('/comments/{id}/accept', [CommentController::class, 'accept']);
-
-        //laporan
-        Route::post('/reports', [ReportController::class, 'store']);
-
         Route::get('/my-badges', [ProfileController::class, 'badges']);
 
-        //notifikasi
+        // Notifications
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
         Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
+        // Vote & Like — interaction limiter (60/menit)
+        Route::middleware('throttle:interaction')->group(function () {
+            Route::post('/posts/{postId}/vote', [VoteController::class, 'votePost']);
+            Route::post('/comments/{commentId}/vote', [VoteController::class, 'voteComment']);
+            Route::get('/posts/{postId}/user-vote', [VoteController::class, 'getUserPostVote']);
+            Route::get('/comments/{commentId}/user-vote', [VoteController::class, 'getUserCommentVote']);
+            Route::post('/posts/{postId}/like', [LikeController::class, 'toggleLike']);
+            Route::get('/posts/{postId}/user-like', [LikeController::class, 'getUserLike']);
+            Route::post('/comments/{commentId}/like', [LikeController::class, 'toggleLikeComment']);
+            Route::get('/comments/{commentId}/user-like', [LikeController::class, 'getUserCommentLike']);
+        });
 
-        //voting postingan
-        Route::post('/posts/{postId}/vote', [VoteController::class, 'votePost']);
-        Route::post('/comments/{commentId}/vote', [VoteController::class, 'voteComment']);
-        Route::get('/posts/{postId}/user-vote', [VoteController::class, 'getUserPostVote']);
-        Route::get('/comments/{commentId}/user-vote', [VoteController::class, 'getUserCommentVote']);
-
-        //like postingan dan comentar
-        Route::post('/posts/{postId}/like', [LikeController::class, 'toggleLike']);
-        Route::get('/posts/{postId}/user-like', [LikeController::class, 'getUserLike']);
-        Route::post('/comments/{commentId}/like', [LikeController::class, 'toggleLikeComment']);
-        Route::get('/comments/{commentId}/user-like', [LikeController::class, 'getUserCommentLike']);
-
+        // Bookmark
         Route::post('/posts/{postId}/bookmark', [BookmarkController::class, 'toggle']);
         Route::get('/bookmarks', [BookmarkController::class, 'index']);
         Route::delete('/bookmarks/{id}', [BookmarkController::class, 'destroy']);
+
+        // Report — rate limit ketat (5 per 10 menit)
+        Route::middleware('throttle:report')->group(function () {
+            Route::post('/reports', [ReportController::class, 'store']);
+        });
+
+        // Write operations — rate limit: 30/menit
+        Route::middleware('throttle:write')->group(function () {
+            // Profile update
+            Route::match(['put', 'patch'], '/profile', [ProfileController::class, 'update']);
+
+            // Post CRUD
+            Route::post('/posts', [PostController::class, 'store']);
+            Route::match(['put', 'patch'], '/posts/{id}', [PostController::class, 'update']);
+            Route::delete('/posts/{id}', [PostController::class, 'destroy']);
+
+            // Comment CRUD
+            Route::post('/comments', [CommentController::class, 'store']);
+            Route::match(['put', 'patch'], '/comments/{id}', [CommentController::class, 'update']);
+            Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+            Route::post('/comments/{id}/accept', [CommentController::class, 'accept']);
+        });
 
         // Follow / Unfollow
         Route::prefix('users')->group(function () {
@@ -107,49 +106,56 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    // ========== ADMIN & MODERATOR SPECIAL ROUTES ==========
-    Route::middleware(['auth:sanctum', 'role:admin,moderator'])->prefix('moderation')->group(function () {
-        Route::get('/dashboard', function () {
-            return response()->json(['message' => 'Welcome, moderator or admin!']);
+    // ========== CATEGORY CRUD (Admin & Moderator) ==========
+    Route::middleware(['auth:sanctum', 'role:admin,moderator', 'throttle:write'])->group(function () {
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::match(['put', 'patch'], '/categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    });
+
+    // ========== MODERATION ROUTES ==========
+    Route::middleware(['auth:sanctum', 'role:admin,moderator', 'throttle:api'])
+        ->prefix('moderation')
+        ->group(function () {
+            Route::get('/dashboard', function () {
+                return response()->json(['message' => 'Welcome, moderator or admin!']);
+            });
+
+            Route::get('/posts/trashed', [PostController::class, 'trashed']);
+            Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']);
+            Route::get('/posts/{id}/history', [PostController::class, 'history']);
+
+            Route::middleware('throttle:write')->group(function () {
+                Route::post('/users/{userId}/warn', [UserModerationController::class, 'warn']);
+                Route::post('/users/{userId}/ban', [UserModerationController::class, 'ban']);
+                Route::post('/users/{userId}/unban', [UserModerationController::class, 'unban']);
+            });
+
+            Route::get('/reports', [ReportController::class, 'index']);
+            Route::get('/reports/{id}', [ReportController::class, 'show']);
+            Route::put('/reports/{id}/resolve', [ReportController::class, 'resolve']);
+
+            Route::get('/comments/trashed', [CommentController::class, 'trashed']);
+            Route::get('/comments/{id}/trashed', [CommentController::class, 'showTrashed']);
+            Route::get('/comments/{id}/history', [CommentController::class, 'history']);
         });
 
-        Route::get('/posts/trashed', [PostController::class, 'trashed']);
-        Route::get('/posts/{id}/trashed', [PostController::class, 'showTrashed']);
-        Route::get('/posts/{id}/history', [PostController::class, 'history']);
-
-        Route::post('/users/{userId}/warn', [UserModerationController::class, 'warn']);
-        Route::post('/users/{userId}/ban', [UserModerationController::class, 'ban']);
-        Route::post('/users/{userId}/unban', [UserModerationController::class, 'unban']);
-
-
-        //laoran
-        Route::get('/reports', [ReportController::class, 'index']);
-        Route::get('/reports/{id}', [ReportController::class, 'show']);
-        Route::put('/reports/{id}/resolve', [ReportController::class, 'resolve']);
-
-        Route::get('/comments/trashed', [CommentController::class, 'trashed']);
-        Route::get('/comments/{id}/trashed', [CommentController::class, 'showTrashed']);
-        Route::get('/comments/{id}/history', [CommentController::class, 'history']);
-    });
-
     // ========== ADMIN ONLY ROUTES ==========
-    Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
-        Route::get('/users', [RoleController::class, 'listUsersWithRoles']);
-        Route::post('/users/{userId}/assign-role', [RoleController::class, 'assignRole']);
-        Route::post('/users/{userId}/remove-role', [RoleController::class, 'removeRole']);
+    Route::middleware(['auth:sanctum', 'role:admin', 'throttle:api'])
+        ->prefix('admin')
+        ->group(function () {
+            Route::get('/users', [RoleController::class, 'listUsersWithRoles']);
 
+            Route::middleware('throttle:write')->group(function () {
+                Route::post('/users/{userId}/assign-role', [RoleController::class, 'assignRole']);
+                Route::post('/users/{userId}/remove-role', [RoleController::class, 'removeRole']);
+            });
 
-                //laoran
-        Route::get('/reports', [ReportController::class, 'index']);
-        Route::get('/reports/{id}', [ReportController::class, 'show']);
-        Route::put('/reports/{id}/resolve', [ReportController::class, 'resolve']);
+            Route::get('/reports', [ReportController::class, 'index']);
+            Route::get('/reports/{id}', [ReportController::class, 'show']);
+            Route::put('/reports/{id}/resolve', [ReportController::class, 'resolve']);
 
-        Route::get('/statistics', [AdminStatisticController::class, 'index']);
-        Route::get('/statistics/trend', [AdminStatisticController::class, 'activityTrend']);
-    });
-
-
-    Route::middleware(['auth:sanctum', 'banned'])->group(function () {
-    // semua route yang butuh login dan tidak boleh diakses banned user
-});
+            Route::get('/statistics', [AdminStatisticController::class, 'index']);
+            Route::get('/statistics/trend', [AdminStatisticController::class, 'activityTrend']);
+        });
 });

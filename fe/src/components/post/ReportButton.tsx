@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Flag, X } from "lucide-react";
 import api from "@/lib/axios";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { getErrorMessage } from "@/lib/utils";
+import { createReportSchema, type CreateReportFormData } from "@/lib/schemas";
 import type { ReportTargetType } from "@/types";
 
 interface ReportButtonProps {
@@ -15,31 +17,41 @@ interface ReportButtonProps {
 
 export default function ReportButton({ targetType, targetId }: ReportButtonProps) {
   const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState("");
-  const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!reason.trim()) return setError("Alasan wajib diisi");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateReportFormData>({
+    resolver: zodResolver(createReportSchema),
+  });
 
-    setLoading(true);
-    setError("");
+  function handleClose() {
+    setOpen(false);
+    setSuccess(false);
+    reset();
+  }
+
+  async function onSubmit(data: CreateReportFormData) {
     try {
       await api.post("/reports", {
         target_type: targetType,
         target_id: targetId,
-        reason: reason.trim(),
-        description: description.trim() || undefined,
+        reason: data.reason,
+        description: data.description || undefined,
       });
       setSuccess(true);
-      setTimeout(() => { setOpen(false); setSuccess(false); }, 1500);
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
+      setTimeout(handleClose, 1500);
+    } catch (err: unknown) {
+      const axiosErr = err as {
+        response?: { data?: { message?: string } };
+      };
+      setError("root", {
+        message: axiosErr?.response?.data?.message || "Terjadi kesalahan",
+      });
     }
   }
 
@@ -58,7 +70,7 @@ export default function ReportButton({ targetType, targetId }: ReportButtonProps
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-[#232629]">Laporkan Konten</h3>
-              <button onClick={() => setOpen(false)} className="text-[#6a737c] hover:text-[#232629]">
+              <button onClick={handleClose} className="text-[#6a737c] hover:text-[#232629]">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -68,33 +80,41 @@ export default function ReportButton({ targetType, targetId }: ReportButtonProps
                 ✓ Laporan berhasil dikirim. Terima kasih!
               </p>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3" noValidate>
                 <Input
                   label="Alasan Laporan"
-                  value={reason}
-                  onChange={(e) => { setReason(e.target.value); setError(""); }}
                   placeholder="e.g. Spam, konten tidak pantas..."
-                  error={error && !description ? error : undefined}
-                  required
+                  error={errors.reason?.message}
+                  {...register("reason")}
                 />
+
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-[#232629]">
-                    Detail Tambahan <span className="text-[#6a737c] font-normal">(opsional)</span>
+                    Detail Tambahan{" "}
+                    <span className="text-[#6a737c] font-normal">(opsional)</span>
                   </label>
                   <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
                     placeholder="Ceritakan lebih detail..."
                     rows={3}
-                    className="w-full px-3 py-2 text-sm border border-[#babfc4] rounded resize-none focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20"
+                    className={`w-full px-3 py-2 text-sm border rounded resize-none focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20 ${
+                      errors.description ? "border-[#c91d2e]" : "border-[#babfc4]"
+                    }`}
+                    {...register("description")}
                   />
+                  {errors.description && (
+                    <p className="text-xs text-[#c91d2e]">{errors.description.message}</p>
+                  )}
                 </div>
-                {error && <p className="text-xs text-[#c91d2e]">{error}</p>}
+
+                {errors.root && (
+                  <p className="text-xs text-[#c91d2e]">{errors.root.message}</p>
+                )}
+
                 <div className="flex gap-2 justify-end mt-1">
-                  <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
+                  <Button type="button" variant="outline" size="sm" onClick={handleClose}>
                     Batal
                   </Button>
-                  <Button type="submit" variant="danger" size="sm" loading={loading}>
+                  <Button type="submit" variant="danger" size="sm" loading={isSubmitting}>
                     Kirim Laporan
                   </Button>
                 </div>

@@ -2,6 +2,7 @@
 
 > Base URL API: `http://localhost:8000/api/v1`
 > Auth: `Authorization: Bearer {token}` (Laravel Sanctum)
+> Form Validation: **React Hook Form** + **Zod** (`src/lib/schemas.ts`)
 
 ---
 
@@ -33,7 +34,7 @@
 **Komponen:** `PostList`, `RightSidebar`
 
 ### Fitur
-- Sama dengan Home — list post + tab Terbaru/Trending
+- List post + tab Terbaru/Trending
 - Filter: Terbaru, Paling Banyak Vote, Paling Banyak Komentar
 - Tombol "Ajukan Pertanyaan"
 
@@ -92,13 +93,24 @@
 **Route:** `/questions/ask`
 **File:** `src/app/(main)/questions/ask/page.tsx`
 **Komponen:** `AskQuestionForm`
+**Form:** `useForm` + `zodResolver(createPostSchema)`
 
 ### Fitur
 - Form judul pertanyaan (min 15 karakter)
 - Form isi pertanyaan (min 30 karakter)
-- Pilih kategori (dropdown)
+- Pilih kategori (dropdown — `Controller`)
 - Tambah tag (maks 5, tekan Enter/koma)
+- Validasi client-side via Zod sebelum submit
+- Map error validasi Laravel ke field via `setError(fieldName)`
 - Submit → redirect ke halaman detail post
+
+### Validasi (Zod — `createPostSchema`)
+| Field | Rule |
+|-------|------|
+| `title` | min 15, max 255 karakter |
+| `body` | min 30 karakter |
+| `category_id` | wajib dipilih |
+| `tags` | array string, maks 5 item, tiap tag maks 50 karakter |
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
@@ -113,18 +125,27 @@
 **Route:** `/questions/[id]/edit`
 **File:** `src/app/(main)/questions/[id]/edit/page.tsx`
 **Komponen:** `EditPostClient`
+**Form:** `useForm` + `zodResolver(updatePostSchema)` + `reset()` saat data post load
 
 ### Fitur
-- Form pre-filled dari data post yang ada
+- Form pre-filled via `reset()` setelah post data fetched
 - Edit judul, isi, kategori, tag
 - Field opsional "Ringkasan Edit"
 - Maksimal 3 kali edit (dibatasi BE)
 - Submit → redirect ke detail post
 
+### Validasi (Zod — `updatePostSchema`)
+| Field | Rule |
+|-------|------|
+| `title` | min 15, max 255 (opsional) |
+| `body` | min 30 (opsional) |
+| `category_id` | wajib jika diisi |
+| `edit_summary` | maks 255 karakter |
+
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `GET` | `/posts/{id}` | Ambil data post untuk pre-fill form |
+| `GET` | `/posts/{id}` | Ambil data post untuk pre-fill |
 | `GET` | `/categories?flat=1` | List kategori |
 | `PATCH` | `/posts/{id}` | Update post |
 
@@ -181,13 +202,25 @@
 **Route:** `/profile`
 **File:** `src/app/(main)/profile/page.tsx`
 **Hook:** `useUpdateProfile`, `useMyBadges`, `useMyFollowing`, `useMyFollowers`
+**Form:** `useForm` + `zodResolver(updateProfileSchema)`
 
 ### Fitur
 - Lihat dan edit profil: nama, bio, lokasi, website
-- Upload foto avatar
-- Ganti password (butuh password lama)
+- Upload foto avatar (multipart/form-data otomatis jika ada File)
+- Ganti password (butuh `current_password`) — validasi cross-field via Zod `.refine()`
 - Daftar badge yang dimiliki
 - Daftar following & followers
+
+### Validasi (Zod — `updateProfileSchema`)
+| Field | Rule |
+|-------|------|
+| `name` | maks 255 karakter |
+| `bio` | maks 1000 karakter |
+| `location` | maks 255 karakter |
+| `website` | URL valid atau string kosong |
+| `current_password` | wajib jika `new_password` diisi (`.refine()`) |
+| `new_password` | min 6 karakter jika diisi |
+| `new_password_confirmation` | harus sama dengan `new_password` (`.refine()`) |
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
@@ -299,13 +332,20 @@
 **Route:** `/login`
 **File:** `src/app/(auth)/login/page.tsx`
 **Hook:** `useLogin`
+**Form:** `useForm` + `zodResolver(loginSchema)`
 
 ### Fitur
 - Form email + password
-- Validasi client-side
-- Tampil error dari API (email salah, akun banned, dll)
-- Link ke halaman register
-- Link lupa password (placeholder)
+- Validasi client-side via Zod
+- Error dari API di-map ke `errors.root` atau field via `setError()`
+- Tampil pesan error: email salah, akun banned, dll
+- Link ke halaman register & lupa password
+
+### Validasi (Zod — `loginSchema`)
+| Field | Rule |
+|-------|------|
+| `email` | wajib, format email valid |
+| `password` | wajib diisi |
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
@@ -319,12 +359,21 @@
 **Route:** `/register`
 **File:** `src/app/(auth)/register/page.tsx`
 **Hook:** `useRegister`
+**Form:** `useForm` + `zodResolver(registerSchema)`
 
 ### Fitur
 - Form nama, email, password, konfirmasi password
-- Validasi client-side (min 6 karakter, password match)
-- Tampil error validasi dari API
+- Validasi cross-field password match via Zod `.refine()`
+- Error validasi Laravel di-map ke field via `setError(fieldName)`
 - Auto-login setelah register berhasil
+
+### Validasi (Zod — `registerSchema`)
+| Field | Rule |
+|-------|------|
+| `name` | wajib, maks 255 karakter |
+| `email` | wajib, format email valid |
+| `password` | min 6 karakter |
+| `password_confirmation` | harus sama dengan `password` (`.refine()`) |
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
@@ -341,12 +390,11 @@
 **Akses:** Role `admin` atau `moderator`
 
 ### Fitur
-- Tab: Laporan / Post Terhapus / Komentar Terhapus / Manajemen User
 
 **Tab Laporan:**
 - List laporan dengan filter status: `pending`, `resolved`, `rejected`
 - Detail laporan
-- Resolve laporan: `delete_content`, `ban_user`, `warn`, `ignore`
+- Resolve laporan dengan `resolveReportSchema`: action (`resolve`/`reject`) + `action_taken` + catatan
 
 **Tab Post Terhapus:**
 - List post yang di-soft delete
@@ -355,13 +403,19 @@
 
 **Tab Komentar Terhapus:**
 - List komentar yang di-soft delete
-- Detail komentar yang dihapus
 - Riwayat edit komentar
 
 **Tab Manajemen User:**
-- Beri peringatan (warn) — auto-ban jika ≥ 3x
-- Ban user (durasi 1–365 hari)
+- Beri peringatan (`warnUserSchema`) — auto-ban jika ≥ 3x
+- Ban user (`banUserSchema` — durasi 1–365 hari, default 30)
 - Unban user
+
+### Validasi (Zod)
+| Schema | Fields |
+|--------|--------|
+| `warnUserSchema` | `reason` — wajib, maks 255 karakter |
+| `banUserSchema` | `days` — integer 1–365, default 30; `reason` — opsional |
+| `resolveReportSchema` | `action` — enum; `action_taken` — enum opsional; `resolution_note` — opsional |
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
@@ -390,7 +444,6 @@
 **Akses:** Role `admin` saja
 
 ### Fitur
-- Kartu statistik platform (user, post, komentar, laporan pending)
 
 **Tab Statistik:**
 - Total user, post, komentar, vote, like, laporan, kategori
@@ -403,7 +456,7 @@
 - Remove role dari user
 
 **Tab Laporan:**
-- Sama dengan laporan moderasi (menggunakan endpoint `/admin/reports`)
+- Sama dengan laporan moderasi (endpoint `/admin/reports`)
 
 **Tab Kategori:**
 - Buat kategori baru
@@ -427,24 +480,68 @@
 
 ---
 
+## Konvensi Form (React Hook Form + Zod)
+
+Semua form mengikuti pola ini:
+
+```tsx
+const { register, handleSubmit, setError, formState: { errors } } = useForm<FormData>({
+  resolver: zodResolver(schema),
+});
+
+function onSubmit(data: FormData) {
+  mutate(data, {
+    onError: (err) => {
+      const apiErrors = err?.response?.data?.errors;
+      if (apiErrors) {
+        // Map Laravel validation errors ke field
+        for (const [key, messages] of Object.entries(apiErrors)) {
+          setError(key, { message: messages[0] });
+        }
+      } else {
+        // Fallback ke root error
+        setError("root", { message: err?.response?.data?.message });
+      }
+    },
+  });
+}
+```
+
+### Semua Schemas (`src/lib/schemas.ts`)
+| Schema | Digunakan di |
+|--------|-------------|
+| `loginSchema` | `/login` |
+| `registerSchema` | `/register` |
+| `createPostSchema` | `AskQuestionForm` |
+| `updatePostSchema` | `EditPostClient` |
+| `createCommentSchema` | `CommentForm` |
+| `updateCommentSchema` | (edit komentar inline) |
+| `updateProfileSchema` | `/profile` |
+| `createReportSchema` | `ReportButton` |
+| `warnUserSchema` | moderation — warn user |
+| `banUserSchema` | moderation — ban user |
+| `resolveReportSchema` | moderation/admin — resolve report |
+
+---
+
 ## Ringkasan Cepat
 
-| # | Route | Halaman | Auth |
-|---|-------|---------|------|
-| 1 | `/` | Home / Feed | Public |
-| 2 | `/questions` | Semua Pertanyaan | Public |
-| 3 | `/questions/[id]` | Detail Pertanyaan | Public (aksi butuh login) |
-| 4 | `/questions/ask` | Ajukan Pertanyaan | 🔒 Login |
-| 5 | `/questions/[id]/edit` | Edit Pertanyaan | 🔒 Pemilik / Mod / Admin |
-| 6 | `/search` | Pencarian | Public |
-| 7 | `/users/[id]` | Profil User Publik | Public (aksi butuh login) |
-| 8 | `/profile` | Profil Sendiri | 🔒 Login |
-| 9 | `/users` | Daftar Pengguna | Public |
-| 10 | `/bookmarks` | Bookmark Saya | 🔒 Login |
-| 11 | `/notifications` | Notifikasi | 🔒 Login |
-| 12 | `/leaderboard` | Leaderboard | Public |
-| 13 | `/tags` | Tag | Public |
-| 14 | `/login` | Login | Guest |
-| 15 | `/register` | Register | Guest |
-| 16 | `/moderation` | Dashboard Moderasi | 🔒 Moderator / Admin |
-| 17 | `/admin` | Dashboard Admin | 🔒 Admin |
+| # | Route | Halaman | Auth | Form |
+|---|-------|---------|------|------|
+| 1 | `/` | Home / Feed | Public | — |
+| 2 | `/questions` | Semua Pertanyaan | Public | — |
+| 3 | `/questions/[id]` | Detail Pertanyaan | Public (aksi butuh login) | `CommentForm` |
+| 4 | `/questions/ask` | Ajukan Pertanyaan | 🔒 Login | `createPostSchema` |
+| 5 | `/questions/[id]/edit` | Edit Pertanyaan | 🔒 Pemilik / Mod / Admin | `updatePostSchema` |
+| 6 | `/search` | Pencarian | Public | — |
+| 7 | `/users/[id]` | Profil User Publik | Public (aksi butuh login) | `ReportButton` |
+| 8 | `/profile` | Profil Sendiri | 🔒 Login | `updateProfileSchema` |
+| 9 | `/users` | Daftar Pengguna | Public | — |
+| 10 | `/bookmarks` | Bookmark Saya | 🔒 Login | — |
+| 11 | `/notifications` | Notifikasi | 🔒 Login | — |
+| 12 | `/leaderboard` | Leaderboard | Public | — |
+| 13 | `/tags` | Tag | Public | — |
+| 14 | `/login` | Login | Guest | `loginSchema` |
+| 15 | `/register` | Register | Guest | `registerSchema` |
+| 16 | `/moderation` | Dashboard Moderasi | 🔒 Moderator / Admin | `warnUserSchema`, `banUserSchema`, `resolveReportSchema` |
+| 17 | `/admin` | Dashboard Admin | 🔒 Admin | `resolveReportSchema` |
