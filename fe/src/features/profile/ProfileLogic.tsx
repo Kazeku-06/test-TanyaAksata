@@ -7,7 +7,6 @@ import { useProfileForm } from "./useProfileForm";
 import { type UpdateProfileFormData } from "@/lib/schemas";
 import ProfileView from "./ProfileView";
 
-// Tab yang tersedia di halaman profil
 export type ProfileTab = "info" | "badges" | "following" | "followers";
 
 export default function ProfileLogic() {
@@ -20,43 +19,38 @@ export default function ProfileLogic() {
   const form = useProfileForm(user);
   const { setError, formState: { errors } } = form;
 
-  // Avatar preview
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-
-  // Tab aktif
   const [activeTab, setActiveTab] = useState<ProfileTab>("info");
-
-  // Success message setelah save
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Handler pilih avatar baru
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setAvatarFile(file);
-    // Buat preview URL lokal
-    const url = URL.createObjectURL(file);
-    setAvatarPreview(url);
+    setAvatarPreview(URL.createObjectURL(file));
   }
 
   function handleAvatarClick() {
     fileInputRef.current?.click();
   }
 
-  // Handler submit form profil
   function handleSubmit(data: UpdateProfileFormData) {
     const payload = {
-      ...data,
-      // Sertakan file avatar hanya jika ada yang dipilih
-      avatar: avatarFile ?? undefined,
+      name: data.name,
+      bio: data.bio,
+      location: data.location,
+      website: data.website || undefined,
+      current_password: data.current_password || undefined,
+      new_password: data.new_password || undefined,
+      new_password_confirmation: data.new_password_confirmation || undefined,
+      ...(avatarFile ? { avatar: avatarFile } : {}),
     };
 
-    updateProfile(payload as Parameters<typeof updateProfile>[0], {
+    updateProfile(payload, {
       onSuccess: () => {
         setSaveSuccess(true);
-        // Reset password fields
         form.setValue("current_password", "");
         form.setValue("new_password", "");
         form.setValue("new_password_confirmation", "");
