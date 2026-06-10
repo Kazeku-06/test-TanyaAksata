@@ -32,13 +32,14 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: UpdateProfilePayload) => {
-      // Use FormData when avatar file is included
       if (payload.avatar instanceof File) {
         const form = new FormData();
+        // Spoffing method for Laravel to handle multipart/form-data correctly
+        form.append("_method", "PATCH");
         for (const [k, v] of Object.entries(payload)) {
           if (v !== undefined && v !== null) form.append(k, v as string | Blob);
         }
-        const { data } = await api.patch<ApiResponse<User>>("/profile", form, {
+        const { data } = await api.post<ApiResponse<User>>("/profile", form, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         return data.data;

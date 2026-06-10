@@ -1,3 +1,5 @@
+"use client";
+
 import MainLayout from "@/components/layout/MainLayout";
 import dynamic from "next/dynamic";
 import Spinner from "@/components/ui/Spinner";
