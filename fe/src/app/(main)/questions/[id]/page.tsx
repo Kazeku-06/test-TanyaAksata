@@ -1,20 +1,16 @@
-import type { Metadata } from "next";
 import MainLayout from "@/components/layout/MainLayout";
-import PostDetailClient from "@/components/post/PostDetailClient";
+import RightSidebar from "@/components/layout/RightSidebar";
+import QuestionDetailLogic from "@/features/questions/QuestionDetailLogic";
 
-export const metadata: Metadata = {
-  title: "Detail Pertanyaan",
-};
-
-interface PostDetailPageProps {
+interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function PostDetailPage({ params }: PostDetailPageProps) {
+export default async function QuestionDetailPage({ params }: PageProps) {
   const { id } = await params;
   return (
-    <MainLayout>
-      <PostDetailClient postId={id} />
+    <MainLayout rightSidebar={<RightSidebar />}>
+      <QuestionDetailLogic postId={id} />
     </MainLayout>
   );
 }
