@@ -1,20 +1,25 @@
-import type { Metadata } from "next";
-import MainLayout from "@/components/layout/MainLayout";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Profil Saya",
-};
+import MainLayout from "@/components/layout/MainLayout";
+import dynamic from "next/dynamic";
+import Spinner from "@/components/ui/Spinner";
+
+// ProfileLogic bergantung pada auth state (cookie/token) yang hanya ada di client.
+// ssr: false mencegah server me-render komponen ini sehingga tidak ada hydration mismatch.
+const ProfileLogic = dynamic(
+  () => import("@/features/profile/ProfileLogic"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flox justify-center py-16">
+        <Spinner size="lg" />
+      </div>
+    ),
+  }
+);
 
 export default function ProfilePage() {
-  return (
     <MainLayout>
-      <div className="px-6 py-4">
-        <h1 className="text-xl font-semibold text-[#232629] mb-4">Profil Saya</h1>
-        {/* ProfileForm component will be implemented here */}
-        <div className="text-sm text-[#6a737c]">
-          Form edit profil akan ada di sini.
-        </div>
-      </div>
+      <ProfileLogic />
     </MainLayout>
-  );
 }

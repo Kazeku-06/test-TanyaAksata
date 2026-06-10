@@ -1,18 +1,23 @@
-import type { Metadata } from "next";
 import MainLayout from "@/components/layout/MainLayout";
+import dynamic from "next/dynamic";
+import Spinner from "@/components/ui/Spinner";
 
-export const metadata: Metadata = {
-  title: "Bookmark Saya",
-};
+const BookmarksLogic = dynamic(
+  () => import("@/features/bookmarks/BookmarksLogic"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex justify-center py-16">
+        <Spinner size="lg" />
+      </div>
+    ),
+  }
+);
 
 export default function BookmarksPage() {
   return (
     <MainLayout>
-      <div className="px-6 py-4">
-        <h1 className="text-xl font-semibold text-[#232629] mb-4">Bookmark Saya</h1>
-        {/* BookmarkList component will be implemented here */}
-        <div className="text-sm text-[#6a737c]">Daftar bookmark akan tampil di sini.</div>
-      </div>
+      <BookmarksLogic />
     </MainLayout>
   );
 }
