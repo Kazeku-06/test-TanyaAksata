@@ -179,8 +179,7 @@ export const banUserSchema = z.object({
     .number()
     .int("Durasi harus bilangan bulat")
     .min(1, "Minimal 1 hari")
-    .max(365, "Maksimal 365 hari")
-    .default(30),
+    .max(365, "Maksimal 365 hari"),
   reason: z
     .string()
     .max(255)
