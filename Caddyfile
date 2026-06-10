@@ -1,0 +1,3 @@
+api-ta.neverland.my.id {
+	reverse_proxy localhost:2009
+}
