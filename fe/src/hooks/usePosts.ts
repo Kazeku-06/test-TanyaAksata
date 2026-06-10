@@ -162,3 +162,20 @@ export function useBookmarkPost(postId: string) {
     },
   });
 }
+
+// ── Tags (dari PostTag model via categories endpoint) ───────
+// BE tidak punya dedicated /tags endpoint, tapi PostTag bisa
+// di-query via search. Kita ambil daftar tag dengan cara
+// memanggil endpoint khusus dari PostTag model.
+export function useTags(page = 1, search = "") {
+  return useQuery({
+    queryKey: ["tags", page, search],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<PaginatedData<import("@/types").Tag & { posts_count: number }>>>(
+        "/tags",
+        { params: { page, search: search || undefined } }
+      );
+      return data.data;
+    },
+  });
+}
