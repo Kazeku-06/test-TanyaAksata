@@ -112,6 +112,7 @@ export interface Post {
   views_count: number;
   is_solved: boolean;
   is_edited: boolean;
+  edit_count?: number;
   is_bookmarked?: boolean;
   accepted_answer_id?: string | null;
   created_at: string;
