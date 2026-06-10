@@ -76,112 +76,154 @@ export default function AskQuestionForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
-      {errors.root && (
-        <div className="p-3 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e]">
-          {errors.root.message}
+    <div className="w-full bg-[#f8f9f9] min-h-screen px-4 py-8">
+      <div className="max-w-[850px] mx-auto">
+        
+        {/* Header Halaman Ala Stack Overflow */}
+        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-semibold text-[#232629] tracking-tight">
+              Ajukan Pertanyaan Publik
+            </h1>
+          </div>
+          {/* Ilustrasi background atau tips mini bisa ditaruh di sini jika dibutuhkan di kemudian hari */}
         </div>
-      )}
 
-      {/* Title */}
-      <div className="bg-white border border-[#e3e6eb] rounded p-4">
-        <h2 className="font-semibold text-[#232629] mb-1">Judul</h2>
-        <p className="text-xs text-[#6a737c] mb-2">
-          Bayangkan kamu bertanya kepada seseorang — apa pertanyaan spesifiknya?
-        </p>
-        <Input
-          placeholder="e.g. Kenapa useEffect di React berjalan dua kali?"
-          error={errors.title?.message}
-          {...register("title")}
-        />
-      </div>
-
-      {/* Body */}
-      <div className="bg-white border border-[#e3e6eb] rounded p-4">
-        <h2 className="font-semibold text-[#232629] mb-1">Isi Pertanyaan</h2>
-        <p className="text-xs text-[#6a737c] mb-2">
-          Jelaskan masalahmu secara detail. Sertakan apa yang sudah kamu coba dan hasil yang diharapkan.
-        </p>
-        <Textarea
-          placeholder="Jelaskan pertanyaan kamu di sini..."
-          error={errors.body?.message}
-          className="min-h-[200px]"
-          {...register("body")}
-        />
-      </div>
-
-      {/* Category */}
-      <div className="bg-white border border-[#e3e6eb] rounded p-4">
-        <h2 className="font-semibold text-[#232629] mb-1">Kategori</h2>
-        <p className="text-xs text-[#6a737c] mb-2">
-          Pilih kategori yang paling relevan dengan pertanyaanmu.
-        </p>
-        <Controller
-          name="category_id"
-          control={control}
-          render={({ field }) => (
-            <select
-              {...field}
-              className={`w-full px-3 py-2 text-sm border rounded bg-white text-[#232629] focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20 ${
-                errors.category_id ? "border-[#c91d2e]" : "border-[#babfc4] hover:border-[#838c95]"
-              }`}
-            >
-              <option value="">-- Pilih Kategori --</option>
-              {categories?.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+        {/* Form Utama */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6" noValidate>
+          {errors.root && (
+            <div className="p-3 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e] font-medium animate-in fade-in-50">
+              {errors.root.message}
+            </div>
           )}
-        />
-        {errors.category_id && (
-          <p className="mt-1 text-xs text-[#c91d2e]">{errors.category_id.message}</p>
-        )}
-      </div>
 
-      {/* Tags */}
-      <div className="bg-white border border-[#e3e6eb] rounded p-4">
-        <h2 className="font-semibold text-[#232629] mb-1">Tag</h2>
-        <p className="text-xs text-[#6a737c] mb-2">
-          Tambahkan hingga 5 tag. Tekan Enter atau koma untuk menambah.
-        </p>
-        <div className="flex flex-wrap gap-1 mb-2">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d]"
+          {/* Title Box */}
+          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
+            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Judul</h2>
+            <p className="text-xs text-[#6a737c] mb-3">
+              Bayangkan kamu bertanya kepada seseorang — apa pertanyaan spesifiknya?
+            </p>
+            <Input
+              placeholder="e.g. Kenapa useEffect di React berjalan dua kali?"
+              error={errors.title?.message}
+              {...register("title")}
+              className="focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10"
+            />
+          </div>
+
+          {/* Body Box */}
+          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
+            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Isi Pertanyaan</h2>
+            <p className="text-xs text-[#6a737c] mb-3">
+              Jelaskan masalahmu secara detail. Sertakan apa yang sudah kamu coba dan hasil yang diharapkan.
+            </p>
+            <Textarea
+              placeholder="Jelaskan pertanyaan kamu di sini..."
+              error={errors.body?.message}
+              className="min-h-[220px] focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 font-mono text-sm"
+              {...register("body")}
+            />
+          </div>
+
+          {/* Category Box */}
+          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
+            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Kategori</h2>
+            <p className="text-xs text-[#6a737c] mb-3">
+              Pilih kategori yang paling relevan dengan pertanyaanmu.
+            </p>
+            <Controller
+              name="category_id"
+              control={control}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  className={`w-full px-3 py-2.5 text-sm border rounded bg-white text-[#232629] transition-all focus:outline-none focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 ${
+                    errors.category_id 
+                      ? "border-[#c91d2e] focus:ring-[#c91d2e]/10" 
+                      : "border-[#babfc4] hover:border-[#838c95]"
+                  }`}
+                >
+                  <option value="">-- Pilih Kategori --</option>
+                  {categories?.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
+            {errors.category_id && (
+              <p className="mt-1.5 text-xs text-[#c91d2e] font-medium">{errors.category_id.message}</p>
+            )}
+          </div>
+
+          {/* Tags Box */}
+          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
+            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Tag</h2>
+            <p className="text-xs text-[#6a737c] mb-3">
+              Tambahkan hingga 5 tag. Tekan Enter atau koma untuk menambah.
+            </p>
+            
+            {/* Bagian List Badge Tags */}
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d] font-medium transition-all"
+                  >
+                    {tag}
+                    <button 
+                      type="button" 
+                      onClick={() => removeTag(tag)} 
+                      className="hover:bg-[#39739d]/10 p-0.5 rounded text-[#39739d] hover:text-[#c91d2e] transition-colors"
+                    >
+                      <X className="w-3 h-3 stroke-[2.5]" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagKeyDown}
+              onBlur={addTag}
+              placeholder="e.g. javascript, react, laravel"
+              disabled={tags.length >= 5}
+              hint={tags.length >= 5 ? "Maksimal 5 tag" : undefined}
+              className="focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10"
+            />
+            {errors.tags && (
+              <p className="mt-1.5 text-xs text-[#c91d2e] font-medium">{errors.tags.message}</p>
+            )}
+          </div>
+
+          {/* Tombol Aksi Bawah */}
+          <div className="flex items-center gap-3 pt-2">
+            <Button 
+              type="submit" 
+              variant="primary" 
+              size="lg" 
+              loading={isPending}
+              className="bg-[#0a95ff] hover:bg-[#0074cc] text-white font-medium text-sm px-5 py-2.5 rounded shadow-sm transition-colors"
             >
-              {tag}
-              <button type="button" onClick={() => removeTag(tag)} className="hover:text-[#c91d2e]">
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-        </div>
-        <Input
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          onKeyDown={handleTagKeyDown}
-          onBlur={addTag}
-          placeholder="e.g. javascript, react, laravel"
-          disabled={tags.length >= 5}
-          hint={tags.length >= 5 ? "Maksimal 5 tag" : undefined}
-        />
-        {errors.tags && (
-          <p className="mt-1 text-xs text-[#c91d2e]">{errors.tags.message}</p>
-        )}
+              Review Pertanyaan Anda
+            </Button>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              size="lg" 
+              onClick={() => router.back()} 
+              disabled={isPending}
+              className="text-[#c91d2e] hover:bg-[#fce8e9] font-medium text-sm px-5 py-2.5 rounded transition-colors"
+            >
+              Batal
+            </Button>
+          </div>
+        </form>
       </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-3">
-        <Button type="submit" variant="primary" size="lg" loading={isPending}>
-          Posting Pertanyaan
-        </Button>
-        <Button type="button" variant="ghost" size="lg" onClick={() => router.back()} disabled={isPending}>
-          Batal
-        </Button>
-      </div>
-    </form>
+    </div>
   );
 }
