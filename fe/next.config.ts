@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
         pathname: "/storage/**",
       },
       {
-        protocol: "http",
+        protocol: "https",
         hostname: "api-ta.neverland.my.id",
         pathname: "/storage/**",
       },
