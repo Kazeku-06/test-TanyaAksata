@@ -20,9 +20,9 @@ class CategoryController extends Controller
 
         $categories = Cache::remember($key, CacheService::TTL_MEDIUM, function () use ($flat) {
             if ($flat) {
-                return Category::orderBy('name')->get();
+                return Category::orderBy('name')->get()->toArray();
             }
-            return Category::with('children')->whereNull('parent_id')->orderBy('sort_order')->get();
+            return Category::with('children')->whereNull('parent_id')->orderBy('sort_order')->get()->toArray();
         });
 
         return response()->json(['success' => true, 'data' => $categories]);
