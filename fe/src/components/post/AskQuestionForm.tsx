@@ -11,6 +11,7 @@ import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { createPostSchema, type CreatePostFormData } from "@/lib/schemas";
 import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function AskQuestionForm() {
   const router = useRouter();
@@ -78,7 +79,7 @@ export default function AskQuestionForm() {
   return (
     <div className="w-full bg-[#f8f9f9] min-h-screen px-4 py-8">
       <div className="max-w-[850px] mx-auto">
-        
+
         {/* Header Halaman Ala Stack Overflow */}
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -97,7 +98,7 @@ export default function AskQuestionForm() {
             </div>
           )}
 
-          {/* Title Box */}
+          {/* 1. Title Box */}
           <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
             <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Judul</h2>
             <p className="text-xs text-[#6a737c] mb-3">
@@ -105,13 +106,19 @@ export default function AskQuestionForm() {
             </p>
             <Input
               placeholder="e.g. Kenapa useEffect di React berjalan dua kali?"
-              error={errors.title?.message}
-              {...register("title")}
-              className="focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10"
+              {...register("title")} // Sembunyikan/hapus prop error dari sini
+              className={cn(
+                "focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10",
+                errors.title && "border-[#c91d2e]"
+              )}
             />
+            {/* Cetak error manual di sini agar tidak double */}
+            {errors.title && (
+              <p className="mt-1.5 text-xs text-[#c91d2e] font-medium">{errors.title.message}</p>
+            )}
           </div>
 
-          {/* Body Box */}
+          {/* 2. Body Box */}
           <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
             <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Isi Pertanyaan</h2>
             <p className="text-xs text-[#6a737c] mb-3">
@@ -119,10 +126,16 @@ export default function AskQuestionForm() {
             </p>
             <Textarea
               placeholder="Jelaskan pertanyaan kamu di sini..."
-              error={errors.body?.message}
-              className="min-h-[220px] focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 font-mono text-sm"
+              className={cn(
+                "min-h-[220px] focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 font-mono text-sm",
+                errors.body && "border-[#c91d2e]"
+              )}
               {...register("body")}
             />
+            {/* Cetak error manual di sini */}
+            {errors.body && (
+              <p className="mt-1.5 text-xs text-[#c91d2e] font-medium">{errors.body.message}</p>
+            )}
           </div>
 
           {/* Category Box */}
@@ -137,11 +150,10 @@ export default function AskQuestionForm() {
               render={({ field }) => (
                 <select
                   {...field}
-                  className={`w-full px-3 py-2.5 text-sm border rounded bg-white text-[#232629] transition-all focus:outline-none focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 ${
-                    errors.category_id 
-                      ? "border-[#c91d2e] focus:ring-[#c91d2e]/10" 
+                  className={`w-full px-3 py-2.5 text-sm border rounded bg-white text-[#232629] transition-all focus:outline-none focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 ${errors.category_id
+                      ? "border-[#c91d2e] focus:ring-[#c91d2e]/10"
                       : "border-[#babfc4] hover:border-[#838c95]"
-                  }`}
+                    }`}
                 >
                   <option value="">-- Pilih Kategori --</option>
                   {categories?.map((cat) => (
@@ -163,7 +175,7 @@ export default function AskQuestionForm() {
             <p className="text-xs text-[#6a737c] mb-3">
               Tambahkan hingga 5 tag. Tekan Enter atau koma untuk menambah.
             </p>
-            
+
             {/* Bagian List Badge Tags */}
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-3">
@@ -173,9 +185,9 @@ export default function AskQuestionForm() {
                     className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d] font-medium transition-all"
                   >
                     {tag}
-                    <button 
-                      type="button" 
-                      onClick={() => removeTag(tag)} 
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
                       className="hover:bg-[#39739d]/10 p-0.5 rounded text-[#39739d] hover:text-[#c91d2e] transition-colors"
                     >
                       <X className="w-3 h-3 stroke-[2.5]" />
@@ -184,7 +196,7 @@ export default function AskQuestionForm() {
                 ))}
               </div>
             )}
-            
+
             <Input
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
@@ -202,20 +214,20 @@ export default function AskQuestionForm() {
 
           {/* Tombol Aksi Bawah */}
           <div className="flex items-center gap-3 pt-2">
-            <Button 
-              type="submit" 
-              variant="primary" 
-              size="lg" 
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
               loading={isPending}
               className="bg-[#0a95ff] hover:bg-[#0074cc] text-white font-medium text-sm px-5 py-2.5 rounded shadow-sm transition-colors"
             >
               Review Pertanyaan Anda
             </Button>
-            <Button 
-              type="button" 
-              variant="ghost" 
-              size="lg" 
-              onClick={() => router.back()} 
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              onClick={() => router.back()}
               disabled={isPending}
               className="text-[#c91d2e] hover:bg-[#fce8e9] font-medium text-sm px-5 py-2.5 rounded transition-colors"
             >
