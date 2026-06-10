@@ -1,88 +1,110 @@
 # TanyaAksata — Halaman, Fitur & Endpoint
 
-> Base URL API: `http://localhost:8000/api/v1`
-> Auth: `Authorization: Bearer {token}` (Laravel Sanctum)
-> Form Validation: **React Hook Form** + **Zod** (`src/lib/schemas.ts`)
+> Base URL: `http://localhost:8000/api/v1`  
+> Auth: `Authorization: Bearer {token}` (Laravel Sanctum, disimpan di cookie `auth_token`)  
+> Form: React Hook Form + Zod (`src/lib/schemas.ts`)  
+> Logic/View dipisah di `src/features/`
+
+---
+
+## Ringkasan Semua Halaman
+
+| # | Route | Feature Folder | Auth | Role |
+|---|-------|---------------|------|------|
+| 1 | `/` | `features/home` | Public | — |
+| 2 | `/questions` | `features/questions` | Public | — |
+| 3 | `/questions/[id]` | `features/questions` | Public (aksi butuh login) | — |
+| 4 | `/questions/ask` | `features/questions` | 🔒 Login | — |
+| 5 | `/questions/[id]/edit` | `features/questions` | 🔒 Login (pemilik/mod/admin) | — |
+| 6 | `/search` | `features/search` | Public | — |
+| 7 | `/users/[id]` | `features/userProfile` | Public (aksi butuh login) | — |
+| 8 | `/profile` | `features/profile` | 🔒 Login | — |
+| 9 | `/users` | — | Public | — |
+| 10 | `/bookmarks` | `features/bookmarks` | 🔒 Login | — |
+| 11 | `/notifications` | `features/notifications` | 🔒 Login | — |
+| 12 | `/leaderboard` | `features/leaderboard` | Public | — |
+| 13 | `/tags` | — | Public | — |
+| 14 | `/login` | `features/auth/login` | Guest | — |
+| 15 | `/register` | `features/auth/register` | Guest | — |
+| 16 | `/moderation` | `features/moderation` | 🔒 Login | admin / moderator |
+| 17 | `/admin` | `features/admin` | 🔒 Login | admin |
 
 ---
 
 ## 1. Home / Feed
 
-**Route:** `/`
-**File:** `src/app/page.tsx`
-**Komponen:** `PostList`, `RightSidebar`
+**Route:** `/`  
+**Files:** `src/app/page.tsx` → `HomeLogic.tsx` → `HomeView.tsx`
 
 ### Fitur
-- Daftar post terbaru (paginasi 10/halaman)
+- Daftar post terbaru dengan paginasi (10/hal)
 - Tab switch: Terbaru / Trending
 - Sidebar kanan: widget "Ajukan Pertanyaan" + tag populer
-- Tombol "Ajukan Pertanyaan" → ke `/questions/ask`
-
-### Endpoint
-| Method | Endpoint | Keterangan |
-|--------|----------|------------|
-| `GET` | `/posts?page={n}` | Daftar post terbaru |
-| `GET` | `/posts/trending?limit={n}` | Post trending 7 hari terakhir |
-| `GET` | `/categories` | List kategori untuk sidebar/filter |
-
----
-
-## 2. Semua Pertanyaan
-
-**Route:** `/questions`
-**File:** `src/app/(main)/questions/page.tsx`
-**Komponen:** `PostList`, `RightSidebar`
-
-### Fitur
-- List post + tab Terbaru/Trending
-- Filter: Terbaru, Paling Banyak Vote, Paling Banyak Komentar
 - Tombol "Ajukan Pertanyaan"
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `GET` | `/posts?page={n}` | Daftar semua post |
-| `GET` | `/posts/trending?limit={n}` | Post trending |
+| `GET` | `/posts?page={n}` | Daftar post terbaru |
+| `GET` | `/posts/trending?limit={n}` | Post trending 7 hari |
+| `GET` | `/categories` | Kategori untuk sidebar |
+
+---
+
+## 2. Semua Pertanyaan
+
+**Route:** `/questions`  
+**Files:** `src/app/(main)/questions/page.tsx` → `QuestionsLogic.tsx` → `QuestionsView.tsx`
+
+### Fitur
+- List post dengan sort: Terbaru, Terlama, Paling Banyak Vote, Paling Banyak Komentar
+- Filter aktif dari URL query (`?category_id=`, `?tag=`)
+- Tampil total jumlah pertanyaan
+- Paginasi
+
+### Endpoint
+| Method | Endpoint | Keterangan |
+|--------|----------|------------|
+| `GET` | `/posts?page={n}` | List semua post |
+| `GET` | `/posts/search?category_id=&tag=&sort=&page=` | Filter & sort post |
 
 ---
 
 ## 3. Detail Pertanyaan
 
-**Route:** `/questions/[id]`
-**File:** `src/app/(main)/questions/[id]/page.tsx`
-**Komponen:** `PostDetailClient`, `CommentList`, `CommentItem`, `CommentForm`, `VoteButton`, `ReportButton`
+**Route:** `/questions/[id]`  
+**Files:** `src/app/(main)/questions/[id]/page.tsx` → `QuestionDetailLogic.tsx` → `QuestionDetailView.tsx` + `CommentSection.tsx`
 
 ### Fitur
-- Detail isi pertanyaan lengkap
-- Vote post (upvote / downvote)
+- Detail post lengkap (judul, isi, tag, author)
+- Vote post (upvote/downvote) — tidak bisa vote milik sendiri
 - Like/unlike post
 - Toggle bookmark
-- Edit post → ke `/questions/[id]/edit` (pemilik/admin/moderator)
-- Hapus post (pemilik/admin/moderator)
+- Edit post → `/questions/[id]/edit` (pemilik/mod/admin)
+- Hapus post dengan konfirmasi (pemilik/mod/admin)
 - Laporkan post
-- Daftar jawaban/komentar beserta replies
+- Daftar jawaban/komentar beserta replies nested
 - Vote komentar
 - Like komentar
-- Balas komentar (reply)
-- Terima jawaban — tandai `is_accepted` (pemilik post)
-- Tulis jawaban baru (user login)
+- Balas komentar (toggle reply form)
+- Terima jawaban → tandai `is_accepted` + `is_solved` (pemilik post)
+- Form tulis jawaban baru (user login)
+- Form reply komentar (user login)
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
 | `GET` | `/posts/{id}` | Detail post (views_count +1) |
-| `POST` | `/posts/{postId}/vote` | Vote post `{vote: 1 atau -1}` |
-| `GET` | `/posts/{postId}/user-vote` | Cek vote user pada post |
-| `POST` | `/posts/{postId}/like` | Toggle like post |
-| `GET` | `/posts/{postId}/user-like` | Cek like status post |
-| `POST` | `/posts/{postId}/bookmark` | Toggle bookmark post |
 | `DELETE` | `/posts/{id}` | Hapus post (soft delete) |
 | `GET` | `/posts/{postId}/comments` | List komentar + replies |
-| `POST` | `/comments` | Buat komentar / reply |
+| `POST` | `/posts/{postId}/vote` | Vote post `{vote: 1\|-1}` |
+| `GET` | `/posts/{postId}/user-vote` | Status vote user pada post |
+| `POST` | `/posts/{postId}/like` | Toggle like post |
+| `GET` | `/posts/{postId}/user-like` | Status like user pada post |
+| `POST` | `/posts/{postId}/bookmark` | Toggle bookmark |
+| `POST` | `/comments` | Buat komentar/reply |
 | `POST` | `/comments/{commentId}/vote` | Vote komentar |
-| `GET` | `/comments/{commentId}/user-vote` | Cek vote user pada komentar |
 | `POST` | `/comments/{commentId}/like` | Toggle like komentar |
-| `GET` | `/comments/{commentId}/user-like` | Cek like komentar |
 | `POST` | `/comments/{id}/accept` | Terima jawaban (toggle) |
 | `POST` | `/reports` | Laporkan post |
 
@@ -90,27 +112,18 @@
 
 ## 4. Ajukan Pertanyaan
 
-**Route:** `/questions/ask`
-**File:** `src/app/(main)/questions/ask/page.tsx`
-**Komponen:** `AskQuestionForm`
-**Form:** `useForm` + `zodResolver(createPostSchema)`
+**Route:** `/questions/ask`  
+**Files:** `src/app/(main)/questions/ask/page.tsx` → `AskLogic.tsx` → `AskView.tsx`  
+**Form:** `useAskForm.ts` + `createPostSchema`
 
 ### Fitur
-- Form judul pertanyaan (min 15 karakter)
+- Form judul (min 15 karakter)
 - Form isi pertanyaan (min 30 karakter)
-- Pilih kategori (dropdown — `Controller`)
-- Tambah tag (maks 5, tekan Enter/koma)
-- Validasi client-side via Zod sebelum submit
-- Map error validasi Laravel ke field via `setError(fieldName)`
-- Submit → redirect ke halaman detail post
-
-### Validasi (Zod — `createPostSchema`)
-| Field | Rule |
-|-------|------|
-| `title` | min 15, max 255 karakter |
-| `body` | min 30 karakter |
-| `category_id` | wajib dipilih |
-| `tags` | array string, maks 5 item, tiap tag maks 50 karakter |
+- Pilih kategori dari dropdown
+- Tag input: tambah hingga 5 tag (Enter/koma), hapus tag
+- Validasi client-side via Zod
+- Map error validasi Laravel ke field
+- Submit → redirect ke detail post
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
@@ -122,30 +135,21 @@
 
 ## 5. Edit Pertanyaan
 
-**Route:** `/questions/[id]/edit`
-**File:** `src/app/(main)/questions/[id]/edit/page.tsx`
-**Komponen:** `EditPostClient`
-**Form:** `useForm` + `zodResolver(updatePostSchema)` + `reset()` saat data post load
+**Route:** `/questions/[id]/edit`  
+**Files:** `src/app/(main)/questions/[id]/edit/page.tsx` → `EditLogic.tsx` → `EditView.tsx`  
+**Form:** `useEditForm.ts` + `updatePostSchema`
 
 ### Fitur
-- Form pre-filled via `reset()` setelah post data fetched
+- Form pre-filled dari data post (`reset()` saat data load)
 - Edit judul, isi, kategori, tag
-- Field opsional "Ringkasan Edit"
-- Maksimal 3 kali edit (dibatasi BE)
+- Ringkasan edit (opsional)
+- Warning sisa quota edit (maks 3x)
 - Submit → redirect ke detail post
-
-### Validasi (Zod — `updatePostSchema`)
-| Field | Rule |
-|-------|------|
-| `title` | min 15, max 255 (opsional) |
-| `body` | min 30 (opsional) |
-| `category_id` | wajib jika diisi |
-| `edit_summary` | maks 255 karakter |
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `GET` | `/posts/{id}` | Ambil data post untuk pre-fill |
+| `GET` | `/posts/{id}` | Data post untuk pre-fill |
 | `GET` | `/categories?flat=1` | List kategori |
 | `PATCH` | `/posts/{id}` | Update post |
 
@@ -153,37 +157,35 @@
 
 ## 6. Pencarian
 
-**Route:** `/search?q=...`
-**File:** `src/app/(main)/search/page.tsx`
-**Hook:** `useSearchPosts`
+**Route:** `/search?q=...`  
+**Files:** `src/app/(main)/search/page.tsx` → `SearchLogic.tsx` → `SearchView.tsx`
 
 ### Fitur
-- Cari post berdasarkan keyword (title & body)
-- Filter: kategori, tag, user, rentang tanggal
-- Sorting: Relevansi, Terbaru, Paling Banyak Vote
-- Hasil paginasi (15/halaman)
+- Search bar — submit baru update URL
+- Filter aktif: tag, kategori
+- Sort: Terbaru, Terlama, Paling Banyak Vote, Paling Banyak Komentar
+- Paginasi hasil pencarian
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `GET` | `/posts/search?q=&category_id=&tag=&user_id=&username=&created_from=&created_to=&sort=&page=` | Search & filter post |
+| `GET` | `/posts/search?q=&category_id=&tag=&sort=&page=` | Search & filter post |
 
 ---
 
 ## 7. Profil User (Publik)
 
-**Route:** `/users/[id]`
-**File:** `src/app/(main)/users/[id]/page.tsx`
-**Komponen:** `UserProfileClient`, `PostCard`, `ReputationBadge`
+**Route:** `/users/[id]`  
+**Files:** `src/app/(main)/users/[id]/page.tsx` → `UserProfileLogic.tsx` → `UserProfileView.tsx`
 
 ### Fitur
 - Info profil: nama, bio, lokasi, website, tanggal bergabung
 - Badge reputasi + level (Newbie/Regular/Pro/Expert)
-- Statistik: jumlah post, pengikut, mengikuti
+- Statistik: reputasi, jumlah post, pengikut, mengikuti
 - Daftar badge yang dimiliki
-- Tombol Follow/Unfollow (jika bukan diri sendiri & sudah login)
-- Daftar post milik user
-- Laporkan user
+- Tombol Follow/Unfollow (bukan diri sendiri & sudah login)
+- Tombol "Edit Profil" (jika profil sendiri)
+- Daftar post milik user dengan paginasi
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
@@ -193,242 +195,167 @@
 | `POST` | `/users/{userId}/follow` | Follow user |
 | `DELETE` | `/users/{userId}/unfollow` | Unfollow user |
 | `GET` | `/users/{userId}/is-following` | Cek status following |
-| `POST` | `/reports` | Laporkan user |
 
 ---
 
 ## 8. Profil Sendiri / Settings
 
-**Route:** `/profile`
-**File:** `src/app/(main)/profile/page.tsx`
-**Hook:** `useUpdateProfile`, `useMyBadges`, `useMyFollowing`, `useMyFollowers`
-**Form:** `useForm` + `zodResolver(updateProfileSchema)`
+**Route:** `/profile`  
+**Files:** `src/app/(main)/profile/page.tsx` (ssr:false) → `ProfileLogic.tsx` → `ProfileView.tsx`  
+**Form:** `useProfileForm.ts` + `updateProfileSchema`
 
 ### Fitur
-- Lihat dan edit profil: nama, bio, lokasi, website
-- Upload foto avatar (multipart/form-data otomatis jika ada File)
-- Ganti password (butuh `current_password`) — validasi cross-field via Zod `.refine()`
+- 4 tab: Informasi, Badge, Mengikuti, Pengikut
+- Edit profil: nama, bio, lokasi, website
+- Upload foto avatar (klik ikon kamera → file input hidden)
+- Ganti password dengan validasi cross-field (Zod `.refine()`)
+- Feedback sukses setelah save
 - Daftar badge yang dimiliki
 - Daftar following & followers
-
-### Validasi (Zod — `updateProfileSchema`)
-| Field | Rule |
-|-------|------|
-| `name` | maks 255 karakter |
-| `bio` | maks 1000 karakter |
-| `location` | maks 255 karakter |
-| `website` | URL valid atau string kosong |
-| `current_password` | wajib jika `new_password` diisi (`.refine()`) |
-| `new_password` | min 6 karakter jika diisi |
-| `new_password_confirmation` | harus sama dengan `new_password` (`.refine()`) |
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
 | `GET` | `/profile` | Data profil sendiri |
-| `PUT/PATCH` | `/profile` | Update profil (JSON atau multipart jika ada avatar) |
+| `PATCH` | `/profile` | Update profil (JSON atau multipart jika ada avatar) |
 | `GET` | `/my-badges` | Badge milik user yang login |
 | `GET` | `/users/me/following` | Daftar yang diikuti |
 | `GET` | `/users/me/followers` | Daftar pengikut |
 
 ---
 
-## 9. Daftar Pengguna
+## 9. Bookmark
 
-**Route:** `/users`
-**File:** `src/app/(main)/users/page.tsx`
-**Komponen:** `UserCard`
+**Route:** `/bookmarks`  
+**Files:** `src/app/(main)/bookmarks/page.tsx` (ssr:false) → `BookmarksLogic.tsx` → `BookmarksView.tsx`
 
 ### Fitur
-- Grid daftar semua user
-- Info: nama, avatar, reputasi, level
+- List post yang di-bookmark dengan paginasi (15/hal)
+- Info: judul, kategori, author, tag, waktu disimpan
+- Hapus bookmark individual (dengan konfirmasi)
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `GET` | `/leaderboard?page={n}` | Data user (dipakai sebagai daftar user) |
+| `GET` | `/bookmarks?page={n}` | List semua bookmark |
+| `DELETE` | `/bookmarks/{id}` | Hapus bookmark |
+| `POST` | `/posts/{postId}/bookmark` | Toggle bookmark (dari halaman lain) |
 
 ---
 
-## 10. Bookmark
+## 10. Notifikasi
 
-**Route:** `/bookmarks`
-**File:** `src/app/(main)/bookmarks/page.tsx`
-**Hook:** `useBookmarks`, `useDeleteBookmark`
-
-### Fitur
-- Daftar post yang di-bookmark (paginasi 15/halaman)
-- Info post: judul, kategori, tag, author
-- Hapus bookmark individual
-- Toggle bookmark dari halaman lain
-
-### Endpoint
-| Method | Endpoint | Keterangan |
-|--------|----------|------------|
-| `GET` | `/bookmarks?page={n}` | List semua bookmark user |
-| `DELETE` | `/bookmarks/{id}` | Hapus bookmark (by bookmark ID) |
-| `POST` | `/posts/{postId}/bookmark` | Toggle bookmark (add/remove) |
-
----
-
-## 11. Notifikasi
-
-**Route:** `/notifications`
-**File:** `src/app/(main)/notifications/page.tsx`
-**Hook:** `useNotifications`, `useMarkRead`, `useMarkAllRead`, `useUnreadCount`
+**Route:** `/notifications`  
+**Files:** `src/app/(main)/notifications/page.tsx` (ssr:false) → `NotificationsLogic.tsx` → `NotificationsView.tsx`
 
 ### Fitur
-- Daftar semua notifikasi (paginasi 20/halaman)
-- Tipe: `comment`, `reply`, `vote`, `like`, `follow`, `accepted_answer`, `badge`, `warning`, `ban`, `unban`
-- Tandai satu notifikasi sebagai dibaca
-- Tandai semua notifikasi sebagai dibaca
-- Badge unread count di Navbar (polling setiap 30 detik)
+- List notifikasi paginasi (20/hal)
+- Icon per tipe: comment, reply, vote, like, follow, accepted_answer, badge, warning, ban, unban
+- Notifikasi belum dibaca: highlight biru, klik untuk tandai dibaca
+- Tombol "Tandai semua dibaca"
+- Badge unread count di Navbar (polling 30 detik)
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
 | `GET` | `/notifications?page={n}` | List notifikasi |
-| `PUT` | `/notifications/{id}/read` | Tandai satu notifikasi dibaca |
-| `PUT` | `/notifications/read-all` | Tandai semua notifikasi dibaca |
+| `PUT` | `/notifications/{id}/read` | Tandai satu dibaca |
+| `PUT` | `/notifications/read-all` | Tandai semua dibaca |
 
 ---
 
-## 12. Leaderboard
+## 11. Leaderboard
 
-**Route:** `/leaderboard`
-**File:** `src/app/(main)/leaderboard/page.tsx`
-**Hook:** `useLeaderboard`
+**Route:** `/leaderboard`  
+**Files:** `src/app/(main)/leaderboard/page.tsx` → `LeaderboardLogic.tsx` → `LeaderboardView.tsx`
 
 ### Fitur
-- Ranking user berdasarkan reputasi (desc)
-- Secondary sort: jawaban diterima (desc)
-- Tampil: rank, nama, avatar, reputasi, jumlah post, jumlah accepted answer
+- Ranking user: sort reputasi desc, secondary sort accepted answers
+- Badge rank 1/2/3 dengan icon medali
+- Tampil: rank, avatar, nama, level, reputasi, jumlah post, jumlah accepted
+- Paginasi (15/hal)
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `GET` | `/leaderboard?page={n}` | Data ranking user (paginasi 15/halaman) |
+| `GET` | `/leaderboard?page={n}` | Ranking user |
 
 ---
 
-## 13. Tag
+## 12. Login
 
-**Route:** `/tags`
-**File:** `src/app/(main)/tags/page.tsx`
-
-### Fitur
-- Daftar semua tag
-- Klik tag → filter pertanyaan di `/questions?tag={name}`
-
-### Endpoint
-| Method | Endpoint | Keterangan |
-|--------|----------|------------|
-| `GET` | `/posts/search?tag={name}` | Post berdasarkan tag |
-
----
-
-## 14. Login
-
-**Route:** `/login`
-**File:** `src/app/(auth)/login/page.tsx`
-**Hook:** `useLogin`
-**Form:** `useForm` + `zodResolver(loginSchema)`
+**Route:** `/login`  
+**Files:** `src/app/(auth)/login/page.tsx` → `LoginLogic.tsx` → `LoginView.tsx`  
+**Form:** `useLoginForm.ts` + `loginSchema`
 
 ### Fitur
 - Form email + password
-- Validasi client-side via Zod
-- Error dari API di-map ke `errors.root` atau field via `setError()`
-- Tampil pesan error: email salah, akun banned, dll
-- Link ke halaman register & lupa password
-
-### Validasi (Zod — `loginSchema`)
-| Field | Rule |
-|-------|------|
-| `email` | wajib, format email valid |
-| `password` | wajib diisi |
+- Validasi Zod client-side
+- Error per field dari API (Laravel validation)
+- Error umum ke `errors.root` (email salah, banned, dll)
+- Redirect ke `?redirect=` URL setelah login berhasil
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `POST` | `/auth/login` | Login, terima token Sanctum |
+| `POST` | `/auth/login` | Login, dapat token Sanctum |
 
 ---
 
-## 15. Register
+## 13. Register
 
-**Route:** `/register`
-**File:** `src/app/(auth)/register/page.tsx`
-**Hook:** `useRegister`
-**Form:** `useForm` + `zodResolver(registerSchema)`
+**Route:** `/register`  
+**Files:** `src/app/(auth)/register/page.tsx` → `RegisterLogic.tsx` → `RegisterView.tsx`  
+**Form:** `useRegisterForm.ts` + `registerSchema`
 
 ### Fitur
 - Form nama, email, password, konfirmasi password
 - Validasi cross-field password match via Zod `.refine()`
-- Error validasi Laravel di-map ke field via `setError(fieldName)`
-- Auto-login setelah register berhasil
-
-### Validasi (Zod — `registerSchema`)
-| Field | Rule |
-|-------|------|
-| `name` | wajib, maks 255 karakter |
-| `email` | wajib, format email valid |
-| `password` | min 6 karakter |
-| `password_confirmation` | harus sama dengan `password` (`.refine()`) |
+- Error per field dari API
+- Auto-login setelah register (redirect ke home)
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `POST` | `/auth/register` | Daftar akun baru, terima token |
+| `POST` | `/auth/register` | Daftar, dapat token |
 
 ---
 
-## 16. Dashboard Moderasi
+## 14. Dashboard Moderasi
 
-**Route:** `/moderation`
-**File:** `src/app/(main)/moderation/page.tsx`
-**Hook:** `useModeration`
-**Akses:** Role `admin` atau `moderator`
+**Route:** `/moderation`  
+**Files:** `src/app/(main)/moderation/page.tsx` (ssr:false) → `ModerationLogic.tsx` → `ModerationView.tsx`  
+**Akses:** Role `admin` atau `moderator` (dijaga `useRoleGuard`)
 
-### Fitur
+### 4 Tab
 
-**Tab Laporan:**
-- List laporan dengan filter status: `pending`, `resolved`, `rejected`
-- Detail laporan
-- Resolve laporan dengan `resolveReportSchema`: action (`resolve`/`reject`) + `action_taken` + catatan
+**Tab Laporan**
+- List laporan dengan filter status: pending / resolved / rejected / semua
+- Expand resolve form inline per laporan
+- Pilih action: resolve/reject + tindak lanjut (ignore, warn, delete_content, ban_user)
+- Catatan resolusi opsional
 
-**Tab Post Terhapus:**
-- List post yang di-soft delete
-- Detail post yang dihapus
-- Riwayat edit post
+**Tab Post Dihapus**
+- List post soft-deleted
+- Expand riwayat edit per post (judul before/after, editor, waktu, summary)
 
-**Tab Komentar Terhapus:**
-- List komentar yang di-soft delete
-- Riwayat edit komentar
+**Tab Komentar Dihapus**
+- List komentar soft-deleted
+- Expand riwayat edit per komentar (body before/after)
 
-**Tab Manajemen User:**
-- Beri peringatan (`warnUserSchema`) — auto-ban jika ≥ 3x
-- Ban user (`banUserSchema` — durasi 1–365 hari, default 30)
-- Unban user
-
-### Validasi (Zod)
-| Schema | Fields |
-|--------|--------|
-| `warnUserSchema` | `reason` — wajib, maks 255 karakter |
-| `banUserSchema` | `days` — integer 1–365, default 30; `reason` — opsional |
-| `resolveReportSchema` | `action` — enum; `action_taken` — enum opsional; `resolution_note` — opsional |
+**Tab Manajemen User**
+- Input UUID user → Warn (dengan alasan)
+- Input UUID user → Ban (durasi hari + alasan)
+- Input UUID user → Unban
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
-| `GET` | `/moderation/dashboard` | Dashboard info |
-| `GET` | `/moderation/reports?status={status}&page={n}` | List laporan |
-| `GET` | `/moderation/reports/{id}` | Detail laporan |
+| `GET` | `/moderation/reports?status=&page=` | List laporan |
 | `PUT` | `/moderation/reports/{id}/resolve` | Resolve/reject laporan |
-| `GET` | `/moderation/posts/trashed?page={n}` | List post terhapus |
-| `GET` | `/moderation/posts/{id}/trashed` | Detail post terhapus |
+| `GET` | `/moderation/posts/trashed?page=` | List post terhapus |
 | `GET` | `/moderation/posts/{id}/history` | Riwayat edit post |
-| `GET` | `/moderation/comments/trashed?page={n}` | List komentar terhapus |
-| `GET` | `/moderation/comments/{id}/trashed` | Detail komentar terhapus |
+| `GET` | `/moderation/comments/trashed?page=` | List komentar terhapus |
 | `GET` | `/moderation/comments/{id}/history` | Riwayat edit komentar |
 | `POST` | `/moderation/users/{userId}/warn` | Beri peringatan |
 | `POST` | `/moderation/users/{userId}/ban` | Ban user |
@@ -436,112 +363,65 @@
 
 ---
 
-## 17. Dashboard Admin
+## 15. Dashboard Admin
 
-**Route:** `/admin`
-**File:** `src/app/(main)/admin/page.tsx`
-**Hook:** `useAdmin`
-**Akses:** Role `admin` saja
+**Route:** `/admin`  
+**Files:** `src/app/(main)/admin/page.tsx` (ssr:false) → `AdminLogic.tsx` → `AdminView.tsx`  
+**Akses:** Role `admin` saja (dijaga `useRoleGuard`)
 
-### Fitur
+### 4 Tab
 
-**Tab Statistik:**
-- Total user, post, komentar, vote, like, laporan, kategori
-- Engagement: total interaksi, rata-rata komentar/post, rata-rata vote/post
-- Grafik trend aktivitas 7 hari (post, komentar, user baru, vote, like)
+**Tab Statistik**
+- 8 stat cards: total user, post, komentar, laporan pending, vote, like, kategori, banned user
+- Engagement metrics: total interaksi, avg komentar/post, avg vote/post
+- Tabel trend aktivitas 7 hari (post, komentar, user baru, vote, like)
 
-**Tab Pengguna & Role:**
-- List semua user beserta role-nya
-- Assign role ke user (`user`, `moderator`, `admin`)
-- Remove role dari user
+**Tab Pengguna & Role**
+- Form assign role: UUID user + pilih role → Assign
+- Form remove role: UUID user + pilih role → Remove
+- Tabel semua user: nama, email, role badge, reputasi
 
-**Tab Laporan:**
-- Sama dengan laporan moderasi (endpoint `/admin/reports`)
+**Tab Laporan**
+- Sama dengan tab laporan moderasi (endpoint `/admin/reports`)
 
-**Tab Kategori:**
-- Buat kategori baru
-- Edit kategori
-- Hapus kategori
+**Tab Kategori**
+- Tombol "Tambah Kategori" → create form slide down
+- List semua kategori dengan inline edit dan hapus
 
 ### Endpoint
 | Method | Endpoint | Keterangan |
 |--------|----------|------------|
+| `GET` | `/admin/statistics` | Statistik platform |
+| `GET` | `/admin/statistics/trend` | Trend 7 hari |
 | `GET` | `/admin/users` | List semua user + roles |
-| `POST` | `/admin/users/{userId}/assign-role` | Assign role ke user |
-| `POST` | `/admin/users/{userId}/remove-role` | Remove role dari user |
-| `GET` | `/admin/statistics` | Statistik platform lengkap |
-| `GET` | `/admin/statistics/trend` | Trend aktivitas 7 hari terakhir |
-| `GET` | `/admin/reports?status={status}&page={n}` | List laporan |
-| `GET` | `/admin/reports/{id}` | Detail laporan |
-| `PUT` | `/admin/reports/{id}/resolve` | Resolve/reject laporan |
-| `POST` | `/categories` | Buat kategori baru |
+| `POST` | `/admin/users/{userId}/assign-role` | Assign role |
+| `POST` | `/admin/users/{userId}/remove-role` | Remove role |
+| `GET` | `/admin/reports?status=&page=` | List laporan |
+| `PUT` | `/admin/reports/{id}/resolve` | Resolve laporan |
+| `POST` | `/categories` | Buat kategori |
 | `PATCH` | `/categories/{id}` | Edit kategori |
 | `DELETE` | `/categories/{id}` | Hapus kategori |
 
 ---
 
-## Konvensi Form (React Hook Form + Zod)
+## Pola Arsitektur
 
-Semua form mengikuti pola ini:
-
-```tsx
-const { register, handleSubmit, setError, formState: { errors } } = useForm<FormData>({
-  resolver: zodResolver(schema),
-});
-
-function onSubmit(data: FormData) {
-  mutate(data, {
-    onError: (err) => {
-      const apiErrors = err?.response?.data?.errors;
-      if (apiErrors) {
-        // Map Laravel validation errors ke field
-        for (const [key, messages] of Object.entries(apiErrors)) {
-          setError(key, { message: messages[0] });
-        }
-      } else {
-        // Fallback ke root error
-        setError("root", { message: err?.response?.data?.message });
-      }
-    },
-  });
-}
+```
+src/app/[route]/page.tsx          → Server component, import Logic
+src/features/[feature]/
+  XxxLogic.tsx   ("use client")   → useState, hooks, API calls, handlers
+  XxxView.tsx                     → Pure UI, terima semua via props
+  useXxxForm.ts                   → RHF + Zod form config (jika ada form)
+src/hooks/                        → React Query hooks per domain
+src/lib/schemas.ts                → Semua Zod schemas
+src/middleware.ts                 → Route protection (token check)
+src/hooks/useRoleGuard.ts         → Role check + redirect
 ```
 
-### Semua Schemas (`src/lib/schemas.ts`)
-| Schema | Digunakan di |
-|--------|-------------|
-| `loginSchema` | `/login` |
-| `registerSchema` | `/register` |
-| `createPostSchema` | `AskQuestionForm` |
-| `updatePostSchema` | `EditPostClient` |
-| `createCommentSchema` | `CommentForm` |
-| `updateCommentSchema` | (edit komentar inline) |
-| `updateProfileSchema` | `/profile` |
-| `createReportSchema` | `ReportButton` |
-| `warnUserSchema` | moderation — warn user |
-| `banUserSchema` | moderation — ban user |
-| `resolveReportSchema` | moderation/admin — resolve report |
+## Proteksi Akses
 
----
-
-## Ringkasan Cepat
-
-| # | Route | Halaman | Auth | Form |
-|---|-------|---------|------|------|
-| 1 | `/` | Home / Feed | Public | — |
-| 2 | `/questions` | Semua Pertanyaan | Public | — |
-| 3 | `/questions/[id]` | Detail Pertanyaan | Public (aksi butuh login) | `CommentForm` |
-| 4 | `/questions/ask` | Ajukan Pertanyaan | 🔒 Login | `createPostSchema` |
-| 5 | `/questions/[id]/edit` | Edit Pertanyaan | 🔒 Pemilik / Mod / Admin | `updatePostSchema` |
-| 6 | `/search` | Pencarian | Public | — |
-| 7 | `/users/[id]` | Profil User Publik | Public (aksi butuh login) | `ReportButton` |
-| 8 | `/profile` | Profil Sendiri | 🔒 Login | `updateProfileSchema` |
-| 9 | `/users` | Daftar Pengguna | Public | — |
-| 10 | `/bookmarks` | Bookmark Saya | 🔒 Login | — |
-| 11 | `/notifications` | Notifikasi | 🔒 Login | — |
-| 12 | `/leaderboard` | Leaderboard | Public | — |
-| 13 | `/tags` | Tag | Public | — |
-| 14 | `/login` | Login | Guest | `loginSchema` |
-| 15 | `/register` | Register | Guest | `registerSchema` |
-| 16 | `/moderation` | Dashboard Moderasi | 🔒 Moderator / Admin | `warnUserSchema`, `banUserSchema`, `resolveReportSchema` |
-| 17 | `/admin` | Dashboard Admin | 🔒 Admin | `resolveReportSchema` |
+| Layer | Mekanisme | Cek |
+|-------|-----------|-----|
+| Middleware (`src/middleware.ts`) | Cek cookie `auth_token` | Ada token? |
+| `useRoleGuard` hook | Cek `user.roles` via `/auth/me` | Punya role? |
+| Laravel BE | Middleware `auth:sanctum` + `role:admin,moderator` | Double check di server |
