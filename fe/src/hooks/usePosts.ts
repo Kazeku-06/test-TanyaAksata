@@ -134,6 +134,19 @@ export function useVotePost(postId: string) {
   });
 }
 
+export function useUserPostVote(postId: string, enabled = true) {
+  return useQuery({
+    queryKey: ["posts", postId, "user-vote"],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<{ user_vote: 1 | -1 | null }>>(
+        `/posts/${postId}/user-vote`
+      );
+      return data.data;
+    },
+    enabled: enabled && !!postId,
+  });
+}
+
 // ── Like Post ───────────────────────────────────────────────
 export function useLikePost(postId: string) {
   const qc = useQueryClient();
@@ -145,6 +158,19 @@ export function useLikePost(postId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["posts", postId] });
     },
+  });
+}
+
+export function useUserPostLike(postId: string, enabled = true) {
+  return useQuery({
+    queryKey: ["posts", postId, "user-like"],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<{ is_liked: boolean }>>(
+        `/posts/${postId}/user-like`
+      );
+      return data.data;
+    },
+    enabled: enabled && !!postId,
   });
 }
 

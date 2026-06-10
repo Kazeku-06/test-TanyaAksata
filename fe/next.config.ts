@@ -22,6 +22,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: "http://api-ta.neverland.my.id/api/v1/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

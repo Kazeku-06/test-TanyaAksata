@@ -9,9 +9,7 @@ interface RightSidebarProps {
 function AskWidget() {
   return (
     <div className="border border-[#f1b600] bg-[#fdf7e2] rounded p-3 text-sm">
-      <h3 className="font-semibold text-[#3b3229] mb-1">
-        Punya pertanyaan?
-      </h3>
+      <h3 className="font-semibold text-[#3b3229] mb-1">Punya pertanyaan?</h3>
       <p className="text-[#6a5f4b] text-xs mb-2">
         Dapatkan jawaban dari komunitas pengembang aktif.
       </p>
@@ -28,8 +26,16 @@ function AskWidget() {
 // Widget: Hot network tags
 function TagsWidget() {
   const popularTags = [
-    "laravel", "javascript", "react", "php", "python",
-    "mysql", "typescript", "nextjs", "api", "css",
+    "laravel",
+    "javascript",
+    "react",
+    "php",
+    "python",
+    "mysql",
+    "typescript",
+    "nextjs",
+    "api",
+    "css",
   ];
   return (
     <div className="border border-[#e3e6eb] rounded p-3 text-sm">
@@ -54,12 +60,10 @@ function TagsWidget() {
 
 export default function RightSidebar({ children }: RightSidebarProps) {
   return (
-    <aside className="w-[300px] flex-shrink-0 hidden lg:block pt-4">
-      <div className="flex flex-col gap-4">
-        <AskWidget />
-        <TagsWidget />
-        {children}
-      </div>
-    </aside>
+    <div className="space-y-4">
+      <AskWidget />
+      <TagsWidget />
+      {children}
+    </div>
   );
 }
