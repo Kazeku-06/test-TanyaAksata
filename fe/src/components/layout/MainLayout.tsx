@@ -29,9 +29,9 @@ export default function MainLayout({
 
           {/* Right sidebar */}
           {rightSidebar && (
-            <div className="hidden lg:block w-[300px] flex-shrink-0 px-4 pt-4">
-              <div className="flex flex-col gap-4">{rightSidebar}</div>
-            </div>
+            <aside className="hidden lg:block w-[300px] flex-shrink-0 px-4 pt-4">
+              {rightSidebar}
+            </aside>
           )}
         </div>
       </div>
