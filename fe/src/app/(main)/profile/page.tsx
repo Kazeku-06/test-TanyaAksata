@@ -11,7 +11,7 @@ const ProfileLogic = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flox justify-center py-16">
+      <div className="flex justify-center py-16">
         <Spinner size="lg" />
       </div>
     ),
@@ -19,7 +19,9 @@ const ProfileLogic = dynamic(
 );
 
 export default function ProfilePage() {
+  return (
     <MainLayout>
       <ProfileLogic />
     </MainLayout>
+  );
 }
