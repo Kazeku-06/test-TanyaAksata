@@ -65,7 +65,12 @@ export function useLogout() {
     },
     onSettled: () => {
       Cookies.remove("auth_token");
-      qc.clear();
+      // Hanya hapus data yang user-specific, bukan semua cache.
+      // Posts, categories, dll. adalah data publik — tetap di cache.
+      qc.removeQueries({ queryKey: ["me"] });
+      qc.removeQueries({ queryKey: ["notifications"] });
+      qc.removeQueries({ queryKey: ["bookmarks"] });
+      qc.removeQueries({ queryKey: ["me", "following"] });
       window.location.href = "/";
     },
   });

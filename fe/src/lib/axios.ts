@@ -23,10 +23,17 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Hanya redirect ke login jika ada token (sesi expired),
+      // bukan saat request publik yang memang tidak butuh auth.
+      const hadToken = !!Cookies.get("auth_token");
       Cookies.remove("auth_token");
-      // Redirect to login only on client
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
+
+      if (hadToken && typeof window !== "undefined") {
+        const pathname = window.location.pathname;
+        const isAuthPage = pathname === "/login" || pathname === "/register";
+        if (!isAuthPage) {
+          window.location.href = "/login";
+        }
       }
     }
     return Promise.reject(error);
