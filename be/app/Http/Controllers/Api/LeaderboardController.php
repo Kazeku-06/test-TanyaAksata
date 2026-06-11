@@ -16,23 +16,27 @@ class LeaderboardController extends Controller
         $page = (int) $request->get('page', 1);
         $key  = CacheService::leaderboardKey($page);
 
-        $users = Cache::remember($key, CacheService::TTL_LONG, function () {
+        $usersArray = Cache::remember($key, CacheService::TTL_LONG, function () {
             return User::withCount([
                 'posts',
                 'comments as accepted_count' => fn ($q) => $q->where('is_accepted', true),
             ])
                 ->orderBy('reputation', 'desc')
                 ->orderBy('accepted_count', 'desc')
-                ->paginate(15);
+                ->paginate(15)
+                ->toArray();
         });
 
-        // Hitung rank setelah dari cache
-        $rank = ($users->currentPage() - 1) * $users->perPage() + 1;
-        $users->getCollection()->transform(function ($user) use (&$rank) {
-            $user->rank = $rank++;
+        // Hitung rank berdasarkan page & offset
+        $perPage     = $usersArray['per_page'] ?? 15;
+        $currentPage = $usersArray['current_page'] ?? 1;
+        $rank        = ($currentPage - 1) * $perPage + 1;
+
+        $usersArray['data'] = array_map(function ($user) use (&$rank) {
+            $user['rank'] = $rank++;
             return $user;
-        });
+        }, $usersArray['data'] ?? []);
 
-        return response()->json(['success' => true, 'data' => $users]);
+        return response()->json(['success' => true, 'data' => $usersArray]);
     }
 }
