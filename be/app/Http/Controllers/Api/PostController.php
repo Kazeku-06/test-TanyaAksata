@@ -24,7 +24,8 @@ class PostController extends Controller
         $posts = Cache::remember($key, CacheService::TTL_SHORT, function () {
             return Post::with(['user', 'category', 'tags'])
                 ->orderBy('created_at', 'desc')
-                ->paginate(10);
+                ->paginate(10)
+                ->toArray();
         });
 
         return response()->json(['success' => true, 'data' => $posts]);
@@ -222,7 +223,8 @@ class PostController extends Controller
             return Post::where('user_id', $userId)
                 ->with(['category', 'tags'])
                 ->orderBy('created_at', 'desc')
-                ->paginate(10);
+                ->paginate(10)
+                ->toArray();
         });
 
         return response()->json(['success' => true, 'data' => $posts]);
@@ -314,7 +316,8 @@ class PostController extends Controller
                 ->where('created_at', '>=', now()->subDays(7))
                 ->orderByRaw('(votes_count * 2 + comments_count * 1.5 + likes_count * 1 + views_count * 0.5) DESC')
                 ->limit($limit)
-                ->get();
+                ->get()
+                ->toArray();
         });
 
         return response()->json(['success' => true, 'data' => $posts]);
