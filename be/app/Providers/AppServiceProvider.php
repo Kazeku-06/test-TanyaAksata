@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
          * Setelah limit, tunggu 60 detik.
          */
         RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute(10)
+            return Limit::perMinute(100)
                 ->by($request->ip())
                 ->response(function () {
                     return response()->json([
@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
          * 60 request per menit per IP.
          */
         RateLimiter::for('public', function (Request $request) {
-            return Limit::perMinute(60)
+            return Limit::perMinute(100)
                 ->by($request->ip())
                 ->response(function () {
                     return response()->json([
@@ -77,7 +77,7 @@ class AppServiceProvider extends ServiceProvider
          * 30 request per menit per user — cegah spam.
          */
         RateLimiter::for('write', function (Request $request) {
-            return Limit::perMinute(30)
+            return Limit::perMinute(100)
                 ->by(optional($request->user())->id ?: $request->ip())
                 ->response(function () {
                     return response()->json([
