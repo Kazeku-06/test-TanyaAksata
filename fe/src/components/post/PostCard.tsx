@@ -58,14 +58,18 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-[#6a737c]">
-            <Avatar name={post.user.name} avatar={post.user.avatar} size="xs" />
-            <Link
-              href={`/users/${post.user.id}`}
-              className="text-[#0074cc] hover:underline font-medium"
-            >
-              {post.user.name}
-            </Link>
-            <span className="text-[#9199a1]">{post.user.reputation}</span>
+            <Avatar name={post.user?.name || "Deleted"} avatar={post.user?.avatar} size="xs" />
+            {post.user ? (
+              <Link
+                href={`/users/${post.user.id}`}
+                className="text-[#0074cc] hover:underline font-medium"
+              >
+                {post.user.name}
+              </Link>
+            ) : (
+              <span className="italic">Deleted User</span>
+            )}
+            <span className="text-[#9199a1]">{post.user?.reputation ?? 0}</span>
             <span>·</span>
             <span>{timeAgo(post.created_at)}</span>
             {post.is_bookmarked && (

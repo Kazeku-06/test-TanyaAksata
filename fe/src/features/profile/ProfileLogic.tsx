@@ -28,6 +28,23 @@ export default function ProfileLogic() {
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Validate file type strictly
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/gif", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("root", { message: "Format gambar tidak didukung. Gunakan JPEG, PNG, atau GIF." });
+      e.target.value = "";
+      return;
+    }
+
+    // Validate file size (2MB)
+    const MAX_SIZE = 2 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setError("root", { message: "Ukuran avatar maksimal 2MB." });
+      e.target.value = "";
+      return;
+    }
+
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   }
@@ -63,8 +80,22 @@ export default function ProfileLogic() {
         };
         const apiErrors = axiosErr?.response?.data?.errors;
         if (apiErrors) {
+          const registeredFields = ["name", "bio", "location", "website", "current_password", "new_password", "new_password_confirmation"];
+          let hasUnmappedError = false;
+          let unmappedMessage = "";
+
           for (const [key, messages] of Object.entries(apiErrors)) {
-            setError(key as keyof UpdateProfileFormData, { message: messages[0] });
+            if (registeredFields.includes(key)) {
+              setError(key as keyof UpdateProfileFormData, { message: messages[0] });
+            } else {
+              hasUnmappedError = true;
+              unmappedMessage += messages[0] + " ";
+            }
+          }
+          
+          if (hasUnmappedError) {
+             const backendMessage = axiosErr?.response?.data?.message ? axiosErr.response.data.message + " | " : "";
+             setError("root", { message: backendMessage + unmappedMessage.trim() });
           }
         } else {
           setError("root", {
