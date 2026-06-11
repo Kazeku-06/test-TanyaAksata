@@ -23,17 +23,22 @@ class AppServiceProvider extends ServiceProvider
      * Konfigurasi semua rate limiter aplikasi.
      *
      * OWASP A04: Insecure Design — batasi brute force & abuse.
+     *
+     * Key strategy:
+     * - User login  → by user ID (limit per akun, bukan per IP)
+     * - Guest/publik → by IP
+     * - Auth routes  → by IP saja (belum ada user ID saat login)
      */
     protected function configureRateLimiting(): void
     {
         /**
-         * Auth limiter — paling ketat.
-         * Login & register: 10 request per menit per IP.
-         * Setelah limit, tunggu 60 detik.
+         * Auth limiter — login & register.
+         * By IP karena belum ada user ID saat request masuk.
+         * 30 req/menit per IP — cukup longgar untuk dev, tetap cegah brute force.
          */
         RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute(10)
-                ->by($request->ip())
+            return Limit::perMinute(30)
+                ->by('auth:' . $request->ip())
                 ->response(function () {
                     return response()->json([
                         'success' => false,
@@ -44,11 +49,12 @@ class AppServiceProvider extends ServiceProvider
 
         /**
          * Public read limiter — endpoint publik tanpa auth.
-         * 60 request per menit per IP.
+         * By IP karena tidak ada user ID.
+         * 300 req/menit per IP — longgar untuk akses banyak halaman sekaligus.
          */
         RateLimiter::for('public', function (Request $request) {
-            return Limit::perMinute(60)
-                ->by($request->ip())
+            return Limit::perMinute(300)
+                ->by('public:' . $request->ip())
                 ->response(function () {
                     return response()->json([
                         'success' => false,
@@ -58,12 +64,17 @@ class AppServiceProvider extends ServiceProvider
         });
 
         /**
-         * Authenticated user limiter.
-         * 120 request per menit per user (atau IP jika belum login).
+         * Authenticated user limiter — protected routes.
+         * By user ID jika login, fallback ke IP jika guest.
+         * 500 req/menit per user / IP.
          */
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(120)
-                ->by(optional($request->user())->id ?: $request->ip())
+            $key = $request->user()
+                ? 'api:user:' . $request->user()->id
+                : 'api:ip:' . $request->ip();
+
+            return Limit::perMinute(500)
+                ->by($key)
                 ->response(function () {
                     return response()->json([
                         'success' => false,
@@ -74,11 +85,16 @@ class AppServiceProvider extends ServiceProvider
 
         /**
          * Write operations limiter — POST/PUT/PATCH/DELETE.
-         * 30 request per menit per user — cegah spam.
+         * By user ID jika login, fallback ke IP.
+         * 200 req/menit — cegah spam tapi tidak ganggu pemakaian normal.
          */
         RateLimiter::for('write', function (Request $request) {
-            return Limit::perMinute(30)
-                ->by(optional($request->user())->id ?: $request->ip())
+            $key = $request->user()
+                ? 'write:user:' . $request->user()->id
+                : 'write:ip:' . $request->ip();
+
+            return Limit::perMinute(200)
+                ->by($key)
                 ->response(function () {
                     return response()->json([
                         'success' => false,
@@ -89,11 +105,16 @@ class AppServiceProvider extends ServiceProvider
 
         /**
          * Report limiter — cegah spam laporan.
-         * 5 laporan per 10 menit per user.
+         * By user ID jika login, fallback ke IP.
+         * 20 laporan per 10 menit.
          */
         RateLimiter::for('report', function (Request $request) {
-            return Limit::perMinutes(10, 5)
-                ->by(optional($request->user())->id ?: $request->ip())
+            $key = $request->user()
+                ? 'report:user:' . $request->user()->id
+                : 'report:ip:' . $request->ip();
+
+            return Limit::perMinutes(10, 20)
+                ->by($key)
                 ->response(function () {
                     return response()->json([
                         'success' => false,
@@ -104,11 +125,16 @@ class AppServiceProvider extends ServiceProvider
 
         /**
          * Vote/like limiter — cegah vote manipulation.
-         * 60 vote/like per menit per user.
+         * By user ID jika login, fallback ke IP.
+         * 200 interaksi per menit.
          */
         RateLimiter::for('interaction', function (Request $request) {
-            return Limit::perMinute(60)
-                ->by(optional($request->user())->id ?: $request->ip())
+            $key = $request->user()
+                ? 'interaction:user:' . $request->user()->id
+                : 'interaction:ip:' . $request->ip();
+
+            return Limit::perMinute(200)
+                ->by($key)
                 ->response(function () {
                     return response()->json([
                         'success' => false,
