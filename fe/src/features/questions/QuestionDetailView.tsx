@@ -9,6 +9,7 @@ import { timeAgo, formatCount, cn } from "@/lib/utils";
 import Spinner from "@/components/ui/Spinner";
 import Avatar from "@/components/ui/Avatar";
 import VoteButton from "@/components/post/VoteButton";
+import ReportButton from "@/components/post/ReportButton";
 import CommentSection from "./CommentSection";
 
 interface QuestionDetailViewProps {
@@ -174,13 +175,7 @@ export default function QuestionDetailView({
 
               {/* Laporan */}
               {me && !isPostOwner && (
-                <Link
-                  href={`/questions/${post.id}/report`}
-                  className="flex items-center gap-1 hover:text-[#c91d2e] transition-colors"
-                >
-                  <Flag className="w-3.5 h-3.5" />
-                  Laporkan
-                </Link>
+                <ReportButton targetType="post" targetId={post.id} />
               )}
 
               {/* Edit */}
