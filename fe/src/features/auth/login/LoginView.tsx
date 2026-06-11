@@ -70,9 +70,6 @@ export default function LoginView({
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium text-[#232629]">Password</label>
-                  <Link href="/forgot-password" title="Belum diimplementasikan" className="text-xs text-[#0074cc] hover:text-[#005999] font-medium">
-                    Lupa password?
-                  </Link>
                 </div>
                 <Input
                   type="password"
