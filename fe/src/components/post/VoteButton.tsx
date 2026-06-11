@@ -21,51 +21,53 @@ export default function VoteButton({
   return (
     <div
       className={cn(
-        "flex items-center gap-1",
-        orientation === "vertical" ? "flex-col" : "flex-row"
+        "flex items-center justify-center select-none",
+        orientation === "vertical" ? "flex-col gap-1.5 w-12" : "flex-row gap-3"
       )}
     >
+      {/* 1. UPVOTE BUTTON */}
       <button
+        type="button"
         onClick={() => onVote(1)}
         disabled={disabled}
         aria-label="Upvote"
         className={cn(
-          "p-1 rounded-full border-2 transition-colors",
+          "p-1.5 rounded-full transition-colors flex items-center justify-center border border-transparent",
           userVote === 1
-            ? "border-[#f48024] text-[#f48024]"
-            : "border-[#babfc4] text-[#babfc4] hover:border-[#f48024] hover:text-[#f48024]",
-          disabled && "opacity-40 cursor-not-allowed"
+            ? "text-[#f48024]" // Warna orange aktif khas SO
+            : "text-[#babfc4] hover:bg-[#f8f9f9] hover:text-[#f48024]", // Efek hover soft abu ke orange
+          disabled && "opacity-30 cursor-not-allowed"
         )}
       >
-        <ChevronUp className="w-5 h-5" />
+        {/* Menggunakan stroke besar (strokeWidth 3) agar mirip panah tebal SO */}
+        <ChevronUp className="w-7 h-7 stroke-[3]" />
       </button>
 
+      {/* 2. VOTE COUNT */}
       <span
         className={cn(
-          "font-bold text-base",
-          userVote === 1
-            ? "text-[#f48024]"
-            : userVote === -1
-            ? "text-[#0a95ff]"
-            : "text-[#6a737c]"
+          "font-semibold text-lg tracking-tight text-center leading-none min-w-[20px]",
+          userVote !== null ? "text-[#232629] font-bold" : "text-[#6a737c]"
         )}
       >
         {formatCount(count)}
       </span>
 
+      {/* 3. DOWNVOTE BUTTON */}
       <button
+        type="button"
         onClick={() => onVote(-1)}
         disabled={disabled}
         aria-label="Downvote"
         className={cn(
-          "p-1 rounded-full border-2 transition-colors",
+          "p-1.5 rounded-full transition-colors flex items-center justify-center border border-transparent",
           userVote === -1
-            ? "border-[#0a95ff] text-[#0a95ff]"
-            : "border-[#babfc4] text-[#babfc4] hover:border-[#0a95ff] hover:text-[#0a95ff]",
-          disabled && "opacity-40 cursor-not-allowed"
+            ? "text-[#f48024]" // Di SO asli, downvote aktif juga berwarna orange hangat!
+            : "text-[#babfc4] hover:bg-[#f8f9f9] hover:text-[#f48024]",
+          disabled && "opacity-30 cursor-not-allowed"
         )}
       >
-        <ChevronDown className="w-5 h-5" />
+        <ChevronDown className="w-7 h-7 stroke-[3]" />
       </button>
     </div>
   );
