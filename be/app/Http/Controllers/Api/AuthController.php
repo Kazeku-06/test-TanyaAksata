@@ -110,7 +110,7 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Login berhasil',
             'data' => [
-                'user' => $user,
+                'user' => $user->load('roles'),
                 'token' => $token,
                 'token_type' => 'Bearer'
             ]
@@ -139,7 +139,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $request->user()
+            'data' => $request->user()->load('roles')
         ], 200);
     }
 }
