@@ -45,10 +45,21 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
+            $errors = $validator->errors();
+            $debugMsg = "";
+            if ($errors->has('avatar')) {
+                if ($request->hasFile('avatar')) {
+                    $file = $request->file('avatar');
+                    $debugMsg = " Avatar info: Valid=" . ($file->isValid() ? 'true' : 'false') . ", ErrorCode=" . $file->getError() . ", ErrorMsg=" . $file->getErrorMessage() . ", Mime=" . $file->getMimeType();
+                } else {
+                    $debugMsg = " Avatar is NOT a file. It is type: " . gettype($request->input('avatar'));
+                }
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $validator->errors()
+                'message' => 'Validasi gagal.' . $debugMsg,
+                'errors' => $errors
             ], 422);
         }
 

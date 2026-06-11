@@ -40,7 +40,13 @@ export function useUpdateProfile() {
           if (v !== undefined && v !== null) form.append(k, v as string | Blob);
         }
         const { data } = await api.post<ApiResponse<User>>("/profile", form, {
-          headers: { "Content-Type": "multipart/form-data" },
+          transformRequest: [
+            (data, headers) => {
+              delete headers["Content-Type"];
+              delete headers.post?.["Content-Type"];
+              return data;
+            },
+          ],
         });
         return data.data;
       }
@@ -63,6 +69,7 @@ export function useFollow(userId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["users", userId, "profile"] });
       qc.invalidateQueries({ queryKey: ["me", "following"] });
+      qc.invalidateQueries({ queryKey: ["users", userId, "is-following"] });
     },
   });
 }
@@ -76,6 +83,7 @@ export function useUnfollow(userId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["users", userId, "profile"] });
       qc.invalidateQueries({ queryKey: ["me", "following"] });
+      qc.invalidateQueries({ queryKey: ["users", userId, "is-following"] });
     },
   });
 }
