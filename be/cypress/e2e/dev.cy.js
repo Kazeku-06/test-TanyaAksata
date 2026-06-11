@@ -1,5 +1,5 @@
 describe('Full API User Journey', () => {
-  const apiUrl = 'http://localhost:8000/api/v1';
+  const apiUrl = 'https://api-ta.neverland.my.id/api/v1';
   const timestamp = Date.now();
   const testUser = {
     name: `User ${timestamp}`,
