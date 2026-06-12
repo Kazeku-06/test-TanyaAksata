@@ -339,7 +339,7 @@ function TrashedPostsTab({
                             </div>
                           )}
                           {h.edit_summary && (
-                            <p className="text-[#6a737c] mt-1 italic">"{h.edit_summary}"</p>
+                            <p className="text-[#6a737c] mt-1 italic">&quot;{h.edit_summary}&quot;</p>
                           )}
                         </div>
                       ))}

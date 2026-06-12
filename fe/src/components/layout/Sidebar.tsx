@@ -61,7 +61,7 @@ function SidebarLink({ item }: { item: NavItem }) {
     <Link
       href={item.href}
       className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-colors duration-150",
+        "flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-medium transition-colors duration-150",
         isActive
           ? "bg-[#eff6ff] text-[#1d4ed8] border-l-4 border-[#1d4ed8] pl-[14px]"
           : "text-[#525960] hover:bg-[#f8fbff] hover:text-[#1d4ed8]",
@@ -82,7 +82,7 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:block md:w-[200px] lg:w-[220px] flex-shrink-0 pt-8">
-      <nav className="space-y-4 sticky top-24 bg-white/95 border border-slate-200 shadow-sm rounded-[28px] p-4 backdrop-blur-sm">
+      <nav className="space-y-4 sticky top-24 bg-white/95 border border-slate-200 shadow-sm rounded-[10px] p-4 backdrop-blur-sm">
         {mainNav.map((item) => (
           <SidebarLink key={item.href} item={item} />
         ))}

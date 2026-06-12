@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSearchPosts } from "@/hooks/usePosts";
 import { useCategories } from "@/hooks/useCategories";
@@ -24,11 +24,12 @@ export default function SearchLogic() {
   );
   const [localQ, setLocalQ] = useState(q);
 
-  // Reset page saat query berubah
-  useEffect(() => {
+  const [prevQ, setPrevQ] = useState(q);
+  if (q !== prevQ) {
+    setPrevQ(q);
     setPage(1);
     setLocalQ(q);
-  }, [q]);
+  }
 
   const searchQuery: PostSearchParams = {
     q: q || undefined,

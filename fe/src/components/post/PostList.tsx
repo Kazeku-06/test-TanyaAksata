@@ -40,9 +40,9 @@ export default function PostList() {
         ))}
       </div>
 
-      {/* Post items */}
+      {/* POST LIST CONTENT */}
       {isLoading ? (
-        <div className="flex justify-center py-12">
+        <div className="flex justify-center items-center py-24">
           <Spinner size="lg" />
         </div>
       ) : !posts?.length ? (
@@ -59,16 +59,16 @@ export default function PostList() {
           }
         />
       ) : (
-        <div className="divide-y divide-[#e3e6eb]">
+        <div className="divide-y divide-[#e3e6eb] border-b border-[#e3e6eb]">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
         </div>
       )}
 
-      {/* Pagination — only for latest */}
+      {/* PAGINATION */}
       {feed === "latest" && paginatedData && paginatedData.last_page > 1 && (
-        <div className="flex justify-center py-4 border-t border-[#e3e6eb]">
+        <div className="flex justify-end px-6 py-6 bg-white">
           <Pagination
             currentPage={paginatedData.current_page}
             lastPage={paginatedData.last_page}
