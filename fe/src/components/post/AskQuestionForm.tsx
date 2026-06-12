@@ -101,14 +101,14 @@ export default function AskQuestionForm() {
           {/* 1. Title Box */}
           <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
             <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Judul</h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+            <p className="text-xs text-[#525960] mb-3">
               Bayangkan kamu bertanya kepada seseorang — apa pertanyaan spesifiknya?
             </p>
             <Input
               placeholder="e.g. Kenapa useEffect di React berjalan dua kali?"
               {...register("title")} // Sembunyikan/hapus prop error dari sini
               className={cn(
-                "focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10",
+                "focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10",
                 errors.title && "border-[#c91d2e]"
               )}
             />
@@ -121,13 +121,13 @@ export default function AskQuestionForm() {
           {/* 2. Body Box */}
           <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
             <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Isi Pertanyaan</h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+            <p className="text-xs text-[#525960] mb-3">
               Jelaskan masalahmu secara detail. Sertakan apa yang sudah kamu coba dan hasil yang diharapkan.
             </p>
             <Textarea
               placeholder="Jelaskan pertanyaan kamu di sini..."
               className={cn(
-                "min-h-[220px] focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 font-mono text-sm",
+                "min-h-[220px] focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 font-mono text-sm",
                 errors.body && "border-[#c91d2e]"
               )}
               {...register("body")}
@@ -141,7 +141,7 @@ export default function AskQuestionForm() {
           {/* Category Box */}
           <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
             <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Kategori</h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+            <p className="text-xs text-[#525960] mb-3">
               Pilih kategori yang paling relevan dengan pertanyaanmu.
             </p>
             <Controller
@@ -150,7 +150,7 @@ export default function AskQuestionForm() {
               render={({ field }) => (
                 <select
                   {...field}
-                  className={`w-full px-3 py-2.5 text-sm border rounded bg-white text-[#232629] transition-all focus:outline-none focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 ${errors.category_id
+                  className={`w-full px-3 py-2.5 text-sm border rounded bg-white text-[#232629] transition-all focus:outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 ${errors.category_id
                       ? "border-[#c91d2e] focus:ring-[#c91d2e]/10"
                       : "border-[#babfc4] hover:border-[#838c95]"
                     }`}
@@ -172,7 +172,7 @@ export default function AskQuestionForm() {
           {/* Tags Box */}
           <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
             <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Tag</h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+            <p className="text-xs text-[#525960] mb-3">
               Tambahkan hingga 5 tag. Tekan Enter atau koma untuk menambah.
             </p>
 
@@ -182,13 +182,13 @@ export default function AskQuestionForm() {
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d] font-medium transition-all"
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#0059a1] font-medium transition-all"
                   >
                     {tag}
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="hover:bg-[#39739d]/10 p-0.5 rounded text-[#39739d] hover:text-[#c91d2e] transition-colors"
+                      className="hover:bg-[#39739d]/10 p-0.5 rounded text-[#0059a1] hover:text-[#c91d2e] transition-colors"
                     >
                       <X className="w-3 h-3 stroke-[2.5]" />
                     </button>
@@ -205,7 +205,7 @@ export default function AskQuestionForm() {
               placeholder="e.g. javascript, react, laravel"
               disabled={tags.length >= 5}
               hint={tags.length >= 5 ? "Maksimal 5 tag" : undefined}
-              className="focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10"
+              className="focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10"
             />
             {errors.tags && (
               <p className="mt-1.5 text-xs text-[#c91d2e] font-medium">{errors.tags.message}</p>
@@ -219,7 +219,7 @@ export default function AskQuestionForm() {
               variant="primary"
               size="lg"
               loading={isPending}
-              className="bg-[#0a95ff] hover:bg-[#0074cc] text-white font-medium text-sm px-5 py-2.5 rounded shadow-sm transition-colors"
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-medium text-sm px-5 py-2.5 rounded shadow-sm transition-colors"
             >
               Review Pertanyaan Anda
             </Button>

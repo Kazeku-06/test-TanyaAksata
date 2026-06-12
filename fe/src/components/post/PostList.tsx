@@ -29,10 +29,10 @@ export default function PostList() {
           <button
             key={f}
             onClick={() => { setFeed(f); setPage(1); }}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors duration-150 -mb-px ${
               feed === f
-                ? "border-[#f48024] text-[#3b4045]"
-                : "border-transparent text-[#6a737c] hover:text-[#3b4045]"
+                ? "border-[#f48024] text-[#232629]"
+                : "border-transparent text-[#525960] hover:text-[#232629] hover:bg-slate-50"
             }`}
           >
             {f === "latest" ? "Terbaru" : "Trending"}
@@ -52,7 +52,7 @@ export default function PostList() {
           action={
             <Link
               href="/questions/ask"
-              className="bg-[#0a95ff] hover:bg-[#0074cc] text-white text-sm font-medium px-4 py-2 rounded transition-colors"
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-medium px-4 py-2 rounded transition-colors"
             >
               Ajukan Pertanyaan
             </Link>

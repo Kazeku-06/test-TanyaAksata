@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle, MessageSquare, Eye, ThumbsUp, Bookmark } from "lucide-react";
+import {
+  CheckCircle,
+  MessageSquare,
+  Eye,
+  ThumbsUp,
+  Bookmark,
+} from "lucide-react";
 import type { Post } from "@/types";
 import { timeAgo, formatCount, cn } from "@/lib/utils";
 import Avatar from "@/components/ui/Avatar";
@@ -12,109 +18,123 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   return (
-    <div className="flex gap-3 px-4 py-3 hover:bg-[#fafafa] transition-colors border-b border-[#e3e6eb] last:border-b-0">
-      {/* Stats column */}
-      <div className="flex-shrink-0 flex flex-col items-end gap-1 w-[80px] pt-0.5 text-xs text-[#6a737c]">
-        <StatPill value={post.votes_count} label="vote" />
-        <StatPill
-          value={post.comments_count}
-          label="jawaban"
-          highlight={post.is_solved}
-          accepted={post.is_solved}
-        />
-        <StatPill value={post.views_count} label="lihat" muted />
-      </div>
+    <article className="group rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-md">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+        <div className="flex-shrink-0 grid gap-2 text-[#64748b] text-sm w-full lg:w-[128px]">
+          <StatChip
+            icon={<ThumbsUp className="w-4 h-4" />}
+            value={post.votes_count}
+            label="Votes"
+          />
+          <StatChip
+            icon={<MessageSquare className="w-4 h-4" />}
+            value={post.comments_count}
+            label="Jawaban"
+            highlight={post.is_solved}
+          />
+          <StatChip
+            icon={<Eye className="w-4 h-4" />}
+            value={post.views_count}
+            label="Views"
+            muted
+          />
+        </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        {/* Title */}
-        <Link
-          href={`/questions/${post.id}`}
-          className="text-[#0074cc] hover:text-[#0a95ff] font-medium text-base leading-snug block mb-1 line-clamp-2"
-        >
-          {post.is_solved && (
-            <CheckCircle className="inline w-4 h-4 text-[#2e6d44] mr-1 mb-0.5" />
-          )}
-          {post.title}
-        </Link>
+        <div className="flex-1 min-w-0">
+          <Link
+            href={`/questions/${post.id}`}
+            className="inline-flex items-center gap-2 text-[#232629] hover:text-[var(--primary)] font-semibold text-xl leading-7 transition-colors line-clamp-2"
+          >
+            {post.is_solved && (
+              <CheckCircle className="w-5 h-5 text-[#16a34a]" />
+            )}
+            {post.title}
+          </Link>
 
-        {/* Body preview */}
-        <p className="text-sm text-[#6a737c] line-clamp-2 mb-2">
-          {post.body.replace(/<[^>]+>/g, "").slice(0, 200)}
-        </p>
+          <p className="mt-3 text-sm leading-6 text-[#232629] line-clamp-2">
+            {post.body.replace(/<[^>]+>/g, "").slice(0, 220)}
+          </p>
 
-        {/* Tags + meta */}
-        <div className="flex flex-wrap items-center justify-between gap-y-1">
-          <div className="flex flex-wrap gap-1">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             {post.tags.map((tag) => (
               <Link
                 key={tag.id}
                 href={`/questions?tag=${tag.name}`}
-                className="px-1.5 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d] hover:bg-[#d0e3f0] transition-colors"
+                className="rounded-full border border-[var(--primary-light)] bg-[var(--primary-light)] px-3 py-1 text-xs font-semibold text-[var(--primary)] transition duration-200 hover:bg-[#d0e3f1]"
               >
                 {tag.name}
               </Link>
             ))}
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-[#6a737c]">
-            <Avatar name={post.user?.name || "Deleted"} avatar={post.user?.avatar} size="xs" />
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-[#525960]">
+            <Avatar
+              name={post.user?.name || "Deleted"}
+              avatar={post.user?.avatar}
+              size="sm"
+            />
             {post.user ? (
-              <Link
-                href={`/users/${post.user.id}`}
-                className="text-[#0074cc] hover:underline font-medium"
-              >
-                {post.user.name}
-              </Link>
+              <>
+                <Link
+                  href={`/users/${post.user.id}`}
+                  className="font-medium text-[var(--text-link)] hover:text-[var(--primary)]"
+                >
+                  {post.user.name}
+                </Link>
+                <span className="text-[#9199a1]">·</span>
+                <span className="text-[#232629] font-medium">{post.user.reputation ?? 0}</span>
+                <span className="text-[#525960]"> reputasi</span>
+              </>
             ) : (
-              <span className="italic">Deleted User</span>
+              <span className="italic text-[#525960]">Deleted User</span>
             )}
-            <span className="text-[#9199a1]">{post.user?.reputation ?? 0}</span>
-            <span>·</span>
-            <span>{timeAgo(post.created_at)}</span>
+            <span className="text-[#9199a1]">·</span>
+            <span className="text-[#525960]">{timeAgo(post.created_at)}</span>
             {post.is_bookmarked && (
-              <Bookmark className="w-3 h-3 text-[#f48024] fill-[#f48024]" />
+              <Bookmark className="w-4 h-4 text-[#f97316]" />
             )}
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
-function StatPill({
+function StatChip({
+  icon,
   value,
   label,
   highlight,
-  accepted,
   muted,
 }: {
+  icon: React.ReactNode;
   value: number;
   label: string;
   highlight?: boolean;
-  accepted?: boolean;
   muted?: boolean;
 }) {
   return (
     <div
       className={cn(
-        "flex flex-col items-end",
-        muted && "opacity-60"
+        "flex items-center gap-2 rounded-2xl border px-3 py-2",
+        highlight
+          ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]"
+          : muted
+            ? "border-slate-200 bg-slate-50 text-[#525960] opacity-80"
+            : "border-slate-200 bg-white text-[#232629]",
       )}
     >
-      <span
-        className={cn(
-          "font-medium text-sm leading-tight",
-          accepted
-            ? "text-white bg-[#2e6d44] px-1.5 py-0.5 rounded text-xs"
-            : highlight
-            ? "text-[#2e6d44]"
-            : "text-[#232629]"
-        )}
-      >
-        {formatCount(value)}
+      <span className="inline-flex items-center justify-center rounded-full bg-[#eff6ff] p-1 text-[#525960]">
+        {icon}
       </span>
-      <span className="text-[10px]">{label}</span>
+      <div>
+        <p className="text-sm font-semibold text-[#232629]">
+          {formatCount(value)}
+        </p>
+        <p className="text-xs uppercase tracking-[0.18em] text-[#525960]">
+          {label}
+        </p>
+      </div>
     </div>
   );
 }

@@ -19,16 +19,21 @@ interface AvatarProps {
   className?: string;
 }
 
-export default function Avatar({ name, avatar, size = "md", className }: AvatarProps) {
+export default function Avatar({
+  name,
+  avatar,
+  size = "md",
+  className,
+}: AvatarProps) {
   const { px, className: sizeClass } = sizeMap[size];
   const src = getAvatarUrl(avatar, name);
 
   return (
     <div
       className={cn(
-        "relative rounded-sm overflow-hidden flex-shrink-0 bg-[#e1ecf4]",
+        "relative rounded-full overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200",
         sizeClass,
-        className
+        className,
       )}
     >
       <Image

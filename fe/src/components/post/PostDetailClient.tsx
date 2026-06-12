@@ -93,17 +93,17 @@ export default function PostDetailClient({ postId }: PostDetailClientProps) {
           </h1>
           <Link 
             href="/questions/ask" 
-            className="bg-[#0a95ff] hover:bg-[#0074cc] text-white text-sm font-medium px-4 py-2.5 rounded shadow-sm transition whitespace-nowrap self-start"
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-medium px-4 py-2.5 rounded shadow-sm transition whitespace-nowrap self-start"
           >
             Ask Question
           </Link>
         </div>
 
         {/* Metadata di bawah judul */}
-        <div className="flex flex-wrap items-center gap-4 text-xs text-[#6a737c] mt-3">
+        <div className="flex flex-wrap items-center gap-4 text-xs text-[#525960] mt-3">
           <span className="flex items-center gap-1">
             <Clock className="w-3.5 h-3.5" />
-            Ditanyakan <span className="text-[#232629]">{timeAgo(post.created_at)}</span>
+            Ditanyakan <span className="text-[#232629] font-medium">{timeAgo(post.created_at)}</span>
           </span>
           {post.is_edited && (
             <span className="flex items-center gap-1">
@@ -113,7 +113,7 @@ export default function PostDetailClient({ postId }: PostDetailClientProps) {
           )}
           <span className="flex items-center gap-1">
             <Eye className="w-3.5 h-3.5" />
-            Dilihat <span className="text-[#232629]">{formatCount(post.views_count)} kali</span>
+            Dilihat <span className="text-[#232629] font-medium">{formatCount(post.views_count)} kali</span>
           </span>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function PostDetailClient({ postId }: PostDetailClientProps) {
                     <Link
                       key={tag.id}
                       href={`/questions?tag=${tag.name}`}
-                      className="px-1.5 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d] hover:bg-[#d0e3f0] transition-colors"
+                      className="px-1.5 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#0059a1] hover:bg-[#d0e3f0] transition-colors"
                     >
                       {tag.name}
                     </Link>
@@ -180,20 +180,20 @@ export default function PostDetailClient({ postId }: PostDetailClientProps) {
               {/* Baris Tombol Aksi & Kartu User */}
               <div className="flex flex-wrap items-start justify-between gap-4 pt-4 border-t border-[#e3e6eb]">
                 {/* Tombol aksi kiri */}
-                <div className="flex flex-wrap items-center gap-3 text-xs text-[#6a737c] font-medium pt-1">
+                <div className="flex flex-wrap items-center gap-3 text-xs text-[#525960] font-medium pt-1">
                   <button
                     onClick={() => like()}
                     disabled={!me || isOwner}
                     className={cn(
-                      "flex items-center gap-1 hover:text-[#0a95ff] transition-colors",
-                      isLiked ? "text-[#0a95ff] font-medium" : "text-[#6a737c]",
+                      "flex items-center gap-1 hover:text-[var(--primary)] transition-colors",
+                      isLiked ? "text-[var(--primary)] font-medium" : "text-[#525960]",
                       !me && "opacity-40 cursor-not-allowed"
                     )}
                   >
-                    <ThumbsUp className={cn("w-3.5 h-3.5", isLiked && "fill-[#0a95ff]")} />
+                    <ThumbsUp className={cn("w-3.5 h-3.5", isLiked && "fill-[var(--primary)]")} />
                     <span>{isLiked ? "Menyukai" : "Suka"}</span>
                     {post.likes_count > 0 && (
-                      <span className={cn("font-semibold", isLiked ? "text-[#0a95ff]" : "text-gray-700")}>
+                      <span className={cn("font-semibold", isLiked ? "text-[var(--primary)]" : "text-[#232629]")}>
                         ({post.likes_count})
                       </span>
                     )}
@@ -205,7 +205,7 @@ export default function PostDetailClient({ postId }: PostDetailClientProps) {
                     <>
                       <Link
                         href={`/questions/${post.id}/edit`}
-                        className="flex items-center gap-1 hover:text-[#0a95ff] transition-colors"
+                        className="flex items-center gap-1 hover:text-[var(--primary)] transition-colors"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                         Edit
@@ -224,7 +224,7 @@ export default function PostDetailClient({ postId }: PostDetailClientProps) {
 
                 {/* Kartu Profil Pembuat (Khas Kotak Kuning-Biru SO) */}
                 <div className="bg-[#e1ecf4] border border-[#d0e3f0] rounded p-3 w-52 text-xs self-end">
-                  <span className="text-[#6a737c] block mb-1.5 text-[11px]">
+                  <span className="text-[#525960] block mb-1.5 text-[11px]">
                     ditanyakan {timeAgo(post.created_at)}
                   </span>
                   <div className="flex items-center gap-2">
@@ -232,12 +232,12 @@ export default function PostDetailClient({ postId }: PostDetailClientProps) {
                     <div className="min-w-0">
                       <Link
                         href={`/users/${post.user.id}`}
-                        className="text-[#0074cc] hover:underline font-medium text-xs block truncate"
+                        className="text-[var(--text-link)] hover:underline font-medium text-xs block truncate"
                       >
                         {post.user.name}
                       </Link>
-                      <span className="text-[11px] font-bold text-[#6a737c]">
-                        {post.user.reputation} <span className="font-normal text-gray-400">rep</span>
+                      <span className="text-[11px] font-bold text-[#525960]">
+                        {post.user.reputation} <span className="font-normal text-[#9199a1]">rep</span>
                       </span>
                     </div>
                   </div>
@@ -269,7 +269,7 @@ export default function PostDetailClient({ postId }: PostDetailClientProps) {
           {/* Box Informasi Tambahan */}
           <div className="border border-[#e3e6eb] rounded p-4 text-xs">
             <h3 className="font-semibold text-[#232629] mb-3 text-[13px]">Aturan Forum</h3>
-            <p className="text-[#6a737c] leading-relaxed">
+            <p className="text-[#525960] leading-relaxed">
               Pastikan sebelum bertanya kamu sudah melakukan pencarian terlebih dahulu agar tidak terjadi duplikasi pertanyaan. Jaga kesantunan dalam berdiskusi.
             </p>
           </div>
