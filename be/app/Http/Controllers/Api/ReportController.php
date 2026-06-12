@@ -77,7 +77,16 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status');
-        $query = Report::with(['reporter', 'resolver']);
+        $query = Report::with([
+            'reporter',
+            'resolver',
+            'target' => function ($morphTo) {
+                $morphTo->withTrashed()->morphWith([
+                    Post::class => ['user'],
+                    Comment::class => ['user', 'post'],
+                ]);
+            }
+        ]);
         if ($status && in_array($status, ['pending', 'resolved', 'rejected'])) {
             $query->where('status', $status);
         }
@@ -87,7 +96,16 @@ class ReportController extends Controller
 
     public function show($id)
     {
-        $report = Report::with(['reporter', 'resolver', 'target'])->find($id);
+        $report = Report::with([
+            'reporter',
+            'resolver',
+            'target' => function ($morphTo) {
+                $morphTo->withTrashed()->morphWith([
+                    Post::class => ['user'],
+                    Comment::class => ['user', 'post'],
+                ]);
+            }
+        ])->find($id);
         if (!$report) {
             return response()->json(['success' => false, 'message' => 'Report not found'], 404);
         }
@@ -101,7 +119,9 @@ class ReportController extends Controller
     public function resolve(Request $request, $id)
     {
         $moderator = $request->user();
-        $report = Report::find($id);
+        $report = Report::with(['target' => function ($morphTo) {
+            $morphTo->withTrashed();
+        }])->find($id);
         if (!$report) {
             return response()->json(['success' => false, 'message' => 'Report not found'], 404);
         }

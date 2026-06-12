@@ -280,6 +280,7 @@ export interface Report {
   created_at: string;
   reporter?: Pick<User, "id" | "name">;
   resolver?: Pick<User, "id" | "name"> | null;
+  target?: any;
 }
 
 export interface CreateReportPayload {

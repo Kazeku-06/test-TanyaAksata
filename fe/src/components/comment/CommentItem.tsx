@@ -7,6 +7,7 @@ import type { Comment } from "@/types";
 import { timeAgo, cn } from "@/lib/utils";
 import Avatar from "@/components/ui/Avatar";
 import CommentForm from "./CommentForm";
+import ReportButton from "../post/ReportButton";
 
 interface CommentItemProps {
   comment: Comment;
@@ -88,6 +89,11 @@ export default function CommentItem({
               <ThumbsUp className="w-3.5 h-3.5" />
               {comment.likes_count > 0 && <span>{comment.likes_count}</span>}
             </button>
+
+            {/* Laporan */}
+            {currentUserId && !isOwner && (
+              <ReportButton targetType="comment" targetId={comment.id} />
+            )}
 
             {/* Reply (only top-level) */}
             {depth === 0 && (

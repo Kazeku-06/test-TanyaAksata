@@ -47,6 +47,9 @@ class AuthController extends Controller
             $user->roles()->attach($userRole->id);
         }
 
+        // Cek dan berikan badge pertama (Newbie)
+        $user->checkAndAwardBadges();
+
         // 4. Buat token Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
 
