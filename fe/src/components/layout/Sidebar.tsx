@@ -36,7 +36,7 @@ const authNav: NavItem[] = [
 
 function SidebarLink({ item }: { item: NavItem }) {
   const pathname = usePathname();
-  const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+  const isActive = pathname ? (item.exact ? pathname === item.href : pathname.startsWith(item.href)) : false;
 
   return (
     <Link
