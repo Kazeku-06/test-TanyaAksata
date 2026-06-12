@@ -9,7 +9,6 @@ import { timeAgo, formatCount, cn } from "@/lib/utils";
 import Spinner from "@/components/ui/Spinner";
 import Avatar from "@/components/ui/Avatar";
 import VoteButton from "@/components/post/VoteButton";
-import ReportButton from "@/components/post/ReportButton";
 import CommentSection from "./CommentSection";
 import ReportButton from "@/components/post/ReportButton";
 
