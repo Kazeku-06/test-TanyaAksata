@@ -36,14 +36,14 @@ export default function CommentItem({
       <div className="flex flex-col items-center gap-1 w-8 flex-shrink-0 pt-1">
         <button
           className={cn(
-            "text-[#babfc4] hover:text-[#f48024] transition-colors",
+            "text-[#9199a1] hover:text-[#f48024] transition-colors",
             comment.is_accepted && "text-[#2e6d44]"
           )}
           aria-label="Upvote comment"
         >
           ▲
         </button>
-        <span className="text-xs font-medium text-[#6a737c]">{comment.votes_count}</span>
+        <span className="text-xs font-medium text-[#525960]">{comment.votes_count}</span>
       </div>
 
       {/* Body */}
@@ -69,23 +69,23 @@ export default function CommentItem({
         </div>
 
         {/* Actions row */}
-        <div className="flex items-center gap-3 mt-1.5 text-xs text-[#6a737c]">
+        <div className="flex items-center gap-3 mt-1.5 text-xs text-[#525960]">
           <div className="flex items-center gap-1">
             <Avatar name={comment.user.name} avatar={comment.user.avatar} size="xs" />
             <Link
               href={`/users/${comment.user.id}`}
-              className="text-[#0074cc] hover:underline font-medium"
+              className="text-[var(--text-link)] hover:underline font-medium"
             >
               {comment.user.name}
             </Link>
-            <span className="text-[#9199a1]">{comment.user.reputation}</span>
+            <span className="text-[#525960] font-bold">{comment.user.reputation}</span>
           </div>
           <span>{timeAgo(comment.created_at)}</span>
           {comment.is_edited && <span className="text-[#9199a1]">(diedit)</span>}
 
           <div className="flex items-center gap-2 ml-auto">
             {/* Like */}
-            <button className="flex items-center gap-1 hover:text-[#0a95ff] transition-colors">
+            <button className="flex items-center gap-1 hover:text-[var(--primary)] transition-colors">
               <ThumbsUp className="w-3.5 h-3.5" />
               {comment.likes_count > 0 && <span>{comment.likes_count}</span>}
             </button>
@@ -99,7 +99,7 @@ export default function CommentItem({
             {depth === 0 && (
               <button
                 onClick={() => setShowReply((v) => !v)}
-                className="flex items-center gap-1 hover:text-[#0a95ff] transition-colors"
+                className="flex items-center gap-1 hover:text-[var(--primary)] transition-colors"
               >
                 <CornerDownRight className="w-3.5 h-3.5" />
                 Balas

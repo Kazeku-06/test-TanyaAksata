@@ -47,7 +47,7 @@ export default function HomeView({
         </h1>
         <Link
           href="/questions/ask"
-          className="bg-[#0a95ff] hover:bg-[#0074cc] text-white text-sm font-medium px-3 py-2 rounded transition-colors"
+          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] !text-white text-sm font-medium px-3 py-2 rounded transition-colors"
         >
           Ajukan Pertanyaan
         </Link>
@@ -59,10 +59,10 @@ export default function HomeView({
           <button
             key={tab.key}
             onClick={() => onFeedChange(tab.key)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors duration-150 -mb-px ${
               activeFeed === tab.key
-                ? "border-[#f48024] text-[#3b4045]"
-                : "border-transparent text-[#6a737c] hover:text-[#3b4045]"
+                ? "border-[#f48024] text-[#232629]"
+                : "border-transparent text-[#525960] hover:text-[#232629] hover:bg-slate-50"
             }`}
           >
             {tab.icon}
@@ -88,7 +88,7 @@ export default function HomeView({
           action={
             <Link
               href="/questions/ask"
-              className="bg-[#0a95ff] hover:bg-[#0074cc] text-white text-sm font-medium px-4 py-2 rounded transition-colors"
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] !text-white text-sm font-medium px-4 py-2 rounded transition-colors"
             >
               Ajukan Pertanyaan
             </Link>
