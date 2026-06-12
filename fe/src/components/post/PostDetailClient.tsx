@@ -4,7 +4,7 @@ import { usePost } from "@/hooks/usePosts";
 import Spinner from "@/components/ui/Spinner";
 import { timeAgo } from "@/lib/utils";
 import Avatar from "@/components/ui/Avatar";
-import ReportButton from "./ReportButton"; // Sesuaikan path ini dengan struktur folder Anda
+import ReportButton from "./ReportButton";
 import { CheckCircle } from "lucide-react";
 
 interface PostDetailProps {
@@ -32,7 +32,6 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
   return (
     <div className="w-full max-w-[1100px] mx-auto px-6 py-6 font-sans text-[#232629] bg-white">
-      
       {/* 1. HEADER PERTANYAAN (Gaya Stack Overflow) */}
       <div className="border-b border-[#e3e6eb] pb-4 mb-4">
         <h1 className="text-2xl font-normal text-[#232629] mb-2 break-words flex items-center gap-2">
@@ -97,7 +96,6 @@ export default function PostDetail({ postId }: PostDetailProps) {
                 Edit
               </button>
               
-              {/* ⚠️ PANGGIL LANGSUNG TANPA DIBUNGKUS <Link> ATAU <a> */}
               <ReportButton targetType="post" targetId={post.id} />
             </div>
 

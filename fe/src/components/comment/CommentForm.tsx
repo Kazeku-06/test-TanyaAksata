@@ -58,9 +58,9 @@ export default function CommentForm({
       <textarea
         placeholder={placeholder}
         rows={4}
-        className={`w-full px-3 py-2 text-sm border rounded bg-white text-[#232629] placeholder-[#babfc4] resize-y
-          focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20
-          ${errors.body ? "border-[#c91d2e]" : "border-[#babfc4] hover:border-[#838c95]"}`}
+        className={`w-full px-3 py-2 text-sm border rounded bg-white text-[#232629] placeholder-[#6a737c] resize-y
+          focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20
+          ${errors.body ? "border-[#c91d2e]" : "border-[#9199a1] hover:border-[#838c95]"}`}
         {...register("body")}
       />
       {errors.body && (
