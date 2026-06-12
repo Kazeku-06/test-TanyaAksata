@@ -12,21 +12,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    "bg-[#0a95ff] text-white hover:bg-[#0074cc] border border-[#0a95ff] hover:border-[#0074cc]",
+    "bg-[#60a5fa] text-white hover:bg-[#3b82f6] border border-[#60a5fa] hover:border-[#3b82f6] shadow-sm shadow-blue-200/20",
   secondary:
-    "bg-[#e1ecf4] text-[#0074cc] hover:bg-[#b3d3ea] border border-[#e1ecf4] hover:border-[#b3d3ea]",
+    "bg-blue-100 text-[#3b82f6] hover:bg-blue-200 border border-blue-200 hover:border-blue-300",
   danger:
-    "bg-[#c91d2e] text-white hover:bg-[#a41729] border border-[#c91d2e] hover:border-[#a41729]",
+    "bg-red-600 text-white hover:bg-red-700 border border-red-600 hover:border-red-700",
   ghost:
-    "bg-transparent text-[#0074cc] hover:bg-[#e1ecf4] border border-transparent",
+    "bg-transparent text-[#60a5fa] hover:bg-blue-50 border border-transparent",
   outline:
-    "bg-white text-[#6a737c] hover:text-[#3b4045] border border-[#babfc4] hover:border-[#838c95]",
+    "bg-white text-[#475569] hover:text-[#1e293b] border border-slate-300 hover:border-slate-400",
 };
 
 const sizeStyles: Record<Size, string> = {
-  sm: "px-3 py-1 text-xs rounded",
-  md: "px-2.5 py-1.5 text-sm rounded",
-  lg: "px-4 py-2.5 text-base rounded",
+  sm: "px-3 py-1.5 text-xs rounded-lg",
+  md: "px-3 py-2 text-sm rounded-lg",
+  lg: "px-5 py-2.5 text-base rounded-xl",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(

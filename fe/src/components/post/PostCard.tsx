@@ -12,9 +12,9 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   return (
-    <div className="flex gap-3 px-4 py-3 hover:bg-[#fafafa] transition-colors border-b border-[#e3e6eb] last:border-b-0 text-[#232629]">
+    <div className="flex gap-3 px-4 py-3 hover:bg-blue-50/50 transition-colors border-b border-blue-100 last:border-b-0 text-[#1e293b]">
       {/* Stats column */}
-      <div className="flex-shrink-0 flex flex-col items-end gap-1 w-[80px] pt-0.5 text-xs text-[#6a737c]">
+      <div className="flex-shrink-0 flex flex-col items-end gap-1 w-[80px] pt-0.5 text-xs text-[#64748b]">
         <StatPill value={post.votes_count} label="vote" />
         <StatPill
           value={post.comments_count}
@@ -31,16 +31,16 @@ export default function PostCard({ post }: PostCardProps) {
           {/* Title */}
           <Link
             href={`/questions/${post.id}`}
-            className="text-[#0074cc] hover:text-[#0a95ff] font-medium text-base leading-snug block mb-1 line-clamp-2"
+            className="text-[#60a5fa] hover:text-[#3b82f6] font-semibold text-base leading-snug block mb-1 line-clamp-2"
           >
             {post.is_solved && (
-              <CheckCircle className="inline w-4 h-4 text-[#2e6d44] mr-1 mb-0.5" />
+              <CheckCircle className="inline w-4 h-4 text-emerald-600 mr-1 mb-0.5" />
             )}
             {post.title}
           </Link>
 
           {/* Body preview */}
-          <p className="text-sm text-[#6a737c] line-clamp-2 mb-2">
+          <p className="text-sm text-[#64748b] line-clamp-2 mb-2">
             {post.body.replace(/<[^>]+>/g, "").slice(0, 200)}
           </p>
         </div>
@@ -53,7 +53,7 @@ export default function PostCard({ post }: PostCardProps) {
               <Link
                 key={tag.id}
                 href={`/questions?tag=${tag.name}`}
-                className="px-1.5 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d] hover:bg-[#d0e3f0] transition-colors"
+                className="px-2 py-0.5 text-xs rounded-md border border-blue-200 bg-blue-50 text-[#60a5fa] hover:bg-blue-100 transition-colors font-medium"
               >
                 {tag.name}
               </Link>
@@ -61,19 +61,19 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
 
           {/* User Meta Card */}
-          <div className="flex items-center gap-1.5 text-xs text-[#6a737c] ml-auto">
+          <div className="flex items-center gap-1.5 text-xs text-[#64748b] ml-auto">
             <Avatar name={post.user.name} avatar={post.user.avatar} size="xs" />
             <Link
               href={`/users/${post.user.id}`}
-              className="text-[#0074cc] hover:underline font-medium"
+              className="text-[#60a5fa] hover:underline font-medium"
             >
               {post.user.name}
             </Link>
-            <span className="text-[#9199a1]">{post.user.reputation}</span>
+            <span className="text-[#94a3b8]">{post.user.reputation}</span>
             <span>·</span>
             <span>{timeAgo(post.created_at)}</span>
             {post.is_bookmarked && (
-              <Bookmark className="w-3 h-3 text-[#f48024] fill-[#f48024]" />
+              <Bookmark className="w-3 h-3 text-[#60a5fa] fill-[#60a5fa]" />
             )}
           </div>
         </div>
@@ -101,10 +101,10 @@ function StatPill({
         className={cn(
           "font-medium text-sm leading-tight",
           accepted
-            ? "text-white bg-[#2e6d44] px-1.5 py-0.5 rounded text-xs"
+            ? "text-white bg-emerald-600 px-1.5 py-0.5 rounded text-xs"
             : highlight
-            ? "text-[#2e6d44]"
-            : "text-[#232629]"
+            ? "text-emerald-600"
+            : "text-[#1e293b]"
         )}
       >
         {formatCount(value)}

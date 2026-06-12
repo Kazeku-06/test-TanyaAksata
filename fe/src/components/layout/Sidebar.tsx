@@ -42,10 +42,10 @@ function SidebarLink({ item }: { item: NavItem }) {
     <Link
       href={item.href}
       className={cn(
-        "flex items-center gap-2 px-3 py-1.5 rounded-sm text-sm transition-colors",
+        "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all",
         isActive
-          ? "bg-[#e3e6eb] text-[#232629] font-medium border-l-[3px] border-[#0a95ff] pl-[9px]"
-          : "text-[#525960] hover:bg-[#f6f6f6] hover:text-[#232629]"
+          ? "bg-blue-100 text-[#3b82f6] font-semibold border-l-[3px] border-[#60a5fa] pl-[9px] shadow-sm"
+          : "text-[#475569] hover:bg-blue-50 hover:text-[#3b82f6]"
       )}
     >
       {item.icon}
@@ -60,7 +60,7 @@ export default function Sidebar() {
   const isMod = user?.roles?.some((r) => r.name === "moderator" || r.name === "admin");
 
   return (
-    <aside className="w-[164px] flex-shrink-0 pt-4 hidden md:block">
+    <aside className="w-[170px] flex-shrink-0 pt-4 hidden md:block">
       <nav className="flex flex-col gap-0.5">
         {mainNav.map((item) => (
           <SidebarLink key={item.href} item={item} />
@@ -68,7 +68,7 @@ export default function Sidebar() {
 
         {user && (
           <>
-            <div className="mt-4 mb-1 px-3 text-[10px] font-semibold uppercase text-[#babfc4] tracking-wider">
+            <div className="mt-5 mb-1.5 px-3 text-[10px] font-bold uppercase text-[#93c5fd] tracking-widest">
               Akun Saya
             </div>
             {authNav.map((item) => (
@@ -79,7 +79,7 @@ export default function Sidebar() {
 
         {isMod && (
           <>
-            <div className="mt-4 mb-1 px-3 text-[10px] font-semibold uppercase text-[#babfc4] tracking-wider">
+            <div className="mt-5 mb-1.5 px-3 text-[10px] font-bold uppercase text-[#93c5fd] tracking-widest">
               Moderasi
             </div>
             <SidebarLink
@@ -94,7 +94,7 @@ export default function Sidebar() {
 
         {isAdmin && (
           <>
-            <div className="mt-4 mb-1 px-3 text-[10px] font-semibold uppercase text-[#babfc4] tracking-wider">
+            <div className="mt-5 mb-1.5 px-3 text-[10px] font-bold uppercase text-[#93c5fd] tracking-widest">
               Admin
             </div>
             <SidebarLink

@@ -23,29 +23,29 @@ export default function PostList() {
   const totalQuestions = feed === "latest" ? latestData?.total || posts?.length || 0 : posts?.length || 0;
 
   return (
-    <div className="w-full bg-white font-sans text-[#232629]">
+    <div className="w-full bg-white font-sans text-[#1e293b]">
       {/* HEADER SECTION */}
       <div className="flex items-start justify-between px-6 pt-6 pb-4 gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-normal text-[#232629]">
+          <h1 className="text-2xl font-bold text-[#1e293b]">
             {feed === "latest" ? "Semua Pertanyaan" : "Pertanyaan Terpopuler"}
           </h1>
-          <p className="text-[13px] text-[#4a4e51]">
+          <p className="text-[13px] text-[#475569]">
             {totalQuestions.toLocaleString()} pertanyaan
           </p>
         </div>
 
         <a
           href="/questions/ask"
-          className="bg-[#0a95ff] hover:bg-[#0074cc] text-white text-[13px] font-medium px-3 py-2.5 rounded shadow-sm text-center transition-colors whitespace-nowrap"
+          className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-[13px] font-semibold px-4 py-2.5 rounded-lg shadow-sm shadow-blue-200/20 text-center transition-colors whitespace-nowrap"
         >
           Ajukan Pertanyaan
         </a>
       </div>
 
       {/* FILTER BUTTON GROUP */}
-      <div className="flex items-center justify-end px-6 pb-3 border-b border-[#e3e6eb]">
-        <div className="inline-flex rounded border border-[#838c95] overflow-hidden text-[12px]">
+      <div className="flex items-center justify-end px-6 pb-3 border-b border-blue-100">
+        <div className="inline-flex rounded-lg border border-blue-200 overflow-hidden text-[12px]">
           {(["latest", "trending"] as FeedType[]).map((f) => (
             <button
               key={f}
@@ -53,10 +53,10 @@ export default function PostList() {
                 setFeed(f);
                 setPage(1);
               }}
-              className={`px-3 py-1.5 font-normal transition-colors border-r border-[#838c95] last:border-r-0 ${
+              className={`px-3 py-1.5 font-medium transition-colors border-r border-blue-200 last:border-r-0 ${
                 feed === f
-                  ? "bg-[#e3e6eb] text-[#3b4045] font-medium"
-                  : "bg-white text-[#6a737c] hover:bg-[#f8f9f9] hover:text-[#3b4045]"
+                  ? "bg-blue-100 text-[#3b82f6] font-semibold"
+                  : "bg-white text-[#64748b] hover:bg-blue-50 hover:text-[#1e293b]"
               }`}
             >
               {f === "latest" ? "Terbaru" : "Trending"}
@@ -78,7 +78,7 @@ export default function PostList() {
             action={
               <a
                 href="/questions/ask"
-                className="bg-[#0a95ff] hover:bg-[#0074cc] text-white text-sm font-medium px-4 py-2 rounded transition-colors"
+                className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
               >
                 Ajukan Pertanyaan
               </a>
@@ -86,7 +86,7 @@ export default function PostList() {
           />
         </div>
       ) : (
-        <div className="divide-y divide-[#e3e6eb] border-b border-[#e3e6eb]">
+        <div className="divide-y divide-blue-100 border-b border-blue-100">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}

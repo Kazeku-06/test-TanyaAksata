@@ -42,7 +42,7 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
 
   if (!user) {
     return (
-      <div className="px-6 py-8 text-center text-[#c91d2e] text-sm font-medium">
+      <div className="px-6 py-8 text-center text-[#dc2626] text-sm font-medium">
         Pengguna tidak ditemukan.
       </div>
     );
@@ -55,7 +55,7 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
         <Avatar name={user.name} avatar={user.avatar} size="xl" />
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-start gap-3 mb-2">
-            <h1 className="text-xl font-bold text-[#232629]">{user.name}</h1>
+            <h1 className="text-xl font-bold text-[#1e293b]">{user.name}</h1>
             <ReputationBadge reputation={user.reputation} />
             {me && !isSelf && (
               <Button
@@ -70,10 +70,10 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
           </div>
 
           {user.bio && (
-            <p className="text-sm text-[#232629] mb-2">{user.bio}</p>
+            <p className="text-sm text-[#1e293b] mb-2">{user.bio}</p>
           )}
 
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#6a737c]">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#64748b]">
             {user.location && (
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5" />
@@ -85,7 +85,7 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
                 href={user.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-[#0074cc] hover:underline"
+                className="flex items-center gap-1 text-[#60a5fa] hover:underline"
               >
                 <LinkIcon className="w-3.5 h-3.5" />
                 {user.website.replace(/^https?:\/\//, "")}
@@ -100,7 +100,7 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
       </div>
 
       {/* Stats bar */}
-      <div className="flex flex-wrap gap-4 p-4 bg-[#f8f9f9] border border-[#e3e6eb] rounded mb-6 text-sm">
+      <div className="flex flex-wrap gap-4 p-4 bg-[#f0f7ff] border border-blue-200 rounded-lg mb-6 text-sm">
         <StatItem icon={<FileText className="w-4 h-4" />} value={user.posts_count ?? 0} label="Pertanyaan" />
         <StatItem icon={<Users className="w-4 h-4" />} value={user.followers_count ?? 0} label="Pengikut" />
         <StatItem icon={<Users className="w-4 h-4" />} value={user.following_count ?? 0} label="Mengikuti" />
@@ -109,13 +109,13 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
       {/* Badges */}
       {user.badges && user.badges.length > 0 && (
         <div className="mb-6">
-          <h2 className="font-semibold text-[#232629] mb-2 text-sm">Badge</h2>
+          <h2 className="font-semibold text-[#1e293b] mb-2 text-sm">Badge</h2>
           <div className="flex flex-wrap gap-2">
             {user.badges.map((badge) => (
               <span
                 key={badge.id}
                 title={badge.description}
-                className="flex items-center gap-1 px-2 py-1 text-xs rounded border border-[#e3e6eb] bg-white text-[#232629]"
+                className="flex items-center gap-1 px-2 py-1 text-xs rounded-lg border border-blue-200 bg-white text-[#1e293b]"
               >
                 <span>{badge.icon}</span>
                 <span>{badge.name}</span>
@@ -127,7 +127,7 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
 
       {/* Posts */}
       <div>
-        <h2 className="font-semibold text-[#232629] mb-3">
+        <h2 className="font-semibold text-[#1e293b] mb-3">
           Pertanyaan oleh {user.name}
         </h2>
         {postsLoading ? (
@@ -135,9 +135,9 @@ export default function UserProfileClient({ userId }: UserProfileClientProps) {
             <Spinner />
           </div>
         ) : !posts?.data.length ? (
-          <p className="text-sm text-[#6a737c]">Belum ada pertanyaan.</p>
+          <p className="text-sm text-[#64748b]">Belum ada pertanyaan.</p>
         ) : (
-          <div className="border border-[#e3e6eb] rounded divide-y divide-[#e3e6eb]">
+          <div className="border border-blue-200 rounded-lg divide-y divide-blue-100">
             {posts.data.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
@@ -158,9 +158,9 @@ function StatItem({
   label: string;
 }) {
   return (
-    <div className="flex items-center gap-1.5 text-[#6a737c]">
+    <div className="flex items-center gap-1.5 text-[#64748b]">
       {icon}
-      <span className="font-semibold text-[#232629]">{value}</span>
+      <span className="font-semibold text-[#1e293b]">{value}</span>
       <span>{label}</span>
     </div>
   );

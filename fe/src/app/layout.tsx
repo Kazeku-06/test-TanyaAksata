@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="id" className="h-full" suppressHydrationWarning>
       {/* Tambahkan suppressHydrationWarning di body juga */}
-      <body className="min-h-full bg-white text-[#232629] antialiased" suppressHydrationWarning>
+      <body className="min-h-full bg-[#f0f7ff] text-[#1e293b] antialiased" suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

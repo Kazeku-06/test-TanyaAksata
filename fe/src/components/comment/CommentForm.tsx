@@ -58,16 +58,16 @@ export default function CommentForm({
       <textarea
         placeholder={placeholder}
         rows={4}
-        className={`w-full px-3 py-2 text-sm border rounded bg-white text-[#232629] placeholder-[#babfc4] resize-y
-          focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20
-          ${errors.body ? "border-[#c91d2e]" : "border-[#babfc4] hover:border-[#838c95]"}`}
+        className={`w-full px-3 py-2 text-sm border rounded-lg bg-white text-[#1e293b] placeholder-[#94a3b8] resize-y
+          focus:outline-none focus:border-[#60a5fa] focus:ring-2 focus:ring-[#60a5fa]/20
+          ${errors.body ? "border-[#dc2626]" : "border-blue-200 hover:border-blue-300"}`}
         {...register("body")}
       />
       {errors.body && (
-        <p className="text-xs text-[#c91d2e]">{errors.body.message}</p>
+        <p className="text-xs text-[#dc2626]">{errors.body.message}</p>
       )}
       {errors.root && (
-        <p className="text-xs text-[#c91d2e]">{errors.root.message}</p>
+        <p className="text-xs text-[#dc2626]">{errors.root.message}</p>
       )}
       <div className="flex items-center gap-2">
         <Button type="submit" variant="primary" size="sm" loading={isPending}>

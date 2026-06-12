@@ -1,5 +1,6 @@
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import Footer from "./Footer";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ export default function MainLayout({
   showSidebar = true,
 }: MainLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[#f0f7ff]">
       <Navbar />
       <div className="flex-1 flex">
         <div className="max-w-[1264px] mx-auto w-full flex gap-0">
@@ -23,7 +24,7 @@ export default function MainLayout({
           {showSidebar && <Sidebar />}
 
           {/* Main content */}
-          <main className="flex-1 min-w-0 border-l border-r border-[#e3e6eb]">
+          <main className="flex-1 min-w-0 border-l border-r border-blue-200 bg-white">
             <div className="max-w-full">{children}</div>
           </main>
 
@@ -35,6 +36,7 @@ export default function MainLayout({
           )}
         </div>
       </div>
+      {showSidebar && <Footer />}
     </div>
   );
 }

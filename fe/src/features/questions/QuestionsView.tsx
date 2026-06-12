@@ -48,7 +48,7 @@ export default function QuestionsView({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-xl font-semibold text-[#232629]">
+          <h1 className="text-xl font-bold text-[#1e293b]">
             {activeTag
               ? `Pertanyaan: [${activeTag}]`
               : activeCategory
@@ -56,14 +56,14 @@ export default function QuestionsView({
               : "Semua Pertanyaan"}
           </h1>
           {!isLoading && (
-            <p className="text-sm text-[#6a737c] mt-0.5">
-              <span className="font-medium text-[#232629]">{total}</span> pertanyaan
+            <p className="text-sm text-[#64748b] mt-0.5">
+              <span className="font-semibold text-[#1e293b]">{total}</span> pertanyaan
             </p>
           )}
         </div>
         <Link
           href="/questions/ask"
-          className="bg-[#0a95ff] hover:bg-[#0074cc] text-white text-sm font-medium px-3 py-2 rounded transition-colors"
+          className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm shadow-blue-200/20"
         >
           Ajukan Pertanyaan
         </Link>
@@ -72,15 +72,15 @@ export default function QuestionsView({
       {/* Active filters badge */}
       {(activeTag || activeCategory) && (
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs text-[#6a737c]">Filter aktif:</span>
+          <span className="text-xs text-[#64748b]">Filter aktif:</span>
           {activeTag && (
-            <span className="px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d]">
+            <span className="px-2 py-0.5 text-xs rounded-md border border-blue-200 bg-blue-50 text-[#60a5fa] font-medium">
               tag: {activeTag}
             </span>
           )}
           <Link
             href="/questions"
-            className="text-xs text-[#c91d2e] hover:underline"
+            className="text-xs text-red-600 hover:underline"
           >
             Hapus filter
           </Link>
@@ -88,15 +88,15 @@ export default function QuestionsView({
       )}
 
       {/* Sort tabs */}
-      <div className="flex flex-wrap gap-px border border-[#e3e6eb] rounded overflow-hidden w-fit mb-4 text-sm">
+      <div className="flex flex-wrap gap-px border border-blue-200 rounded-lg overflow-hidden w-fit mb-4 text-sm">
         {SORT_OPTIONS.map((option) => (
           <button
             key={option.value}
             onClick={() => onSortChange(option.value)}
             className={`px-3 py-1.5 font-medium transition-colors ${
               sort === option.value
-                ? "bg-[#e3e6eb] text-[#232629]"
-                : "bg-white text-[#6a737c] hover:bg-[#f6f6f6]"
+                ? "bg-blue-100 text-[#3b82f6]"
+                : "bg-white text-[#64748b] hover:bg-blue-50"
             }`}
           >
             {option.label}
@@ -110,7 +110,7 @@ export default function QuestionsView({
           <Spinner size="lg" />
         </div>
       ) : isError ? (
-        <div className="flex items-center gap-2 py-8 text-sm text-[#c91d2e] justify-center">
+        <div className="flex items-center gap-2 py-8 text-sm text-red-600 justify-center">
           <AlertCircle className="w-4 h-4" />
           Gagal memuat pertanyaan. Coba refresh halaman.
         </div>
@@ -125,14 +125,14 @@ export default function QuestionsView({
           action={
             <Link
               href="/questions/ask"
-              className="bg-[#0a95ff] hover:bg-[#0074cc] text-white text-sm font-medium px-4 py-2 rounded"
+              className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-sm font-semibold px-4 py-2 rounded-lg"
             >
               Ajukan Pertanyaan
             </Link>
           }
         />
       ) : (
-        <div className="border border-[#e3e6eb] rounded divide-y divide-[#e3e6eb]">
+        <div className="border border-blue-200 rounded-xl divide-y divide-blue-100 overflow-hidden">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
@@ -141,7 +141,7 @@ export default function QuestionsView({
 
       {/* Pagination */}
       {lastPage > 1 && !isLoading && (
-        <div className="flex justify-center py-4 border-t border-[#e3e6eb] mt-2">
+        <div className="flex justify-center py-4 border-t border-blue-100 mt-2">
           <Pagination
             currentPage={currentPage}
             lastPage={lastPage}

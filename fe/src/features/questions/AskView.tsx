@@ -44,16 +44,16 @@ export default function AskView({
 
       {/* Page header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-[#232629] mb-1">
+        <h1 className="text-2xl font-semibold text-[#1e293b] mb-1">
           Ajukan Pertanyaan Publik
         </h1>
-        <p className="text-sm text-[#6a737c]">
+        <p className="text-sm text-[#64748b]">
           Tuliskan masalah kamu dengan jelas agar mudah dijawab oleh komunitas.
         </p>
       </div>
 
       {rootError && (
-        <div className="mb-4 p-3 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e]">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-[#dc2626]">
           {rootError}
         </div>
       )}
@@ -61,9 +61,9 @@ export default function AskView({
       <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
 
         {/* Judul */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-1">Judul</h2>
-          <p className="text-xs text-[#6a737c] mb-2">
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-1">Judul</h2>
+          <p className="text-xs text-[#64748b] mb-2">
             Tulis pertanyaan spesifikmu dalam satu kalimat.
           </p>
           <Input
@@ -74,9 +74,9 @@ export default function AskView({
         </div>
 
         {/* Isi pertanyaan */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-1">Isi Pertanyaan</h2>
-          <p className="text-xs text-[#6a737c] mb-2">
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-1">Isi Pertanyaan</h2>
+          <p className="text-xs text-[#64748b] mb-2">
             Jelaskan masalahmu, apa yang sudah dicoba, dan hasil yang diharapkan.
           </p>
           <Textarea
@@ -88,9 +88,9 @@ export default function AskView({
         </div>
 
         {/* Kategori */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-1">Kategori</h2>
-          <p className="text-xs text-[#6a737c] mb-2">
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-1">Kategori</h2>
+          <p className="text-xs text-[#64748b] mb-2">
             Pilih kategori yang paling relevan.
           </p>
           <Controller
@@ -100,10 +100,10 @@ export default function AskView({
               <select
                 {...field}
                 disabled={isLoadingCategories}
-                className={`w-full px-3 py-2 text-sm border rounded bg-white text-[#232629]
-                  focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20
-                  disabled:bg-[#f6f6f6] disabled:cursor-not-allowed
-                  ${errors.category_id ? "border-[#c91d2e]" : "border-[#babfc4] hover:border-[#838c95]"}`}
+                className={`w-full px-3 py-2 text-sm border rounded-lg bg-white text-[#1e293b]
+                  focus:outline-none focus:border-[#60a5fa] focus:ring-2 focus:ring-[#60a5fa]/20
+                  disabled:bg-blue-50/50 disabled:cursor-not-allowed
+                  ${errors.category_id ? "border-[#dc2626]" : "border-blue-200 hover:border-blue-300"}`}
               >
                 <option value="">
                   {isLoadingCategories ? "Memuat kategori..." : "-- Pilih Kategori --"}
@@ -117,15 +117,15 @@ export default function AskView({
             )}
           />
           {errors.category_id && (
-            <p className="mt-1 text-xs text-[#c91d2e]">{errors.category_id.message}</p>
+            <p className="mt-1 text-xs text-[#dc2626]">{errors.category_id.message}</p>
           )}
         </div>
 
         {/* Tag */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-1">Tag</h2>
-          <p className="text-xs text-[#6a737c] mb-2">
-            Tambahkan hingga 5 tag. Tekan <kbd className="px-1 py-0.5 bg-[#f6f6f6] border border-[#e3e6eb] rounded text-[10px]">Enter</kbd> atau koma untuk menambah.
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-1">Tag</h2>
+          <p className="text-xs text-[#64748b] mb-2">
+            Tambahkan hingga 5 tag. Tekan <kbd className="px-1 py-0.5 bg-blue-50 border border-blue-200 rounded text-[10px]">Enter</kbd> atau koma untuk menambah.
           </p>
 
           {/* Tag badges */}
@@ -134,13 +134,13 @@ export default function AskView({
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d]"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border border-blue-200 bg-blue-50 text-[#60a5fa]"
                 >
                   {tag}
                   <button
                     type="button"
                     onClick={() => onTagRemove(tag)}
-                    className="hover:text-[#c91d2e] transition-colors"
+                    className="hover:text-[#dc2626] transition-colors"
                     aria-label={`Hapus tag ${tag}`}
                   >
                     <X className="w-3 h-3" />
@@ -160,7 +160,7 @@ export default function AskView({
             hint={tags.length >= 5 ? "Maksimal 5 tag sudah tercapai" : undefined}
           />
           {errors.tags && (
-            <p className="mt-1 text-xs text-[#c91d2e]">{errors.tags.message}</p>
+            <p className="mt-1 text-xs text-[#dc2626]">{errors.tags.message}</p>
           )}
         </div>
 

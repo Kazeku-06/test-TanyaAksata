@@ -26,7 +26,7 @@ export default function Avatar({ name, avatar, size = "md", className }: AvatarP
   return (
     <div
       className={cn(
-        "relative rounded-sm overflow-hidden flex-shrink-0 bg-[#e1ecf4]",
+        "relative rounded-md overflow-hidden flex-shrink-0 bg-blue-50",
         sizeClass,
         className
       )}
