@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import type { UseFormReturn } from "react-hook-form";
 import type { Post, Comment, Report, PostEditHistory, CommentEditHistory, ReportStatus } from "@/types";
 import type { ModerationTab } from "./ModerationLogic";
@@ -181,9 +182,81 @@ function ReportsTab({
                   </div>
                   <p className="text-sm font-medium text-[#232629]">{report.reason}</p>
                   {report.reporter && (
-                    <p className="text-xs text-[#6a737c] mt-0.5">
+                    <p className="text-xs text-[#6a737c] mt-0.5 mb-2">
                       Dilaporkan oleh: {report.reporter.name}
                     </p>
+                  )}
+                  {/* Reported Target Preview */}
+                  {report.target ? (
+                    <div className="mt-3 p-3 bg-[#f8f9fa] border border-[#e3e6eb] rounded text-xs text-[#232629] max-w-3xl">
+                      <div className="font-semibold text-[#6a737c] mb-1.5 uppercase tracking-wider text-[10px]">
+                        Konten yang Dilaporkan:
+                      </div>
+                      {(() => {
+                        const targetType = report.target_type.split("\\").pop()?.toLowerCase();
+                        if (targetType === "post") {
+                          return (
+                            <div className="space-y-1">
+                              <div className="font-medium text-[#0074cc] hover:underline">
+                                <Link href={`/questions/${report.target.id}`} target="_blank">
+                                  Post: {report.target.title}
+                                </Link>
+                              </div>
+                              <p className="text-[#3b4045] line-clamp-3 whitespace-pre-line bg-white p-2 border border-[#e3e6eb] rounded mt-1">
+                                {report.target.body}
+                              </p>
+                              {report.target.user && (
+                                <p className="text-[#6a737c] mt-1 text-[11px]">
+                                  Ditulis oleh: <span className="font-medium text-[#3b4045]">{report.target.user.name}</span>
+                                </p>
+                              )}
+                            </div>
+                          );
+                        } else if (targetType === "comment") {
+                          return (
+                            <div className="space-y-1">
+                              {report.target.post && (
+                                <div className="text-[#6a737c] mb-1">
+                                  Komentar pada post:{" "}
+                                  <Link href={`/questions/${report.target.post.id}`} target="_blank" className="text-[#0074cc] hover:underline font-medium">
+                                    {report.target.post.title}
+                                  </Link>
+                                </div>
+                              )}
+                              <p className="text-[#3b4045] line-clamp-3 whitespace-pre-line bg-white p-2 border border-[#e3e6eb] rounded">
+                                {report.target.body}
+                              </p>
+                              {report.target.user && (
+                                <p className="text-[#6a737c] mt-1 text-[11px]">
+                                  Ditulis oleh: <span className="font-medium text-[#3b4045]">{report.target.user.name}</span>
+                                </p>
+                              )}
+                            </div>
+                          );
+                        } else if (targetType === "user") {
+                          return (
+                            <div className="space-y-1">
+                              <div className="font-medium text-[#3b4045]">
+                                User: <span className="text-[#232629] font-bold">{report.target.name}</span> ({report.target.email})
+                              </div>
+                              {report.target.bio && (
+                                <p className="text-[#6a737c] italic mt-1 bg-white p-2 border border-[#e3e6eb] rounded">
+                                  "{report.target.bio}"
+                                </p>
+                              )}
+                              <div className="text-[11px] text-[#6a737c] mt-1">
+                                Reputasi: <span className="font-medium text-[#232629]">{report.target.reputation}</span> | Terdaftar: {new Date(report.target.created_at).toLocaleDateString("id-ID")}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return <p className="text-[#6a737c]">Tipe target tidak dikenal</p>;
+                      })()}
+                    </div>
+                  ) : (
+                    <div className="mt-3 p-3 bg-[#fdf2f2] border border-[#f5c6cb] text-[#721c24] rounded text-xs max-w-3xl">
+                      Konten telah dihapus secara permanen atau tidak ditemukan.
+                    </div>
                   )}
                 </div>
 

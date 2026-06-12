@@ -221,7 +221,7 @@ class PostController extends Controller
 
         $posts = Cache::remember($key, CacheService::TTL_SHORT, function () use ($userId) {
             return Post::where('user_id', $userId)
-                ->with(['category', 'tags'])
+                ->with(['user', 'category', 'tags'])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10)
                 ->toArray();
