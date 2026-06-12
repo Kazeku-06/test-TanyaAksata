@@ -12,37 +12,45 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    "bg-[#0a95ff] text-white hover:bg-[#0074cc] border border-[#0a95ff] hover:border-[#0074cc]",
+    "bg-[var(--primary)] !text-white hover:bg-[var(--primary-hover)] border border-[var(--primary)] hover:border-[var(--primary-hover)] shadow-sm hover:shadow-md",
   secondary:
-    "bg-[#e1ecf4] text-[#0074cc] hover:bg-[#b3d3ea] border border-[#e1ecf4] hover:border-[#b3d3ea]",
+    "bg-[var(--primary-light)] text-[var(--primary)] hover:bg-[var(--primary-light)] border border-[var(--primary-light)] hover:border-[var(--primary)] shadow-sm",
   danger:
-    "bg-[#c91d2e] text-white hover:bg-[#a41729] border border-[#c91d2e] hover:border-[#a41729]",
+    "bg-[var(--danger)] !text-white hover:bg-[#dc2626] border border-[var(--danger)] hover:border-[#dc2626] shadow-sm",
   ghost:
-    "bg-transparent text-[#0074cc] hover:bg-[#e1ecf4] border border-transparent",
+    "bg-transparent text-[var(--primary)] hover:bg-[var(--primary-light)] border border-transparent",
   outline:
-    "bg-white text-[#6a737c] hover:text-[#3b4045] border border-[#babfc4] hover:border-[#838c95]",
+    "bg-white text-[var(--text-light)] hover:text-[var(--text-default)] border border-[var(--border)] hover:border-[#94a3b8] shadow-sm",
 };
 
 const sizeStyles: Record<Size, string> = {
-  sm: "px-3 py-1 text-xs rounded",
-  md: "px-2.5 py-1.5 text-sm rounded",
-  lg: "px-4 py-2.5 text-base rounded",
+  sm: "px-4 py-2 text-sm rounded-xl",
+  md: "px-4 py-2.5 text-sm rounded-xl",
+  lg: "px-5 py-3 text-base rounded-xl",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { variant = "primary", size = "md", loading, className, children, disabled, ...props },
-    ref
+    {
+      variant = "primary",
+      size = "md",
+      loading,
+      className,
+      children,
+      disabled,
+      ...props
+    },
+    ref,
   ) => {
     return (
       <button
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center gap-1.5 font-medium cursor-pointer transition-colors duration-100 disabled:opacity-60 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center gap-1.5 font-medium cursor-pointer transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed",
           variantStyles[variant],
           sizeStyles[size],
-          className
+          className,
         )}
         {...props}
       >
@@ -71,7 +79,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

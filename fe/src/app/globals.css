@@ -5,20 +5,20 @@
   --foreground: #1b1d1f;
 
   /* Brand colors - Blue/White theme */
-  --primary: #0a95ff;
-  --primary-hover: #0074cc;
+  --primary: #0063ba;
+  --primary-hover: #0056a3;
   --primary-light: #e1ecf4;
 
   /* Stack Overflow-style neutrals */
   --sidebar-bg: #f6f6f6;
   --border: #e3e6eb;
-  --border-dark: #babfc4;
+  --border-dark: #9199a1;
   --header-bg: #f8f9f9;
 
   /* Text */
   --text-default: #232629;
-  --text-light: #6a737c;
-  --text-link: #0077cc;
+  --text-light: #525960;
+  --text-link: #0059a1;
 
   /* Status */
   --success: #2e6d44;
@@ -27,9 +27,9 @@
   --accepted: #2e6d44;
 
   /* Vote arrows */
-  --vote-up: #0a95ff;
+  --vote-up: #0063ba;
   --vote-down: #c91d2e;
-  --vote-neutral: #babfc4;
+  --vote-neutral: #9199a1;
 }
 
 @theme inline {

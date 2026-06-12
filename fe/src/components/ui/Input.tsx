@@ -27,9 +27,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             className={cn(
-              "w-full py-2 text-sm border rounded bg-white text-[#232629] placeholder-[#babfc4] transition-all",
+              "w-full py-2 text-sm border rounded bg-white text-[#232629] placeholder-[#6a737c] transition-all",
               "border-[#babfc4] hover:border-[#838c95]",
-              "focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20",
+              "focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20",
               "disabled:bg-[#f6f6f6] disabled:cursor-not-allowed",
               leftIcon ? "pl-10 pr-3" : "px-3",
               error && "border-[#c91d2e] focus:border-[#c91d2e] focus:ring-[#c91d2e]/20",

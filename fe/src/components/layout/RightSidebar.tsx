@@ -8,14 +8,16 @@ interface RightSidebarProps {
 // Widget: Ask a question CTA
 function AskWidget() {
   return (
-    <div className="border border-[#f1b600] bg-[#fdf7e2] rounded p-3 text-sm">
-      <h3 className="font-semibold text-[#3b3229] mb-1">Punya pertanyaan?</h3>
-      <p className="text-[#6a5f4b] text-xs mb-2">
-        Dapatkan jawaban dari komunitas pengembang aktif.
+    <div className="border border-[var(--primary-light)] bg-white rounded-[28px] p-5 text-sm">
+      <h3 className="font-semibold text-[var(--text-default)] text-base mb-2">
+        Punya Pertanyaan?
+      </h3>
+      <p className="text-[var(--text-default)] text-sm mb-4 leading-6">
+        Bagikan pengalaman dan dapatkan jawaban dari komunitas developer aktif.
       </p>
       <Link
         href="/questions/ask"
-        className="block w-full text-center bg-[#0a95ff] hover:bg-[#0074cc] text-white text-xs font-medium py-1.5 rounded transition-colors"
+        className="block w-full text-center bg-[var(--primary)] hover:bg-[var(--primary-hover)] !text-white text-sm font-semibold py-3 rounded-2xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-light)]"
       >
         Ajukan Pertanyaan
       </Link>
@@ -38,17 +40,19 @@ function TagsWidget() {
     "css",
   ];
   return (
-    <div className="border border-[#e3e6eb] rounded p-3 text-sm">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Tag className="w-4 h-4 text-[#6a737c]" />
-        <h3 className="font-semibold text-[#232629]">Tag Populer</h3>
+    <div className="border border-[#e2e8f0] bg-white rounded-[28px] p-5 text-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <Tag className="w-4 h-4 text-[var(--primary)]" />
+        <h3 className="font-semibold text-[var(--text-default)]">
+          Tag Populer
+        </h3>
       </div>
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-2">
         {popularTags.map((tag) => (
           <Link
             key={tag}
             href={`/questions?tag=${tag}`}
-            className="px-1.5 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d] hover:bg-[#d0e3f0] transition-colors"
+            className="px-3 py-1.5 text-xs font-semibold rounded-full border border-[var(--primary-light)] bg-[var(--primary-light)] text-[var(--primary)] hover:bg-[#d0e3f1] transition-colors duration-150"
           >
             {tag}
           </Link>
@@ -60,7 +64,7 @@ function TagsWidget() {
 
 export default function RightSidebar({ children }: RightSidebarProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <AskWidget />
       <TagsWidget />
       {children}
