@@ -111,58 +111,58 @@ export default function EditPostClient({ postId }: EditPostClientProps) {
 
   if (!post) {
     return (
-      <div className="p-4 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e] font-medium max-w-[850px] mx-auto mt-6">
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-[#dc2626] font-medium max-w-[850px] mx-auto mt-6">
         Pertanyaan tidak ditemukan.
       </div>
     );
   }
 
   return (
-    <div className="w-full bg-[#f8f9f9] min-h-screen px-4 py-8">
+    <div className="w-full bg-[#f0f7ff] min-h-screen px-4 py-8">
       <div className="max-w-[850px] mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-normal text-[#232629] tracking-tight">
+          <h1 className="text-2xl font-normal text-[#1e293b] tracking-tight">
             Edit Pertanyaan Anda
           </h1>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6" noValidate>
           {errors.root && (
-            <div className="p-3 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e] font-medium">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-[#dc2626] font-medium">
               {errors.root.message}
             </div>
           )}
 
           {/* Title Box */}
-          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
-            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Judul</h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+          <div className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+            <h2 className="font-semibold text-[#1e293b] text-[15px] mb-0.5">Judul</h2>
+            <p className="text-xs text-[#64748b] mb-3">
               Perbarui judul agar tetap ringkas, spesifik, dan mudah dimengerti.
             </p>
             <Input 
               error={errors.title?.message} 
               {...register("title")} 
-              className="focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10"
+              className="focus:border-[#60a5fa] focus:ring-4 focus:ring-[#60a5fa]/10"
             />
           </div>
 
           {/* Body Box */}
-          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
-            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Isi Pertanyaan</h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+          <div className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+            <h2 className="font-semibold text-[#1e293b] text-[15px] mb-0.5">Isi Pertanyaan</h2>
+            <p className="text-xs text-[#64748b] mb-3">
               Perjelas masalahmu, tambahkan log kesalahan terbaru jika ada, atau rapihkan blok kode.
             </p>
             <Textarea 
               error={errors.body?.message} 
-              className="min-h-[240px] focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 font-mono text-sm" 
+              className="min-h-[240px] focus:border-[#60a5fa] focus:ring-4 focus:ring-[#60a5fa]/10 font-mono text-sm" 
               {...register("body")} 
             />
           </div>
 
           {/* Category Box */}
-          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
-            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Kategori</h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+          <div className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+            <h2 className="font-semibold text-[#1e293b] text-[15px] mb-0.5">Kategori</h2>
+            <p className="text-xs text-[#64748b] mb-3">
               Ubah kategori jika topik pertanyaan bergeser ke pembahasan lain.
             </p>
             <Controller
@@ -171,10 +171,10 @@ export default function EditPostClient({ postId }: EditPostClientProps) {
               render={({ field }) => (
                 <select
                   {...field}
-                  className={`w-full px-3 py-2.5 text-sm border rounded bg-white text-[#232629] transition-all focus:outline-none focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10 ${
+                  className={`w-full px-3 py-2.5 text-sm border rounded-lg bg-white text-[#1e293b] transition-all focus:outline-none focus:border-[#60a5fa] focus:ring-4 focus:ring-[#60a5fa]/10 ${
                     errors.category_id 
-                      ? "border-[#c91d2e] focus:ring-[#c91d2e]/10" 
-                      : "border-[#babfc4] hover:border-[#838c95]"
+                      ? "border-[#dc2626] focus:ring-[#dc2626]/10" 
+                      : "border-blue-200 hover:border-blue-300"
                   }`}
                 >
                   <option value="">-- Pilih Kategori --</option>
@@ -187,14 +187,14 @@ export default function EditPostClient({ postId }: EditPostClientProps) {
               )}
             />
             {errors.category_id && (
-              <p className="mt-1.5 text-xs text-[#c91d2e] font-medium">{errors.category_id.message}</p>
+              <p className="mt-1.5 text-xs text-[#dc2626] font-medium">{errors.category_id.message}</p>
             )}
           </div>
 
           {/* Tags Box */}
-          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
-            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">Tag</h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+          <div className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+            <h2 className="font-semibold text-[#1e293b] text-[15px] mb-0.5">Tag</h2>
+            <p className="text-xs text-[#64748b] mb-3">
               Tambahkan atau sesuaikan tag (maksimal 5). Tekan Enter atau koma untuk konfirmasi.
             </p>
             
@@ -203,13 +203,13 @@ export default function EditPostClient({ postId }: EditPostClientProps) {
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d] font-medium"
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs rounded border border-blue-200 bg-blue-50 text-[#60a5fa] font-medium"
                   >
                     {tag}
                     <button 
                       type="button" 
                       onClick={() => removeTag(tag)}
-                      className="hover:bg-[#39739d]/10 p-0.5 rounded text-[#39739d] hover:text-[#c91d2e] transition-colors"
+                      className="hover:bg-blue-100 p-0.5 rounded text-[#60a5fa] hover:text-[#dc2626] transition-colors"
                     >
                       <X className="w-3 h-3 stroke-[2.5]" />
                     </button>
@@ -226,24 +226,24 @@ export default function EditPostClient({ postId }: EditPostClientProps) {
               placeholder="e.g. javascript, react, nextjs"
               disabled={tags.length >= 5}
               hint={tags.length >= 5 ? "Maksimal 5 tag" : undefined}
-              className="focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10"
+              className="focus:border-[#60a5fa] focus:ring-4 focus:ring-[#60a5fa]/10"
             />
           </div>
 
           {/* Edit Summary Box */}
-          <div className="bg-white border border-[#e3e6eb] rounded-md p-6 shadow-sm">
-            <h2 className="font-semibold text-[#232629] text-[15px] mb-0.5">
+          <div className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+            <h2 className="font-semibold text-[#1e293b] text-[15px] mb-0.5">
               Ringkasan Edit{" "}
-              <span className="text-[#6a737c] font-normal text-xs">(opsional)</span>
+              <span className="text-[#64748b] font-normal text-xs">(opsional)</span>
             </h2>
-            <p className="text-xs text-[#6a737c] mb-3">
+            <p className="text-xs text-[#64748b] mb-3">
               Berikan penjelasan singkat mengenai apa saja yang baru kamu perbaiki.
             </p>
             <Input
               placeholder="e.g. memperbaiki typo pada baris kode, melampirkan error log terbaru"
               error={errors.edit_summary?.message}
               {...register("edit_summary")}
-              className="focus:border-[#0a95ff] focus:ring-4 focus:ring-[#0a95ff]/10"
+              className="focus:border-[#60a5fa] focus:ring-4 focus:ring-[#60a5fa]/10"
             />
           </div>
 
@@ -254,7 +254,6 @@ export default function EditPostClient({ postId }: EditPostClientProps) {
               variant="primary" 
               size="lg" 
               loading={isPending}
-              className="bg-[#0a95ff] hover:bg-[#0074cc] text-white font-medium text-sm px-5 py-2.5 rounded shadow-sm transition-colors"
             >
               Simpan Perubahan
             </Button>
@@ -264,7 +263,6 @@ export default function EditPostClient({ postId }: EditPostClientProps) {
               size="lg" 
               onClick={() => router.back()} 
               disabled={isPending}
-              className="text-[#c91d2e] hover:bg-[#fce8e9] font-medium text-sm px-5 py-2.5 rounded transition-colors"
             >
               Batal
             </Button>

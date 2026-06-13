@@ -59,7 +59,7 @@ export default function ReportButton({ targetType, targetId }: ReportButtonProps
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-xs text-[#6a737c] hover:text-[#c91d2e] transition-colors"
+        className="flex items-center gap-1 text-xs text-[#64748b] hover:text-[#dc2626] transition-colors"
       >
         <Flag className="w-3.5 h-3.5" />
         Laporkan
@@ -67,16 +67,16 @@ export default function ReportButton({ targetType, targetId }: ReportButtonProps
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-5">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-5 border border-blue-100">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-[#232629]">Laporkan Konten</h3>
-              <button onClick={handleClose} className="text-[#6a737c] hover:text-[#232629]">
+              <h3 className="font-semibold text-[#1e293b]">Laporkan Konten</h3>
+              <button onClick={handleClose} className="text-[#64748b] hover:text-[#1e293b]">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {success ? (
-              <p className="text-sm text-[#2e6d44] text-center py-4">
+              <p className="text-sm text-[#059669] text-center py-4">
                 ✓ Laporan berhasil dikirim. Terima kasih!
               </p>
             ) : (
@@ -89,25 +89,25 @@ export default function ReportButton({ targetType, targetId }: ReportButtonProps
                 />
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[#232629]">
+                  <label className="text-sm font-semibold text-[#1e293b]">
                     Detail Tambahan{" "}
-                    <span className="text-[#6a737c] font-normal">(opsional)</span>
+                    <span className="text-[#64748b] font-normal">(opsional)</span>
                   </label>
                   <textarea
                     placeholder="Ceritakan lebih detail..."
                     rows={3}
-                    className={`w-full px-3 py-2 text-sm border rounded resize-none focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20 ${
-                      errors.description ? "border-[#c91d2e]" : "border-[#babfc4]"
+                    className={`w-full px-3 py-2 text-sm border rounded-lg resize-none focus:outline-none focus:border-[#60a5fa] focus:ring-2 focus:ring-[#60a5fa]/20 ${
+                      errors.description ? "border-[#dc2626]" : "border-blue-200"
                     }`}
                     {...register("description")}
                   />
                   {errors.description && (
-                    <p className="text-xs text-[#c91d2e]">{errors.description.message}</p>
+                    <p className="text-xs text-[#dc2626]">{errors.description.message}</p>
                   )}
                 </div>
 
                 {errors.root && (
-                  <p className="text-xs text-[#c91d2e]">{errors.root.message}</p>
+                  <p className="text-xs text-[#dc2626]">{errors.root.message}</p>
                 )}
 
                 <div className="flex gap-2 justify-end mt-1">

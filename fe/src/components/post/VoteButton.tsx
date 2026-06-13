@@ -25,7 +25,7 @@ export default function VoteButton({
         orientation === "vertical" ? "flex-col gap-1.5 w-12" : "flex-row gap-3"
       )}
     >
-      {/* 1. UPVOTE BUTTON */}
+      {/* UPVOTE */}
       <button
         type="button"
         onClick={() => onVote(1)}
@@ -34,26 +34,25 @@ export default function VoteButton({
         className={cn(
           "p-1.5 rounded-full transition-colors flex items-center justify-center border border-transparent",
           userVote === 1
-            ? "text-[#f48024]" // Warna orange aktif khas SO
-            : "text-[#babfc4] hover:bg-[#f8f9f9] hover:text-[#f48024]", // Efek hover soft abu ke orange
+            ? "text-[#60a5fa] bg-blue-50"
+            : "text-[#94a3b8] hover:bg-blue-50 hover:text-[#60a5fa]",
           disabled && "opacity-30 cursor-not-allowed"
         )}
       >
-        {/* Menggunakan stroke besar (strokeWidth 3) agar mirip panah tebal SO */}
         <ChevronUp className="w-7 h-7 stroke-[3]" />
       </button>
 
-      {/* 2. VOTE COUNT */}
+      {/* COUNT */}
       <span
         className={cn(
           "font-semibold text-lg tracking-tight text-center leading-none min-w-[20px]",
-          userVote !== null ? "text-[#232629] font-bold" : "text-[#6a737c]"
+          userVote !== null ? "text-[#1e293b] font-bold" : "text-[#64748b]"
         )}
       >
         {formatCount(count)}
       </span>
 
-      {/* 3. DOWNVOTE BUTTON */}
+      {/* DOWNVOTE */}
       <button
         type="button"
         onClick={() => onVote(-1)}
@@ -62,8 +61,8 @@ export default function VoteButton({
         className={cn(
           "p-1.5 rounded-full transition-colors flex items-center justify-center border border-transparent",
           userVote === -1
-            ? "text-[#f48024]" // Di SO asli, downvote aktif juga berwarna orange hangat!
-            : "text-[#babfc4] hover:bg-[#f8f9f9] hover:text-[#f48024]",
+            ? "text-red-500 bg-red-50"
+            : "text-[#94a3b8] hover:bg-red-50 hover:text-red-500",
           disabled && "opacity-30 cursor-not-allowed"
         )}
       >

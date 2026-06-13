@@ -1,35 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #1b1d1f;
+  --background: #f0f7ff;
+  --foreground: #1e293b;
 
-  /* Brand colors - Blue/White theme */
-  --primary: #0063ba;
-  --primary-hover: #0056a3;
-  --primary-light: #e1ecf4;
+  /* Brand colors - Soft Blue theme */
+  --primary: #60a5fa;
+  --primary-hover: #3b82f6;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --accent: #93c5fd;
 
-  /* Stack Overflow-style neutrals */
-  --sidebar-bg: #f6f6f6;
-  --border: #e3e6eb;
-  --border-dark: #9199a1;
-  --header-bg: #f8f9f9;
+  /* Blue-tinted neutrals */
+  --sidebar-bg: #e8f1fd;
+  --border: #dbeafe;
+  --border-dark: #bfdbfe;
+  --header-bg: #3b82f6;
+  --header-text: #ffffff;
 
   /* Text */
-  --text-default: #232629;
-  --text-light: #525960;
-  --text-link: #0059a1;
+  --text-default: #1e293b;
+  --text-light: #64748b;
+  --text-link: #60a5fa;
 
   /* Status */
-  --success: #2e6d44;
-  --warning: #a56600;
-  --danger: #c91d2e;
-  --accepted: #2e6d44;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --accepted: #059669;
 
   /* Vote arrows */
-  --vote-up: #0063ba;
-  --vote-down: #c91d2e;
-  --vote-neutral: #9199a1;
+  --vote-up: #60a5fa;
+  --vote-down: #dc2626;
+  --vote-neutral: #94a3b8;
 }
 
 @theme inline {
@@ -38,6 +41,8 @@
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-light: var(--primary-light);
+  --color-primary-lighter: var(--primary-lighter);
+  --color-accent: var(--accent);
   --color-border: var(--border);
   --color-sidebar: var(--sidebar-bg);
   --color-header: var(--header-bg);
@@ -48,7 +53,7 @@
 body {
   background: var(--background);
   color: var(--text-default);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, sans-serif;
   font-size: 15px;
   line-height: 1.5;
@@ -71,11 +76,11 @@ a:hover {
   background: var(--sidebar-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-dark);
+  background: #bfdbfe;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #999;
+  background: #93c5fd;
 }
 
 /* Prose / markdown content */
@@ -90,15 +95,15 @@ a:hover {
   margin-bottom: 1em;
 }
 .prose pre {
-  background: #f6f6f6;
+  background: #eff6ff;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 1em;
   overflow-x: auto;
   font-size: 13px;
 }
 .prose code {
-  background: #f1f2f3;
+  background: #dbeafe;
   padding: 2px 5px;
   border-radius: 3px;
   font-size: 13px;
@@ -114,7 +119,7 @@ a:hover {
   margin-bottom: 1em;
 }
 .prose blockquote {
-  border-left: 4px solid var(--border-dark);
+  border-left: 4px solid var(--primary);
   padding-left: 1em;
   color: var(--text-light);
   margin: 1em 0;

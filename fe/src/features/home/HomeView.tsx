@@ -7,7 +7,6 @@ import EmptyState from "@/components/ui/EmptyState";
 import Pagination from "@/components/ui/Pagination";
 import PostCard from "@/components/post/PostCard";
 
-// Props yang diterima HomeView dari HomeLogic
 interface HomeViewProps {
   posts: Post[];
   isLoading: boolean;
@@ -20,7 +19,6 @@ interface HomeViewProps {
   onPageChange: (page: number) => void;
 }
 
-// Tab config untuk DRY
 const FEED_TABS: { key: FeedType; label: string; icon: React.ReactNode }[] = [
   { key: "latest", label: "Terbaru", icon: <Clock className="w-3.5 h-3.5" /> },
   { key: "trending", label: "Trending", icon: <TrendingUp className="w-3.5 h-3.5" /> },
@@ -42,27 +40,27 @@ export default function HomeView({
 
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold text-[#232629]">
+        <h1 className="text-xl font-bold text-[#1e293b]">
           Pertanyaan {activeFeed === "trending" ? "Trending" : "Terbaru"}
         </h1>
         <Link
           href="/questions/ask"
-          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] !text-white text-sm font-medium px-3 py-2 rounded transition-colors"
+          className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm shadow-blue-200/20"
         >
           Ajukan Pertanyaan
         </Link>
       </div>
 
       {/* Feed tabs */}
-      <div className="flex items-center gap-px mb-0 border-b border-[#e3e6eb]">
+      <div className="flex items-center gap-px mb-0 border-b border-blue-100">
         {FEED_TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => onFeedChange(tab.key)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors duration-150 -mb-px ${
+            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
               activeFeed === tab.key
-                ? "border-[#f48024] text-[#232629]"
-                : "border-transparent text-[#525960] hover:text-[#232629] hover:bg-slate-50"
+                ? "border-[#60a5fa] text-[#3b82f6]"
+                : "border-transparent text-[#64748b] hover:text-[#1e293b]"
             }`}
           >
             {tab.icon}
@@ -77,7 +75,7 @@ export default function HomeView({
           <Spinner size="lg" />
         </div>
       ) : isError ? (
-        <div className="flex items-center gap-2 py-8 text-sm text-[#c91d2e] justify-center">
+        <div className="flex items-center gap-2 py-8 text-sm text-red-600 justify-center">
           <AlertCircle className="w-4 h-4" />
           Gagal memuat pertanyaan. Coba refresh halaman.
         </div>
@@ -88,23 +86,23 @@ export default function HomeView({
           action={
             <Link
               href="/questions/ask"
-              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] !text-white text-sm font-medium px-4 py-2 rounded transition-colors"
+              className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
             >
               Ajukan Pertanyaan
             </Link>
           }
         />
       ) : (
-        <div className="divide-y divide-[#e3e6eb]">
+        <div className="divide-y divide-blue-100">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
         </div>
       )}
 
-      {/* Pagination — hanya untuk tab latest */}
+      {/* Pagination */}
       {showPagination && lastPage > 1 && !isLoading && (
-        <div className="flex justify-center py-4 border-t border-[#e3e6eb] mt-2">
+        <div className="flex justify-center py-4 border-t border-blue-100 mt-2">
           <Pagination
             currentPage={currentPage}
             lastPage={lastPage}
