@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Search, Bell, Menu, X, ChevronDown } from "lucide-react";
 import { useMe, useLogout } from "@/hooks/useAuth";
+import { useUnreadCount } from "@/hooks/useNotifications";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { data: user } = useMe();
   const { mutate: logout, isPending: loggingOut } = useLogout();
+  const { data: unreadCount = 0 } = useUnreadCount();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,6 +110,11 @@ export default function Navbar() {
                 aria-label="Notifikasi"
               >
                 <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-[#c91d2e] text-white text-[10px] font-bold leading-none">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
               </Link>
 
               {/* User menu */}

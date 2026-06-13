@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Post, Category } from "@/types";
 import type { SortOption } from "./QuestionsLogic";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Clock, CalendarDays, ThumbsUp, MessageSquare } from "lucide-react";
 import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 import Pagination from "@/components/ui/Pagination";
@@ -20,13 +20,14 @@ interface QuestionsViewProps {
   activeTag: string;
   onSortChange: (sort: SortOption) => void;
   onPageChange: (page: number) => void;
+  canAsk: boolean;
 }
 
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: "latest", label: "Terbaru" },
-  { value: "oldest", label: "Terlama" },
-  { value: "most_voted", label: "Paling Banyak Vote" },
-  { value: "most_commented", label: "Paling Banyak Komentar" },
+const SORT_OPTIONS: { value: SortOption; label: string; icon: React.ReactNode }[] = [
+  { value: "latest",         label: "Terbaru",                icon: <Clock className="w-3.5 h-3.5" /> },
+  { value: "oldest",         label: "Terlama",                icon: <CalendarDays className="w-3.5 h-3.5" /> },
+  { value: "most_voted",     label: "Paling Banyak Vote",     icon: <ThumbsUp className="w-3.5 h-3.5" /> },
+  { value: "most_commented", label: "Paling Banyak Komentar", icon: <MessageSquare className="w-3.5 h-3.5" /> },
 ];
 
 export default function QuestionsView({
@@ -41,6 +42,7 @@ export default function QuestionsView({
   activeTag,
   onSortChange,
   onPageChange,
+  canAsk,
 }: QuestionsViewProps) {
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8">
@@ -62,16 +64,27 @@ export default function QuestionsView({
               </p>
             )}
           </div>
-          <Link
-            href="/questions/ask"
-            className="inline-flex items-center justify-center rounded-2xl bg-[var(--primary)] px-5 py-3 text-sm font-semibold !text-white shadow-sm transition-colors duration-150 hover:bg-[var(--primary-hover)]"
-          >
-            Ajukan Pertanyaan
-          </Link>
+          {canAsk ? (
+            <Link
+              href="/questions/ask"
+              className="inline-flex items-center justify-center rounded-2xl bg-[var(--primary)] px-5 py-3 text-sm font-semibold !text-white shadow-sm transition-colors duration-150 hover:bg-[var(--primary-hover)]"
+            >
+              Ajukan Pertanyaan
+            </Link>
+          ) : (
+            <div className="group relative">
+              <span className="inline-flex items-center justify-center rounded-2xl bg-[#babfc4] px-5 py-3 text-sm font-semibold text-white cursor-not-allowed opacity-60">
+                Ajukan Pertanyaan
+              </span>
+              <div className="absolute right-0 top-full mt-2 hidden w-56 rounded-lg border border-[#e3e6eb] bg-white p-3 text-xs text-[#525960] shadow-md group-hover:block z-10">
+                Butuh minimal <span className="font-semibold text-[#232629]">20 poin reputasi</span> untuk membuat postingan.
+              </div>
+            </div>
+          )}
         </div>
 
         {(activeTag || activeCategory) && (
-          <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-[#525960]">
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-[#525960]">
             <span className="font-medium text-[#232629]">Filter aktif:</span>
             {activeTag && (
               <span className="rounded-full border border-[var(--primary-light)] bg-[var(--primary-light)] px-3 py-1 text-[var(--primary)] font-medium">
@@ -86,22 +99,24 @@ export default function QuestionsView({
             </Link>
           </div>
         )}
+      </div>
 
-        <div className="mt-6 inline-flex flex-wrap gap-2 rounded-full bg-[var(--primary-light)] p-1">
-          {SORT_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => onSortChange(option.value)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 ${
-                sort === option.value
-                  ? "bg-[var(--primary)] !text-white shadow-sm"
-                  : "text-[#232629] hover:bg-white/80 hover:text-[var(--primary)]"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+      {/* Sort bar */}
+      <div className="mb-4 flex items-center gap-1 bg-white border border-slate-200 rounded-xl px-2 shadow-sm">
+        {SORT_OPTIONS.map((option) => (
+          <button
+            key={option.value}
+            onClick={() => onSortChange(option.value)}
+            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-lg my-1.5 transition-all duration-150 ${
+              sort === option.value
+                ? "bg-[var(--primary-light)] text-[var(--primary)]"
+                : "text-[#525960] hover:text-[#232629] hover:bg-slate-50"
+            }`}
+          >
+            {option.icon}
+            {option.label}
+          </button>
+        ))}
       </div>
 
       {/* Content */}
@@ -123,12 +138,14 @@ export default function QuestionsView({
               : "Belum ada pertanyaan. Jadilah yang pertama!"
           }
           action={
-            <Link
-              href="/questions/ask"
-              className="inline-flex rounded-2xl bg-[var(--primary)] px-5 py-3 text-sm font-semibold !text-white shadow-sm transition-colors duration-150 hover:bg-[var(--primary-hover)]"
-            >
-              Ajukan Pertanyaan
-            </Link>
+            canAsk ? (
+              <Link
+                href="/questions/ask"
+                className="inline-flex rounded-2xl bg-[var(--primary)] px-5 py-3 text-sm font-semibold !text-white shadow-sm transition-colors duration-150 hover:bg-[var(--primary-hover)]"
+              >
+                Ajukan Pertanyaan
+              </Link>
+            ) : undefined
           }
         />
       ) : (

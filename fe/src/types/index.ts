@@ -114,6 +114,9 @@ export interface Post {
   is_edited: boolean;
   edit_count?: number;
   is_bookmarked?: boolean;
+  bookmark_id?: string | null;
+  user_vote?: 1 | -1 | null;
+  is_liked?: boolean;
   accepted_answer_id?: string | null;
   created_at: string;
   updated_at: string;
