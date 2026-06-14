@@ -12,45 +12,37 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    "bg-[var(--primary)] !text-white hover:bg-[var(--primary-hover)] border border-[var(--primary)] hover:border-[var(--primary-hover)] shadow-sm hover:shadow-md",
+    "bg-[#60a5fa] text-white hover:bg-[#3b82f6] border border-[#60a5fa] hover:border-[#3b82f6] shadow-sm shadow-blue-200/20",
   secondary:
-    "bg-[var(--primary-light)] text-[var(--primary)] hover:bg-[var(--primary-light)] border border-[var(--primary-light)] hover:border-[var(--primary)] shadow-sm",
+    "bg-blue-100 text-[#3b82f6] hover:bg-blue-200 border border-blue-200 hover:border-blue-300",
   danger:
-    "bg-[var(--danger)] !text-white hover:bg-[#dc2626] border border-[var(--danger)] hover:border-[#dc2626] shadow-sm",
+    "bg-red-600 text-white hover:bg-red-700 border border-red-600 hover:border-red-700",
   ghost:
-    "bg-transparent text-[var(--primary)] hover:bg-[var(--primary-light)] border border-transparent",
+    "bg-transparent text-[#60a5fa] hover:bg-blue-50 border border-transparent",
   outline:
-    "bg-white text-[var(--text-light)] hover:text-[var(--text-default)] border border-[var(--border)] hover:border-[#94a3b8] shadow-sm",
+    "bg-white text-[#475569] hover:text-[#1e293b] border border-slate-300 hover:border-slate-400",
 };
 
 const sizeStyles: Record<Size, string> = {
-  sm: "px-4 py-2 text-sm rounded-xl",
-  md: "px-4 py-2.5 text-sm rounded-xl",
-  lg: "px-5 py-3 text-base rounded-xl",
+  sm: "px-3 py-1.5 text-xs rounded-lg",
+  md: "px-3 py-2 text-sm rounded-lg",
+  lg: "px-5 py-2.5 text-base rounded-xl",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    {
-      variant = "primary",
-      size = "md",
-      loading,
-      className,
-      children,
-      disabled,
-      ...props
-    },
-    ref,
+    { variant = "primary", size = "md", loading, className, children, disabled, ...props },
+    ref
   ) => {
     return (
       <button
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center gap-1.5 font-medium cursor-pointer transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center gap-1.5 font-medium cursor-pointer transition-colors duration-100 disabled:opacity-60 disabled:cursor-not-allowed",
           variantStyles[variant],
           sizeStyles[size],
-          className,
+          className
         )}
         {...props}
       >
@@ -79,7 +71,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  },
+  }
 );
 
 Button.displayName = "Button";

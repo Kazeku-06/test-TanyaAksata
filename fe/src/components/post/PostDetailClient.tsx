@@ -1,37 +1,19 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { usePost, useLikePost, useDeletePost, useUserPostLike } from "@/hooks/usePosts";
-import { useMe } from "@/hooks/useAuth";
+import { usePost } from "@/hooks/usePosts";
 import Spinner from "@/components/ui/Spinner";
-import { timeAgo, formatCount, cn } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 import Avatar from "@/components/ui/Avatar";
 import ReportButton from "./ReportButton"; // Sesuaikan path ini dengan struktur folder Anda
-import { CheckCircle, Clock, Eye, Pencil, ThumbsUp, Trash2 } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 interface PostDetailProps {
   postId: string;
 }
 
 export default function PostDetail({ postId }: PostDetailProps) {
-  const router = useRouter();
   const { data: post, isLoading } = usePost(postId);
-  const { data: me } = useMe();
-  const { data: likeData } = useUserPostLike(postId, !!me);
-  const { mutate: like } = useLikePost(postId);
-  const { mutate: deletePost, isPending: deleting } = useDeletePost();
-
-  const isLiked = likeData?.is_liked ?? false;
-  const isOwner = !!me && !!post && me.id === post.user_id;
-  const canModerate = !!me?.roles?.some((role) => role.name === "admin" || role.name === "moderator");
-
-  function handleDelete() {
-    if (!confirm("Yakin ingin menghapus pertanyaan ini?")) return;
-    deletePost(postId, {
-      onSuccess: () => router.replace("/"),
-    });
-  }
 
   if (isLoading) {
     return (
@@ -43,47 +25,31 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
   if (!post) {
     return (
-      <div className="p-4 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e] font-medium max-w-[1100px] mx-auto mt-6">
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-[#dc2626] font-medium max-w-[1100px] mx-auto mt-6">
         Pertanyaan tidak ditemukan.
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-[1100px] mx-auto px-6 py-6 font-sans text-[#232629] bg-white">
+    <div className="w-full max-w-[1100px] mx-auto px-6 py-6 font-sans text-[#1e293b] bg-white">
 
-      {/* 1. HEADER UTAMA (Judul & Tombol Ask Question) */}
-      <div className="border-b border-[#e3e6eb] pb-4 mb-6">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          <h1 className="text-xl md:text-2xl font-normal text-[#232629] leading-snug flex-1">
-            {post.is_solved && (
-              <CheckCircle className="inline w-5 h-5 text-[#2e6d44] mr-1.5 mb-0.5" />
-            )}
-            {post.title}
-          </h1>
-          <Link
-            href="/questions/ask"
-            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-medium px-4 py-2.5 rounded shadow-sm transition whitespace-nowrap self-start"
-          >
-            Ask Question
-          </Link>
-        </div>
-
-        {/* Metadata di bawah judul */}
-        <div className="flex flex-wrap items-center gap-4 text-xs text-[#525960] mt-3">
-          <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            Ditanyakan <span className="text-[#232629] font-medium">{timeAgo(post.created_at)}</span>
-          </span>
-          {post.is_edited && (
-            <span className="flex items-center gap-1">
-              <Pencil className="w-3.5 h-3.5" />
-              Diedit
-            </span>
+      {/* 1. HEADER PERTANYAAN */}
+      <div className="border-b border-blue-200 pb-4 mb-4">
+        <h1 className="text-2xl font-normal text-[#1e293b] mb-2 break-words flex items-center gap-2">
+          {post.is_solved && (
+            <CheckCircle className="w-6 h-6 text-[#059669] flex-shrink-0" />
           )}
-          <span className="flex items-center gap-1">
-            <Eye className="w-3.5 h-3.5" />
-            Dilihat <span className="text-[#232629] font-medium">{formatCount(post.views_count)} kali</span>
+          {post.title}
+        </h1>
+
+        {/* Info Meta Sub-Header */}
+        <div className="flex flex-wrap gap-4 text-xs text-[#64748b]">
+          <span>
+            Dibuat <span className="text-[#1e293b]">{timeAgo(post.created_at)}</span>
+          </span>
+          <span>
+            Dilihat <span className="text-[#1e293b]">{post.views_count.toLocaleString()} kali</span>
           </span>
         </div>
       </div>
@@ -92,11 +58,11 @@ export default function PostDetail({ postId }: PostDetailProps) {
       <div className="grid grid-cols-[auto_1fr] gap-4">
 
         {/* Sisi Kiri: Tampilan Skor / Vote */}
-        <div className="flex flex-col items-center gap-1 w-12 pt-1 text-[#6a737c]">
-          <span className="text-2xl font-semibold text-[#232629] leading-none">
+        <div className="flex flex-col items-center gap-1 w-12 pt-1 text-[#64748b]">
+          <span className="text-2xl font-semibold text-[#1e293b] leading-none">
             {post.votes_count}
           </span>
-          <span className="text-[10px] uppercase tracking-wide text-[#9199a1]">votes</span>
+          <span className="text-[10px] uppercase tracking-wide text-[#94a3b8]">votes</span>
         </div>
 
         {/* Sisi Kanan: Isi Markdown/HTML Pertanyaan & Aksi */}
@@ -104,7 +70,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
           {/* Isi Deskripsi Pertanyaan */}
           <div
-            className="text-[15px] leading-relaxed break-words whitespace-pre-wrap mb-6 prose max-w-none text-[#232629]"
+            className="text-[15px] leading-relaxed break-words whitespace-pre-wrap mb-6 prose max-w-none text-[#1e293b]"
             dangerouslySetInnerHTML={{ __html: post.body }}
           />
 
@@ -113,7 +79,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
             {post.tags?.map((tag) => (
               <span
                 key={tag.id}
-                className="px-1.5 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d]"
+                className="px-1.5 py-0.5 text-xs rounded border border-blue-200 bg-blue-50 text-[#60a5fa]"
               >
                 {tag.name}
               </span>
@@ -121,92 +87,34 @@ export default function PostDetail({ postId }: PostDetailProps) {
           </div>
 
           {/* BARIS AKSI BAWAH */}
-          <div className="flex flex-wrap items-end justify-between gap-4 pt-4 border-t border-[#f1f2f3]">
+          <div className="flex flex-wrap items-end justify-between gap-4 pt-4 border-t border-blue-100">
 
             {/* Navigasi Aksi Kiri (Share, Edit, Report) */}
             <div className="flex items-center gap-3 text-[13px]">
-              <button type="button" className="text-[#6a737c] hover:text-[#0a95ff] transition-colors">
+              <button type="button" className="text-[#64748b] hover:text-[#60a5fa] transition-colors">
                 Bagikan
               </button>
-              <button type="button" className="text-[#6a737c] hover:text-[#0a95ff] transition-colors">
+              <button type="button" className="text-[#64748b] hover:text-[#60a5fa] transition-colors">
                 Edit
               </button>
 
-              {/* ⚠️ PANGGIL LANGSUNG TANPA DIBUNGKUS <Link> ATAU <a> */}
+              {/* PANGGIL LANGSUNG TANPA DIBUNGKUS <Link> ATAU <a> */}
               <ReportButton targetType="post" targetId={post.id} />
             </div>
 
-            {/* SISI KANAN KONTEN: Body text, Tags, Actions & Author Card */}
-            <div className="flex-1 min-w-0">
-              {/* Isi Pertanyaan */}
-              <div className="prose max-w-none text-[15px] text-[#232629] leading-relaxed mb-6 whitespace-pre-wrap">
-                {post.body}
-              </div>
-
-              {/* Tags Layout */}
-              {post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  {post.tags.map((tag) => (
-                    <Link
-                      key={tag.id}
-                      href={`/questions?tag=${tag.name}`}
-                      className="px-1.5 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#0059a1] hover:bg-[#d0e3f0] transition-colors"
-                    >
-                      {tag.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              {/* Baris Tombol Aksi & Kartu User */}
-              <div className="flex flex-wrap items-start justify-between gap-4 pt-4 border-t border-[#e3e6eb]">
-                {/* Tombol aksi kiri */}
-                <div className="flex flex-wrap items-center gap-3 text-xs text-[#525960] font-medium pt-1">
-                  <button
-                    onClick={() => like()}
-                    disabled={!me || isOwner}
-                    className={cn(
-                      "flex items-center gap-1 hover:text-[var(--primary)] transition-colors",
-                      isLiked ? "text-[var(--primary)] font-medium" : "text-[#525960]",
-                      !me && "opacity-40 cursor-not-allowed"
-                    )}
-                  >
-                    <ThumbsUp className={cn("w-3.5 h-3.5", isLiked && "fill-[var(--primary)]")} />
-                    <span>{isLiked ? "Menyukai" : "Suka"}</span>
-                    {post.likes_count > 0 && (
-                      <span className={cn("font-semibold", isLiked ? "text-[var(--primary)]" : "text-[#232629]")}>
-                        ({post.likes_count})
-                      </span>
-                    )}
-                  </button>
-
-                  <ReportButton targetType="post" targetId={post.id} />
-
-                  {(isOwner || canModerate) && (
-                    <>
-                      <Link
-                        href={`/questions/${post.id}/edit`}
-                        className="flex items-center gap-1 hover:text-[var(--primary)] transition-colors"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                        Edit
-                      </Link>
-                      <button
-                        onClick={handleDelete}
-                        disabled={deleting}
-                        className="flex items-center gap-1 hover:text-[#c91d2e] transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Hapus
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Kartu Profil Pembuat (Khas Kotak Kuning-Biru SO) */}
-                <div className="bg-[#e1ecf4] border border-[#d0e3f0] rounded p-3 w-52 text-xs self-end">
-                  <span className="text-[#525960] block mb-1.5 text-[11px]">
-                    ditanyakan {timeAgo(post.created_at)}
+            {/* Kartu Profil Pembuat (Sebelah Kanan Bawah) */}
+            <div className="bg-blue-50 rounded-lg p-3 w-[200px] text-xs text-[#64748b] border border-blue-100">
+              <p className="text-[11px] text-[#64748b] mb-1.5">
+                ditanyakan {timeAgo(post.created_at)}
+              </p>
+              <div className="flex items-center gap-2">
+                <Avatar name={post.user.name} avatar={post.user.avatar} size="xs" />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[#60a5fa] hover:text-[#3b82f6] font-medium block truncate">
+                    {post.user.name}
+                  </span>
+                  <span className="text-[#94a3b8] font-bold text-[11px]">
+                    {post.user.reputation?.toLocaleString() || 0}
                   </span>
                   <div className="flex items-center gap-2">
                     <Avatar name={post.user.name} avatar={post.user.avatar} size="sm" />

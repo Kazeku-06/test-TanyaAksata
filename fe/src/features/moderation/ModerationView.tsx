@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Link from "next/link";
 import type { UseFormReturn } from "react-hook-form";
 import type { Post, Comment, Report, PostEditHistory, CommentEditHistory, ReportStatus } from "@/types";
 import type { ModerationTab } from "./ModerationLogic";
@@ -89,10 +88,10 @@ export default function ModerationView(props: ModerationViewProps) {
 
   return (
     <div className="px-6 py-4">
-      <h1 className="text-xl font-semibold text-[#232629] mb-4">Dashboard Moderasi</h1>
+      <h1 className="text-xl font-semibold text-[#1e293b] mb-4">Dashboard Moderasi</h1>
 
       {/* ── Tabs ── */}
-      <div className="flex flex-wrap gap-px border border-[#e3e6eb] rounded overflow-hidden w-fit mb-6 text-sm">
+      <div className="flex flex-wrap gap-px border border-blue-200 rounded-lg overflow-hidden w-fit mb-6 text-sm">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -100,8 +99,8 @@ export default function ModerationView(props: ModerationViewProps) {
             className={cn(
               "flex items-center gap-1.5 px-4 py-2 font-medium transition-colors",
               activeTab === tab.key
-                ? "bg-[#e3e6eb] text-[#232629]"
-                : "bg-white text-[#6a737c] hover:bg-[#f6f6f6]"
+                ? "bg-blue-100 text-[#1e293b]"
+                : "bg-white text-[#64748b] hover:bg-blue-50"
             )}
           >
             {tab.icon}
@@ -134,7 +133,7 @@ function ReportsTab({
   return (
     <div>
       {/* Status filter */}
-      <div className="flex gap-px border border-[#e3e6eb] rounded overflow-hidden w-fit mb-4 text-xs">
+      <div className="flex gap-px border border-blue-200 rounded-lg overflow-hidden w-fit mb-4 text-xs">
         {STATUS_TABS.map((s) => (
           <button
             key={String(s.value)}
@@ -142,8 +141,8 @@ function ReportsTab({
             className={cn(
               "px-3 py-1.5 font-medium transition-colors",
               reportStatus === s.value
-                ? "bg-[#0a95ff] text-white"
-                : "bg-white text-[#6a737c] hover:bg-[#f6f6f6]"
+                ? "bg-[#60a5fa] text-white"
+                : "bg-white text-[#64748b] hover:bg-blue-50"
             )}
           >
             {s.label}
@@ -151,16 +150,16 @@ function ReportsTab({
         ))}
       </div>
 
-      <p className="text-sm text-[#6a737c] mb-3">
-        <span className="font-medium text-[#232629]">{reportTotal}</span> laporan
+      <p className="text-sm text-[#64748b] mb-3">
+        <span className="font-medium text-[#1e293b]">{reportTotal}</span> laporan
       </p>
 
       {isLoadingReports ? (
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : reports.length === 0 ? (
-        <p className="text-sm text-[#6a737c]">Tidak ada laporan.</p>
+        <p className="text-sm text-[#64748b]">Tidak ada laporan.</p>
       ) : (
-        <div className="border border-[#e3e6eb] rounded divide-y divide-[#e3e6eb]">
+        <div className="border border-blue-200 rounded-lg divide-y divide-blue-100">
           {reports.map((report) => (
             <div key={report.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
@@ -169,94 +168,22 @@ function ReportsTab({
                     {/* Status badge */}
                     <span className={cn(
                       "px-2 py-0.5 text-xs rounded-full font-medium",
-                      report.status === "pending"  && "bg-[#fdf3d0] text-[#a56600]",
-                      report.status === "resolved" && "bg-[#d4edda] text-[#2e6d44]",
-                      report.status === "rejected" && "bg-[#e4e6e8] text-[#6a737c]"
+                      report.status === "pending"  && "bg-amber-100 text-amber-700",
+                      report.status === "resolved" && "bg-emerald-100 text-emerald-700",
+                      report.status === "rejected" && "bg-slate-100 text-slate-500"
                     )}>
                       {report.status}
                     </span>
-                    <span className="text-xs text-[#6a737c]">
+                    <span className="text-xs text-[#64748b]">
                       Target: <strong>{report.target_type.split("\\").pop()}</strong>
                     </span>
-                    <span className="text-xs text-[#6a737c]">{timeAgo(report.created_at)}</span>
+                    <span className="text-xs text-[#64748b]">{timeAgo(report.created_at)}</span>
                   </div>
-                  <p className="text-sm font-medium text-[#232629]">{report.reason}</p>
+                  <p className="text-sm font-medium text-[#1e293b]">{report.reason}</p>
                   {report.reporter && (
-                    <p className="text-xs text-[#6a737c] mt-0.5 mb-2">
+                    <p className="text-xs text-[#64748b] mt-0.5">
                       Dilaporkan oleh: {report.reporter.name}
                     </p>
-                  )}
-                  {/* Reported Target Preview */}
-                  {report.target ? (
-                    <div className="mt-3 p-3 bg-[#f8f9fa] border border-[#e3e6eb] rounded text-xs text-[#232629] max-w-3xl">
-                      <div className="font-semibold text-[#6a737c] mb-1.5 uppercase tracking-wider text-[10px]">
-                        Konten yang Dilaporkan:
-                      </div>
-                      {(() => {
-                        const targetType = report.target_type.split("\\").pop()?.toLowerCase();
-                        if (targetType === "post") {
-                          return (
-                            <div className="space-y-1">
-                              <div className="font-medium text-[#0074cc] hover:underline">
-                                <Link href={`/questions/${report.target.id}`} target="_blank">
-                                  Post: {report.target.title}
-                                </Link>
-                              </div>
-                              <p className="text-[#3b4045] line-clamp-3 whitespace-pre-line bg-white p-2 border border-[#e3e6eb] rounded mt-1">
-                                {report.target.body}
-                              </p>
-                              {report.target.user && (
-                                <p className="text-[#6a737c] mt-1 text-[11px]">
-                                  Ditulis oleh: <span className="font-medium text-[#3b4045]">{report.target.user.name}</span>
-                                </p>
-                              )}
-                            </div>
-                          );
-                        } else if (targetType === "comment") {
-                          return (
-                            <div className="space-y-1">
-                              {report.target.post && (
-                                <div className="text-[#6a737c] mb-1">
-                                  Komentar pada post:{" "}
-                                  <Link href={`/questions/${report.target.post.id}`} target="_blank" className="text-[#0074cc] hover:underline font-medium">
-                                    {report.target.post.title}
-                                  </Link>
-                                </div>
-                              )}
-                              <p className="text-[#3b4045] line-clamp-3 whitespace-pre-line bg-white p-2 border border-[#e3e6eb] rounded">
-                                {report.target.body}
-                              </p>
-                              {report.target.user && (
-                                <p className="text-[#6a737c] mt-1 text-[11px]">
-                                  Ditulis oleh: <span className="font-medium text-[#3b4045]">{report.target.user.name}</span>
-                                </p>
-                              )}
-                            </div>
-                          );
-                        } else if (targetType === "user") {
-                          return (
-                            <div className="space-y-1">
-                              <div className="font-medium text-[#3b4045]">
-                                User: <span className="text-[#232629] font-bold">{report.target.name}</span> ({report.target.email})
-                              </div>
-                              {report.target.bio && (
-                                <p className="text-[#6a737c] italic mt-1 bg-white p-2 border border-[#e3e6eb] rounded">
-                                  "{report.target.bio}"
-                                </p>
-                              )}
-                              <div className="text-[11px] text-[#6a737c] mt-1">
-                                Reputasi: <span className="font-medium text-[#232629]">{report.target.reputation}</span> | Terdaftar: {new Date(report.target.created_at).toLocaleDateString("id-ID")}
-                              </div>
-                            </div>
-                          );
-                        }
-                        return <p className="text-[#6a737c]">Tipe target tidak dikenal</p>;
-                      })()}
-                    </div>
-                  ) : (
-                    <div className="mt-3 p-3 bg-[#fdf2f2] border border-[#f5c6cb] text-[#721c24] rounded text-xs max-w-3xl">
-                      Konten telah dihapus secara permanen atau tidak ditemukan.
-                    </div>
                   )}
                 </div>
 
@@ -276,13 +203,13 @@ function ReportsTab({
 
               {/* Resolve form — expand in-place */}
               {selectedReportId === report.id && (
-                <form onSubmit={onResolveSubmit} className="mt-3 border-t border-[#e3e6eb] pt-3 flex flex-col gap-3" noValidate>
+                <form onSubmit={onResolveSubmit} className="mt-3 border-t border-blue-100 pt-3 flex flex-col gap-3" noValidate>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Action */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs font-medium text-[#232629]">Tindakan</label>
+                      <label className="text-xs font-semibold text-[#1e293b]">Tindakan</label>
                       <select
-                        className="px-3 py-2 text-sm border border-[#babfc4] rounded focus:outline-none focus:border-[#0a95ff]"
+                        className="px-3 py-2 text-sm border border-blue-200 rounded-lg focus:outline-none focus:border-[#60a5fa]"
                         {...register("action")}
                       >
                         <option value="resolve">Resolve</option>
@@ -292,9 +219,9 @@ function ReportsTab({
 
                     {/* Action taken */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs font-medium text-[#232629]">Tindak Lanjut</label>
+                      <label className="text-xs font-semibold text-[#1e293b]">Tindak Lanjut</label>
                       <select
-                        className="px-3 py-2 text-sm border border-[#babfc4] rounded focus:outline-none focus:border-[#0a95ff]"
+                        className="px-3 py-2 text-sm border border-blue-200 rounded-lg focus:outline-none focus:border-[#60a5fa]"
                         {...register("action_taken")}
                       >
                         <option value="ignore">Ignore (tidak ada tindakan)</option>
@@ -307,19 +234,19 @@ function ReportsTab({
 
                   {/* Resolution note */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-[#232629]">
-                      Catatan <span className="text-[#6a737c] font-normal">(opsional)</span>
+                    <label className="text-xs font-semibold text-[#1e293b]">
+                      Catatan <span className="text-[#64748b] font-normal">(opsional)</span>
                     </label>
                     <textarea
                       rows={2}
                       placeholder="Catatan resolusi..."
-                      className="px-3 py-2 text-sm border border-[#babfc4] rounded resize-none focus:outline-none focus:border-[#0a95ff]"
+                      className="px-3 py-2 text-sm border border-blue-200 rounded-lg resize-none focus:outline-none focus:border-[#60a5fa]"
                       {...register("resolution_note")}
                     />
                   </div>
 
                   {errors.root && (
-                    <p className="text-xs text-[#c91d2e]">{errors.root.message}</p>
+                    <p className="text-xs text-[#dc2626]">{errors.root.message}</p>
                   )}
 
                   <div className="flex gap-2">
@@ -356,26 +283,26 @@ function TrashedPostsTab({
 }: ModerationViewProps) {
   return (
     <div>
-      <p className="text-sm text-[#6a737c] mb-3">Post yang telah di-soft delete.</p>
+      <p className="text-sm text-[#64748b] mb-3">Post yang telah di-soft delete.</p>
 
       {isLoadingTrashedPosts ? (
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : trashedPosts.length === 0 ? (
-        <p className="text-sm text-[#6a737c]">Tidak ada post terhapus.</p>
+        <p className="text-sm text-[#64748b]">Tidak ada post terhapus.</p>
       ) : (
-        <div className="border border-[#e3e6eb] rounded divide-y divide-[#e3e6eb]">
+        <div className="border border-blue-200 rounded-lg divide-y divide-blue-100">
           {trashedPosts.map((post) => (
             <div key={post.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-[#232629] line-clamp-1">{post.title}</p>
-                  <p className="text-xs text-[#6a737c] mt-0.5">
+                  <p className="font-medium text-sm text-[#1e293b] line-clamp-1">{post.title}</p>
+                  <p className="text-xs text-[#64748b] mt-0.5">
                     oleh {post.user.name} · dihapus {timeAgo(post.deleted_at ?? post.updated_at)}
                   </p>
                 </div>
                 <button
                   onClick={() => onSelectPostHistory(post.id)}
-                  className="flex items-center gap-1 text-xs text-[#0074cc] hover:underline flex-shrink-0"
+                  className="flex items-center gap-1 text-xs text-[#60a5fa] hover:underline flex-shrink-0"
                 >
                   {selectedPostHistoryId === post.id
                     ? <ChevronDown className="w-3.5 h-3.5" />
@@ -387,14 +314,14 @@ function TrashedPostsTab({
 
               {/* History expand */}
               {selectedPostHistoryId === post.id && (
-                <div className="mt-3 border-t border-[#e3e6eb] pt-3">
+                <div className="mt-3 border-t border-blue-100 pt-3">
                   {postHistory.length === 0 ? (
-                    <p className="text-xs text-[#6a737c]">Tidak ada riwayat edit.</p>
+                    <p className="text-xs text-[#64748b]">Tidak ada riwayat edit.</p>
                   ) : (
                     <div className="flex flex-col gap-2">
                       {postHistory.map((h) => (
-                        <div key={h.id} className="text-xs bg-[#f6f6f6] rounded p-2">
-                          <div className="flex items-center gap-2 mb-1 text-[#6a737c]">
+                        <div key={h.id} className="text-xs bg-blue-50 rounded-lg p-2">
+                          <div className="flex items-center gap-2 mb-1 text-[#64748b]">
                             <Clock className="w-3 h-3" />
                             <span>{timeAgo(h.created_at)}</span>
                             {h.editor && <span>oleh <strong>{h.editor.name}</strong></span>}
@@ -402,17 +329,17 @@ function TrashedPostsTab({
                           {h.title_before !== h.title_after && (
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <p className="text-[#c91d2e] font-medium mb-0.5">Sebelum:</p>
-                                <p className="text-[#232629]">{h.title_before}</p>
+                                <p className="text-[#dc2626] font-medium mb-0.5">Sebelum:</p>
+                                <p className="text-[#1e293b]">{h.title_before}</p>
                               </div>
                               <div>
-                                <p className="text-[#2e6d44] font-medium mb-0.5">Sesudah:</p>
-                                <p className="text-[#232629]">{h.title_after}</p>
+                                <p className="text-[#059669] font-medium mb-0.5">Sesudah:</p>
+                                <p className="text-[#1e293b]">{h.title_after}</p>
                               </div>
                             </div>
                           )}
                           {h.edit_summary && (
-                            <p className="text-[#6a737c] mt-1 italic">&quot;{h.edit_summary}&quot;</p>
+                            <p className="text-[#64748b] mt-1 italic">"{h.edit_summary}"</p>
                           )}
                         </div>
                       ))}
@@ -444,26 +371,26 @@ function TrashedCommentsTab({
 }: ModerationViewProps) {
   return (
     <div>
-      <p className="text-sm text-[#6a737c] mb-3">Komentar yang telah di-soft delete.</p>
+      <p className="text-sm text-[#64748b] mb-3">Komentar yang telah di-soft delete.</p>
 
       {isLoadingTrashedComments ? (
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : trashedComments.length === 0 ? (
-        <p className="text-sm text-[#6a737c]">Tidak ada komentar terhapus.</p>
+        <p className="text-sm text-[#64748b]">Tidak ada komentar terhapus.</p>
       ) : (
-        <div className="border border-[#e3e6eb] rounded divide-y divide-[#e3e6eb]">
+        <div className="border border-blue-200 rounded-lg divide-y divide-blue-100">
           {trashedComments.map((comment) => (
             <div key={comment.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[#232629] line-clamp-2">{comment.body}</p>
-                  <p className="text-xs text-[#6a737c] mt-0.5">
+                  <p className="text-sm text-[#1e293b] line-clamp-2">{comment.body}</p>
+                  <p className="text-xs text-[#64748b] mt-0.5">
                     oleh {comment.user.name} · dihapus {timeAgo(comment.deleted_at ?? comment.updated_at)}
                   </p>
                 </div>
                 <button
                   onClick={() => onSelectCommentHistory(comment.id)}
-                  className="flex items-center gap-1 text-xs text-[#0074cc] hover:underline flex-shrink-0"
+                  className="flex items-center gap-1 text-xs text-[#60a5fa] hover:underline flex-shrink-0"
                 >
                   {selectedCommentHistoryId === comment.id
                     ? <ChevronDown className="w-3.5 h-3.5" />
@@ -474,25 +401,25 @@ function TrashedCommentsTab({
               </div>
 
               {selectedCommentHistoryId === comment.id && (
-                <div className="mt-3 border-t border-[#e3e6eb] pt-3">
+                <div className="mt-3 border-t border-blue-100 pt-3">
                   {commentHistory.length === 0 ? (
-                    <p className="text-xs text-[#6a737c]">Tidak ada riwayat edit.</p>
+                    <p className="text-xs text-[#64748b]">Tidak ada riwayat edit.</p>
                   ) : (
                     <div className="flex flex-col gap-2">
                       {commentHistory.map((h) => (
-                        <div key={h.id} className="text-xs bg-[#f6f6f6] rounded p-2">
-                          <div className="flex items-center gap-2 mb-1 text-[#6a737c]">
+                        <div key={h.id} className="text-xs bg-blue-50 rounded-lg p-2">
+                          <div className="flex items-center gap-2 mb-1 text-[#64748b]">
                             <Clock className="w-3 h-3" />
                             <span>{timeAgo(h.created_at)}</span>
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <p className="text-[#c91d2e] font-medium mb-0.5">Sebelum:</p>
-                              <p className="text-[#232629] line-clamp-3">{h.body_before}</p>
+                              <p className="text-[#dc2626] font-medium mb-0.5">Sebelum:</p>
+                              <p className="text-[#1e293b] line-clamp-3">{h.body_before}</p>
                             </div>
                             <div>
-                              <p className="text-[#2e6d44] font-medium mb-0.5">Sesudah:</p>
-                              <p className="text-[#232629] line-clamp-3">{h.body_after}</p>
+                              <p className="text-[#059669] font-medium mb-0.5">Sesudah:</p>
+                              <p className="text-[#1e293b] line-clamp-3">{h.body_after}</p>
                             </div>
                           </div>
                         </div>
@@ -530,17 +457,17 @@ function UsersTab({
 
   return (
     <div>
-      <p className="text-sm text-[#6a737c] mb-4">
+      <p className="text-sm text-[#64748b] mb-4">
         Masukkan UUID user untuk memberikan tindakan moderasi.
       </p>
 
       {/* ── Warn User ── */}
-      <div className="border border-[#e3e6eb] rounded p-4 mb-4">
-        <h3 className="font-semibold text-sm text-[#232629] mb-3 flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-[#a56600]" />
+      <div className="border border-blue-200 rounded-lg p-4 mb-4">
+        <h3 className="font-semibold text-sm text-[#1e293b] mb-3 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-amber-600" />
           Beri Peringatan (Warn)
         </h3>
-        <p className="text-xs text-[#6a737c] mb-3">
+        <p className="text-xs text-[#64748b] mb-3">
           Setelah 3 kali peringatan, user otomatis di-ban 30 hari.
         </p>
 
@@ -572,9 +499,9 @@ function UsersTab({
       </div>
 
       {/* ── Ban User ── */}
-      <div className="border border-[#e3e6eb] rounded p-4 mb-4">
-        <h3 className="font-semibold text-sm text-[#232629] mb-3 flex items-center gap-2">
-          <Ban className="w-4 h-4 text-[#c91d2e]" />
+      <div className="border border-blue-200 rounded-lg p-4 mb-4">
+        <h3 className="font-semibold text-sm text-[#1e293b] mb-3 flex items-center gap-2">
+          <Ban className="w-4 h-4 text-[#dc2626]" />
           Ban User
         </h3>
 
@@ -612,9 +539,9 @@ function UsersTab({
       </div>
 
       {/* ── Unban User ── */}
-      <div className="border border-[#e3e6eb] rounded p-4">
-        <h3 className="font-semibold text-sm text-[#232629] mb-3 flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-[#2e6d44]" />
+      <div className="border border-blue-200 rounded-lg p-4">
+        <h3 className="font-semibold text-sm text-[#1e293b] mb-3 flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-[#059669]" />
           Unban User
         </h3>
         <WarnBanInput
@@ -649,7 +576,7 @@ function WarnBanInput({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 px-3 py-2 text-sm border border-[#babfc4] rounded focus:outline-none focus:border-[#0a95ff]"
+        className="flex-1 px-3 py-2 text-sm border border-blue-200 rounded-lg focus:outline-none focus:border-[#60a5fa]"
       />
       <Button
         variant={buttonVariant}

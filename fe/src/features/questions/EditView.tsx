@@ -57,7 +57,7 @@ export default function EditView({
 
   if (isPostError) {
     return (
-      <div className="px-6 py-8 text-center text-sm text-[#c91d2e]">
+      <div className="px-6 py-8 text-center text-sm text-[#dc2626]">
         Pertanyaan tidak ditemukan atau tidak bisa diakses.
       </div>
     );
@@ -65,11 +65,11 @@ export default function EditView({
 
   return (
     <div className="px-6 py-6 max-w-[860px]">
-      <h1 className="text-2xl font-semibold text-[#232629] mb-6">Edit Pertanyaan</h1>
+      <h1 className="text-2xl font-semibold text-[#1e293b] mb-6">Edit Pertanyaan</h1>
 
       {/* Sisa quota edit */}
       {remainingEdits <= 1 && (
-        <div className="mb-4 p-3 bg-[#fdf3d0] border border-[#f5d67d] rounded text-sm text-[#a56600] flex items-center gap-2">
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           {remainingEdits === 0
             ? "Kamu sudah mencapai batas maksimal 3 kali edit."
@@ -78,7 +78,7 @@ export default function EditView({
       )}
 
       {rootError && (
-        <div className="mb-4 p-3 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e]">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-[#dc2626]">
           {rootError}
         </div>
       )}
@@ -86,14 +86,14 @@ export default function EditView({
       <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
 
         {/* Judul */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-2">Judul</h2>
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-2">Judul</h2>
           <Input error={errors.title?.message} {...register("title")} />
         </div>
 
         {/* Body */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-2">Isi Pertanyaan</h2>
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-2">Isi Pertanyaan</h2>
           <Textarea
             error={errors.body?.message}
             className="min-h-[200px]"
@@ -102,8 +102,8 @@ export default function EditView({
         </div>
 
         {/* Kategori */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-2">Kategori</h2>
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-2">Kategori</h2>
           <Controller
             name="category_id"
             control={control}
@@ -111,10 +111,10 @@ export default function EditView({
               <select
                 {...field}
                 disabled={isLoadingCategories}
-                className={`w-full px-3 py-2 text-sm border rounded bg-white text-[#232629]
-                  focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20
-                  disabled:bg-[#f6f6f6]
-                  ${errors.category_id ? "border-[#c91d2e]" : "border-[#babfc4]"}`}
+                className={`w-full px-3 py-2 text-sm border rounded-lg bg-white text-[#1e293b]
+                  focus:outline-none focus:border-[#60a5fa] focus:ring-2 focus:ring-[#60a5fa]/20
+                  disabled:bg-blue-50/50
+                  ${errors.category_id ? "border-[#dc2626]" : "border-blue-200"}`}
               >
                 <option value="">-- Pilih Kategori --</option>
                 {categories.map((cat) => (
@@ -126,23 +126,23 @@ export default function EditView({
             )}
           />
           {errors.category_id && (
-            <p className="mt-1 text-xs text-[#c91d2e]">{errors.category_id.message}</p>
+            <p className="mt-1 text-xs text-[#dc2626]">{errors.category_id.message}</p>
           )}
         </div>
 
         {/* Tag */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-2">Tag</h2>
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-2">Tag</h2>
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d]"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border border-blue-200 bg-blue-50 text-[#60a5fa]"
                 >
                   {tag}
                   <button type="button" onClick={() => onTagRemove(tag)}>
-                    <X className="w-3 h-3 hover:text-[#c91d2e]" />
+                    <X className="w-3 h-3 hover:text-[#dc2626]" />
                   </button>
                 </span>
               ))}
@@ -159,10 +159,10 @@ export default function EditView({
         </div>
 
         {/* Ringkasan edit */}
-        <div className="bg-white border border-[#e3e6eb] rounded p-4">
-          <h2 className="font-semibold text-[#232629] mb-1">
+        <div className="bg-white border border-blue-200 rounded-lg p-4">
+          <h2 className="font-semibold text-[#1e293b] mb-1">
             Ringkasan Edit{" "}
-            <span className="text-[#6a737c] font-normal text-sm">(opsional)</span>
+            <span className="text-[#64748b] font-normal text-sm">(opsional)</span>
           </h2>
           <Input
             placeholder="Apa yang kamu ubah?"

@@ -14,8 +14,8 @@ export default function QuestionsLogic() {
   const searchParams = useSearchParams();
 
   // Ambil filter dari URL query string
-  const categoryId = searchParams.get("category_id") ?? "";
-  const tag = searchParams.get("tag") ?? "";
+  const categoryId = searchParams?.get("category_id") ?? "";
+  const tag = searchParams?.get("tag") ?? "";
 
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<SortOption>("latest");
