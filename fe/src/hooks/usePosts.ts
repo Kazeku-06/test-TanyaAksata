@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import type {
   Post,
@@ -218,20 +218,13 @@ export function useBookmarkPost(postId: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async (currentPost: Post) => {
-      if (currentPost.is_bookmarked && currentPost.bookmark_id) {
-        // Sudah disimpan → hapus
-        await api.delete(`/bookmarks/${currentPost.bookmark_id}`);
-        return { is_bookmarked: false, bookmark_id: null };
-      } else {
-        // Belum disimpan → tambah
-        const { data } = await api.post(`/posts/${postId}/bookmark`);
-        const result = data.data as { is_bookmarked: boolean; bookmark_id?: string; id?: string };
-        return {
-          is_bookmarked: true,
-          bookmark_id: result.bookmark_id ?? result.id ?? null,
-        };
-      }
+    mutationFn: async () => {
+      const { data } = await api.post(`/posts/${postId}/bookmark`);
+      const result = data.data as { is_bookmarked: boolean; bookmark_id?: string | null };
+      return {
+        is_bookmarked: result.is_bookmarked,
+        bookmark_id: result.bookmark_id ?? null,
+      };
     },
     onMutate: async (currentPost) => {
       await qc.cancelQueries({ queryKey: ["posts"] });
