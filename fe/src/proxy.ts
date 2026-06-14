@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
  *   karena butuh API call. Role check dilakukan di dalam komponen
  *   (ModerationLogic & AdminLogic) dengan redirect programatik.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;
   const pathname = request.nextUrl.pathname;
 

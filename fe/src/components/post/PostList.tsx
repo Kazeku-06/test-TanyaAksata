@@ -66,6 +66,28 @@ export default function PostList() {
         </div>
       </div>
 
+      {/* FILTER BUTTON GROUP */}
+      <div className="flex items-center justify-end px-6 pb-3 border-b border-[#e3e6eb]">
+        <div className="inline-flex rounded border border-[#838c95] overflow-hidden text-[12px]">
+          {(["latest", "trending"] as FeedType[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => {
+                setFeed(f);
+                setPage(1);
+              }}
+              className={`px-3 py-1.5 font-normal transition-colors border-r border-[#838c95] last:border-r-0 ${
+                feed === f
+                  ? "bg-[#e3e6eb] text-[#3b4045] font-medium"
+                  : "bg-white text-[#6a737c] hover:bg-[#f8f9f9] hover:text-[#3b4045]"
+              }`}
+            >
+              {f === "latest" ? "Terbaru" : "Trending"}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* POST LIST CONTENT */}
       {isLoading ? (
         <div className="flex justify-center items-center py-24">

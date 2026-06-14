@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Post, Category } from "@/types";
 import type { SortOption } from "./QuestionsLogic";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Clock, CalendarDays, ThumbsUp, MessageSquare } from "lucide-react";
 import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 import Pagination from "@/components/ui/Pagination";
@@ -20,13 +20,14 @@ interface QuestionsViewProps {
   activeTag: string;
   onSortChange: (sort: SortOption) => void;
   onPageChange: (page: number) => void;
+  canAsk: boolean;
 }
 
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: "latest", label: "Terbaru" },
-  { value: "oldest", label: "Terlama" },
-  { value: "most_voted", label: "Paling Banyak Vote" },
-  { value: "most_commented", label: "Paling Banyak Komentar" },
+const SORT_OPTIONS: { value: SortOption; label: string; icon: React.ReactNode }[] = [
+  { value: "latest",         label: "Terbaru",                icon: <Clock className="w-3.5 h-3.5" /> },
+  { value: "oldest",         label: "Terlama",                icon: <CalendarDays className="w-3.5 h-3.5" /> },
+  { value: "most_voted",     label: "Paling Banyak Vote",     icon: <ThumbsUp className="w-3.5 h-3.5" /> },
+  { value: "most_commented", label: "Paling Banyak Komentar", icon: <MessageSquare className="w-3.5 h-3.5" /> },
 ];
 
 export default function QuestionsView({
@@ -41,6 +42,7 @@ export default function QuestionsView({
   activeTag,
   onSortChange,
   onPageChange,
+  canAsk,
 }: QuestionsViewProps) {
   return (
     <div className="px-6 py-4">

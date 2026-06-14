@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePosts, useSearchPosts } from "@/hooks/usePosts";
 import { useCategories } from "@/hooks/useCategories";
+import { useMe } from "@/hooks/useAuth";
 import type { PostSearchParams } from "@/types";
 import QuestionsView from "./QuestionsView";
 
@@ -43,6 +44,8 @@ export default function QuestionsLogic() {
   } = useSearchPosts(searchQuery);
 
   const { data: categories } = useCategories(true);
+  const { data: me } = useMe();
+  const canAsk = !!me && me.reputation >= 20;
 
   // Pilih data yang tepat berdasarkan ada/tidaknya filter
   const paginatedData = hasFilter ? filteredData : allPostsData;
@@ -78,6 +81,7 @@ export default function QuestionsLogic() {
       activeTag={tag}
       onSortChange={handleSortChange}
       onPageChange={handlePageChange}
+      canAsk={canAsk}
     />
   );
 }
