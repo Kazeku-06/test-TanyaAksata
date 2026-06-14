@@ -49,6 +49,7 @@ export function useDeleteBookmark() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["bookmarks"] });
+      qc.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 }

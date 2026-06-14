@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search, Bell, Menu, X, ChevronDown } from "lucide-react";
 import { useMe, useLogout } from "@/hooks/useAuth";
 import { useUnreadCount } from "@/hooks/useNotifications";
@@ -18,17 +18,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    function onScroll() {
-      setIsScrolled(window.scrollY > 8);
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -38,96 +27,59 @@ export default function Navbar() {
   }
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 transition-colors duration-150 backdrop-blur-md",
-        isScrolled
-          ? "bg-white/80 border-b border-slate-200 shadow-sm"
-          : "bg-[var(--header)]/80 border-b border-transparent shadow-none",
-      )}
-    >
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#3b82f6] to-[#2563eb] shadow-lg shadow-blue-500/10">
+      <div className="max-w-[1264px] mx-auto px-4 h-14 flex items-center gap-3">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
-          <div className="w-7 h-7 rounded bg-[var(--primary)] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">T</span>
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center border border-white/20">
+            <span className="text-white font-extrabold text-sm">T</span>
           </div>
-          <span className="font-bold text-[var(--text-default)] text-sm hidden sm:block">
+          <span className="font-bold text-white text-base hidden sm:block tracking-tight">
             TanyaAksata
           </span>
         </Link>
 
-        {/* Center: Search + Ask button */}
-        <div className="hidden md:flex items-center gap-3 flex-1 justify-center">
-          <form onSubmit={handleSearch} className="w-full max-w-[420px]">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-light)]" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari pertanyaan..."
-                className="w-full pl-12 pr-4 py-3 text-sm text-[var(--text-default)] border border-[var(--primary-light)] rounded-full bg-white shadow-sm transition-all duration-150 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary-light)]/60"
-              />
-            </div>
-          </form>
-          <Link href="/ask" className="flex-shrink-0">
-            <Button variant="primary" size="md">
-              Tanya
-            </Button>
-          </Link>
-        </div>
-
-        {/* Mobile search */}
-        <form
-          onSubmit={handleSearch}
-          className="md:hidden flex-1 max-w-[220px]"
-        >
+        {/* Search */}
+        <form onSubmit={handleSearch} className="flex-1 max-w-[480px]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-light)]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari..."
-              className="w-full pl-10 pr-4 py-2 text-sm text-[var(--text-default)] border border-[var(--primary-light)] rounded-full bg-white shadow-sm transition-all duration-150 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary-light)]/60"
+              placeholder="Cari pertanyaan..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-blue-400/30 rounded-lg bg-white/10 text-white placeholder-blue-300 hover:border-blue-300/60 focus:outline-none focus:border-blue-300 focus:bg-white focus:text-[#1e293b] focus:placeholder-slate-400 transition-all backdrop-blur-sm"
             />
           </div>
         </form>
 
         {/* Right side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           {user ? (
             <>
               {/* Notifications */}
               <Link
                 href="/notifications"
                 className={cn(
-                  "p-2 rounded-2xl text-[var(--text-default)] hover:bg-[var(--primary-light)] hover:text-[var(--primary)] transition-colors duration-150 relative",
-                  pathname === "/notifications" &&
-                    "bg-[var(--primary-light)] text-[var(--primary)]",
+                  "p-2 rounded-lg text-white-200 hover:bg-white/10 hover:text-white relative transition-colors",
+                  pathname === "/notifications" && "bg-white/15 text-white"
                 )}
                 aria-label="Notifikasi"
               >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-[#c91d2e] text-white text-[10px] font-bold leading-none">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
+                <Bell className="w-4 h-4" />
               </Link>
 
               {/* User menu */}
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-2xl border border-[var(--border)] bg-white text-sm text-[var(--text-default)] hover:bg-[var(--header)] transition-colors duration-150"
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-white/10 text-sm text-blue-100 transition-colors"
                 >
-                  <Avatar name={user.name} avatar={user.avatar} size="xs" />
-                  <span className="hidden sm:block max-w-[100px] truncate text-[var(--text-default)]">
+                  <Avatar name={user.name} avatar={user.avatar} size="xs" className="ring-2 ring-blue-300/40" />
+                  <span className="hidden sm:block max-w-[100px] truncate text-white">
                     {user.name}
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-[var(--text-light)]" />
+                  <ChevronDown className="w-3.5 h-3.5 text-blue-300" />
                 </button>
 
                 {userMenuOpen && (
@@ -137,35 +89,29 @@ export default function Navbar() {
                       className="fixed inset-0 z-10"
                       onClick={() => setUserMenuOpen(false)}
                     />
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#e3e6eb] rounded shadow-lg z-20 py-1 text-sm">
-                      <div className="px-3 py-2 border-b border-[var(--border)]">
-                        <p className="font-medium text-[var(--text-default)] truncate">
-                          {user.name}
-                        </p>
-                        <p className="text-xs text-[var(--text-light)]">
-                          {user.reputation} reputasi
-                        </p>
+                    <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-blue-100 rounded-xl shadow-xl shadow-blue-500/10 z-20 py-1.5 text-sm">
+                      <div className="px-4 py-2.5 border-b border-blue-100 bg-blue-50/50 rounded-t-xl">
+                        <p className="font-semibold text-[#1e293b] truncate">{user.name}</p>
+                        <p className="text-xs text-blue-600 font-medium">{user.reputation} reputasi</p>
                       </div>
                       <Link
                         href="/profile"
-                        className="block px-3 py-2 hover:bg-[var(--sidebar-bg)] text-[var(--text-default)]"
+                        className="block px-4 py-2 hover:bg-blue-50 text-[#334155] transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         Profil Saya
                       </Link>
                       <Link
                         href="/bookmarks"
-                        className="block px-3 py-2 hover:bg-[var(--sidebar-bg)] text-[var(--text-default)]"
+                        className="block px-4 py-2 hover:bg-blue-50 text-[#334155] transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         Bookmark
                       </Link>
-                      {user.roles?.some(
-                        (r) => r.name === "admin" || r.name === "moderator",
-                      ) && (
+                      {user.roles?.some((r) => r.name === "admin" || r.name === "moderator") && (
                         <Link
                           href="/moderation"
-                          className="block px-3 py-2 hover:bg-[var(--sidebar-bg)] text-[var(--text-default)]"
+                          className="block px-4 py-2 hover:bg-blue-50 text-[#334155] transition-colors"
                           onClick={() => setUserMenuOpen(false)}
                         >
                           Moderasi
@@ -174,20 +120,20 @@ export default function Navbar() {
                       {user.roles?.some((r) => r.name === "admin") && (
                         <Link
                           href="/admin"
-                          className="block px-3 py-2 hover:bg-[var(--sidebar-bg)] text-[var(--text-default)]"
+                          className="block px-4 py-2 hover:bg-blue-50 text-[#334155] transition-colors"
                           onClick={() => setUserMenuOpen(false)}
                         >
                           Admin
                         </Link>
                       )}
-                      <div className="border-t border-[var(--border)] mt-1 pt-1">
+                      <div className="border-t border-blue-100 mt-1 pt-1">
                         <button
                           onClick={() => {
                             setUserMenuOpen(false);
                             logout();
                           }}
                           disabled={loggingOut}
-                          className="w-full text-left px-3 py-2 hover:bg-[var(--sidebar-bg)] text-[var(--danger)]"
+                          className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 transition-colors"
                         >
                           Keluar
                         </button>
@@ -200,12 +146,12 @@ export default function Navbar() {
           ) : (
             <>
               <Link href="/login">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-blue-300/40 text-blue-100 hover:bg-white/10 hover:text-white hover:border-blue-200">
                   Masuk
                 </Button>
               </Link>
               <Link href="/register">
-                <Button variant="primary" size="sm">
+                <Button variant="primary" size="sm" className="bg-white text-[#3b82f6] hover:bg-blue-50 border-white font-semibold">
                   Daftar
                 </Button>
               </Link>
@@ -214,58 +160,25 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className="sm:hidden p-2 rounded text-[#525960] hover:bg-[#f1f5f9]"
+            className="sm:hidden p-2 rounded-lg text-blue-200 hover:bg-white/10"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Toggle menu"
           >
-            {menuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
+            {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
       {/* Mobile nav */}
       {menuOpen && (
-        <nav className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 py-4 flex flex-col gap-3 text-sm shadow-sm transition-all duration-200">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/"
-              className="flex items-center gap-2"
-              onClick={() => setMenuOpen(false)}
-            >
-              <div className="w-7 h-7 rounded bg-[var(--primary)] flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
-              </div>
-              <span className="font-semibold text-sm text-[var(--text-default)]">
-                TanyaAksata
-              </span>
-            </Link>
-            <Link href="/ask" onClick={() => setMenuOpen(false)}>
-              <Button size="sm">Tanya</Button>
-            </Link>
-          </div>
-          <Link
-            href="/"
-            className="py-2 px-3 rounded-2xl text-[var(--text-default)] hover:bg-[var(--primary-light)] hover:text-[var(--primary)] transition duration-200"
-            onClick={() => setMenuOpen(false)}
-          >
+        <nav className="sm:hidden border-t border-blue-400/20 bg-[#3b82f6] px-4 py-3 flex flex-col gap-1 text-sm">
+          <Link href="/" className="py-2 text-blue-200 hover:text-white" onClick={() => setMenuOpen(false)}>
             Beranda
           </Link>
-          <Link
-            href="/questions"
-            className="py-2 px-3 rounded-2xl text-[var(--text-default)] hover:bg-[var(--primary-light)] hover:text-[var(--primary)] transition duration-200"
-            onClick={() => setMenuOpen(false)}
-          >
+          <Link href="/questions" className="py-2 text-blue-200 hover:text-white" onClick={() => setMenuOpen(false)}>
             Pertanyaan
           </Link>
-          <Link
-            href="/leaderboard"
-            className="py-2 text-[var(--text-default)] hover:text-[var(--primary)] rounded"
-            onClick={() => setMenuOpen(false)}
-          >
+          <Link href="/leaderboard" className="py-2 text-blue-200 hover:text-white" onClick={() => setMenuOpen(false)}>
             Leaderboard
           </Link>
         </nav>

@@ -12,25 +12,25 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="flex flex-col gap-1">
         {label && (
-          <label className="text-sm font-medium text-[#232629]">
+          <label className="text-sm font-semibold text-[#1e293b]">
             {label}
-            {props.required && <span className="text-[#c91d2e] ml-0.5">*</span>}
+            {props.required && <span className="text-[#dc2626] ml-0.5">*</span>}
           </label>
         )}
         <textarea
           ref={ref}
           className={cn(
-            "w-full px-3 py-2 text-sm border rounded bg-white text-[#232629] placeholder-[#babfc4] resize-y min-h-[120px]",
-            "border-[#babfc4] hover:border-[#838c95]",
-            "focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20",
-            "disabled:bg-[#f6f6f6] disabled:cursor-not-allowed",
-            error && "border-[#c91d2e] focus:border-[#c91d2e] focus:ring-[#c91d2e]/20",
+            "w-full px-3 py-2 text-sm border rounded-lg bg-white text-[#1e293b] placeholder-[#94a3b8] resize-y min-h-[120px]",
+            "border-blue-200 hover:border-blue-300",
+            "focus:outline-none focus:border-[#60a5fa] focus:ring-2 focus:ring-[#60a5fa]/20",
+            "disabled:bg-blue-50/50 disabled:cursor-not-allowed",
+            error && "border-[#dc2626] focus:border-[#dc2626] focus:ring-[#dc2626]/20",
             className
           )}
           {...props}
         />
-        {error && <p className="text-xs text-[#c91d2e]">{error}</p>}
-        {hint && !error && <p className="text-xs text-[#6a737c]">{hint}</p>}
+        {error && <p className="text-xs text-[#dc2626]">{error}</p>}
+        {hint && !error && <p className="text-xs text-[#64748b]">{hint}</p>}
       </div>
     );
   }

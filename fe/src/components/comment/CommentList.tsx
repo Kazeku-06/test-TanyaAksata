@@ -28,7 +28,7 @@ export default function CommentList({ postId, postOwnerId }: CommentListProps) {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-[#232629] mb-4">
+      <h2 className="text-lg font-semibold text-[#1e293b] mb-4">
         {comments?.length ?? 0} Jawaban
       </h2>
 
@@ -55,18 +55,18 @@ export default function CommentList({ postId, postOwnerId }: CommentListProps) {
       {/* Answer form */}
       {me ? (
         <div className="mt-8">
-          <h3 className="text-base font-semibold text-[#232629] mb-3">
+          <h3 className="text-base font-semibold text-[#1e293b] mb-3">
             Tulis Jawaban
           </h3>
           <CommentForm postId={postId} />
         </div>
       ) : (
-        <div className="mt-8 p-4 bg-[#fdf7e2] border border-[#f1b600] rounded text-sm text-[#3b3229]">
-          <a href="/login" className="text-[#0074cc] font-medium hover:underline">
+        <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg text-sm text-[#1e293b]">
+          <a href="/login" className="text-[#60a5fa] font-medium hover:underline">
             Masuk
           </a>{" "}
           atau{" "}
-          <a href="/register" className="text-[#0074cc] font-medium hover:underline">
+          <a href="/register" className="text-[#60a5fa] font-medium hover:underline">
             daftar
           </a>{" "}
           untuk menambahkan jawaban.

@@ -42,7 +42,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-1.5 rounded border border-[#9199a1] text-[#525960] hover:bg-[#f6f6f6] disabled:opacity-40 disabled:cursor-not-allowed"
+        className="p-1.5 rounded-lg border border-blue-200 text-[#475569] hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed"
         aria-label="Halaman sebelumnya"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -50,7 +50,7 @@ export default function Pagination({
 
       {pages.map((page, i) =>
         page === "..." ? (
-          <span key={`ellipsis-${i}`} className="px-2 text-[#525960] text-sm">
+          <span key={`ellipsis-${i}`} className="px-2 text-[#64748b] text-sm">
             ...
           </span>
         ) : (
@@ -58,10 +58,10 @@ export default function Pagination({
             key={page}
             onClick={() => onPageChange(page as number)}
             className={cn(
-              "min-w-[32px] h-8 px-2 text-sm rounded border transition-colors",
+              "min-w-[32px] h-8 px-2 text-sm rounded-lg border transition-colors",
               page === currentPage
-                ? "bg-[var(--primary)] text-white border-[var(--primary)] cursor-default"
-                : "border-[#9199a1] text-[#232629] hover:bg-[#f6f6f6]"
+                ? "bg-[#60a5fa] text-white border-[#60a5fa] shadow-sm cursor-default"
+                : "border-blue-200 text-[#475569] hover:bg-blue-50"
             )}
           >
             {page}
@@ -72,7 +72,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === lastPage}
-        className="p-1.5 rounded border border-[#9199a1] text-[#525960] hover:bg-[#f6f6f6] disabled:opacity-40 disabled:cursor-not-allowed"
+        className="p-1.5 rounded-lg border border-blue-200 text-[#475569] hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed"
         aria-label="Halaman berikutnya"
       >
         <ChevronRight className="w-4 h-4" />

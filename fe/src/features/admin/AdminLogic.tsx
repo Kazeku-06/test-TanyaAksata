@@ -19,6 +19,7 @@ import {
 } from "@/hooks/useAdmin";
 import { useCategories } from "@/hooks/useCategories";
 import { resolveReportSchema, type ResolveReportFormData } from "@/lib/schemas";
+import { usePostEditHistory, useCommentEditHistory } from "@/hooks/useModeration";
 import type { ReportStatus } from "@/types";
 import AdminView from "./AdminView";
 import Spinner from "@/components/ui/Spinner";
@@ -56,6 +57,10 @@ export default function AdminLogic() {
   const [reportPage, setReportPage] = useState(1);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
+  // ── Report target history state ──
+  const [selectedPostHistoryId, setSelectedPostHistoryId] = useState<string | null>(null);
+  const [selectedCommentHistoryId, setSelectedCommentHistoryId] = useState<string | null>(null);
+
   // ── Category state ──────────────────────────────────────────
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [showCreateCategory, setShowCreateCategory] = useState(false);
@@ -67,6 +72,10 @@ export default function AdminLogic() {
   const { data: reportsData, isLoading: isLoadingReports } =
     useAdminReports(reportStatus, reportPage);
   const { data: categories, isLoading: isLoadingCategories } = useCategories(true);
+
+  // ── Target history queries ──
+  const { data: postHistory } = usePostEditHistory(selectedPostHistoryId ?? "");
+  const { data: commentHistory } = useCommentEditHistory(selectedCommentHistoryId ?? "");
 
   // ── Mutations ───────────────────────────────────────────────
   const { mutate: assignRole, isPending: isAssigning } = useAssignRole();
@@ -196,6 +205,17 @@ export default function AdminLogic() {
       onReportPageChange={setReportPage}
       onSelectReport={setSelectedReportId}
       onResolveSubmit={resolveForm.handleSubmit(handleResolveSubmit)}
+      // Target Edit Histories
+      selectedPostHistoryId={selectedPostHistoryId}
+      selectedCommentHistoryId={selectedCommentHistoryId}
+      postHistory={postHistory ?? []}
+      commentHistory={commentHistory ?? []}
+      onSelectPostHistory={(id) =>
+        setSelectedPostHistoryId((prev) => (prev === id ? null : id))
+      }
+      onSelectCommentHistory={(id) =>
+        setSelectedCommentHistoryId((prev) => (prev === id ? null : id))
+      }
 
       // Categories
       categories={categories ?? []}

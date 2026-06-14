@@ -23,52 +23,33 @@ interface NavItem {
 }
 
 const mainNav: NavItem[] = [
-  {
-    href: "/",
-    label: "Beranda",
-    icon: <Home className="w-4 h-4" />,
-    exact: true,
-  },
-  {
-    href: "/questions",
-    label: "Pertanyaan",
-    icon: <HelpCircle className="w-4 h-4" />,
-  },
+  { href: "/", label: "Beranda", icon: <Home className="w-4 h-4" />, exact: true },
+  { href: "/questions", label: "Pertanyaan", icon: <HelpCircle className="w-4 h-4" /> },
   { href: "/tags", label: "Tag", icon: <Tag className="w-4 h-4" /> },
   { href: "/users", label: "Pengguna", icon: <Users className="w-4 h-4" /> },
-  {
-    href: "/leaderboard",
-    label: "Leaderboard",
-    icon: <Trophy className="w-4 h-4" />,
-  },
+  { href: "/leaderboard", label: "Leaderboard", icon: <Trophy className="w-4 h-4" /> },
 ];
 
 const authNav: NavItem[] = [
-  {
-    href: "/bookmarks",
-    label: "Bookmark",
-    icon: <Bookmark className="w-4 h-4" />,
-  },
+  { href: "/bookmarks", label: "Bookmark", icon: <Bookmark className="w-4 h-4" /> },
 ];
 
 function SidebarLink({ item }: { item: NavItem }) {
   const pathname = usePathname();
-  const isActive = item.exact
-    ? pathname === item.href
-    : pathname.startsWith(item.href);
+  const isActive = pathname ? (item.exact ? pathname === item.href : pathname.startsWith(item.href)) : false;
 
   return (
     <Link
       href={item.href}
       className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-medium transition-colors duration-150",
+        "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all",
         isActive
-          ? "bg-[#eff6ff] text-[#1d4ed8] border-l-4 border-[#1d4ed8] pl-[14px]"
-          : "text-[#525960] hover:bg-[#f8fbff] hover:text-[#1d4ed8]",
+          ? "bg-blue-100 text-[#3b82f6] font-semibold border-l-[3px] border-[#60a5fa] pl-[9px] shadow-sm"
+          : "text-[#475569] hover:bg-blue-50 hover:text-[#3b82f6]"
       )}
     >
       {item.icon}
-      <span>{item.label}</span>
+      {item.label}
     </Link>
   );
 }
@@ -76,20 +57,18 @@ function SidebarLink({ item }: { item: NavItem }) {
 export default function Sidebar() {
   const { data: user } = useMe();
   const isAdmin = user?.roles?.some((r) => r.name === "admin");
-  const isMod = user?.roles?.some(
-    (r) => r.name === "moderator" || r.name === "admin",
-  );
+  const isMod = user?.roles?.some((r) => r.name === "moderator" || r.name === "admin");
 
   return (
-    <aside className="hidden md:block md:w-[200px] lg:w-[220px] flex-shrink-0 pt-8">
-      <nav className="space-y-4 sticky top-24 bg-white/95 border border-slate-200 shadow-sm rounded-[10px] p-4 backdrop-blur-sm">
+    <aside className="w-[170px] flex-shrink-0 pt-4 hidden md:block">
+      <nav className="flex flex-col gap-0.5">
         {mainNav.map((item) => (
           <SidebarLink key={item.href} item={item} />
         ))}
 
         {user && (
           <>
-            <div className="mt-4 mb-3 px-4 text-[11px] font-semibold uppercase text-[#525960] tracking-[0.18em]">
+            <div className="mt-5 mb-1.5 px-3 text-[10px] font-bold uppercase text-[#93c5fd] tracking-widest">
               Akun Saya
             </div>
             {authNav.map((item) => (
@@ -100,7 +79,7 @@ export default function Sidebar() {
 
         {isMod && (
           <>
-            <div className="mt-6 mb-3 px-4 text-[11px] font-semibold uppercase text-[#525960] tracking-[0.18em]">
+            <div className="mt-5 mb-1.5 px-3 text-[10px] font-bold uppercase text-[#93c5fd] tracking-widest">
               Moderasi
             </div>
             <SidebarLink
@@ -115,7 +94,7 @@ export default function Sidebar() {
 
         {isAdmin && (
           <>
-            <div className="mt-6 mb-3 px-4 text-[11px] font-semibold uppercase text-[#525960] tracking-[0.18em]">
+            <div className="mt-5 mb-1.5 px-3 text-[10px] font-bold uppercase text-[#93c5fd] tracking-widest">
               Admin
             </div>
             <SidebarLink

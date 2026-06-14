@@ -9,24 +9,20 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  blue: "bg-[var(--primary-light)] text-[var(--primary)] border-[var(--primary-light)]",
-  gray: "bg-[var(--header)] text-[var(--text-light)] border-[var(--border)]",
-  green: "bg-[#d4edda] text-[var(--success)] border-[#9cd4b0]",
-  red: "bg-[#fce8e9] text-[var(--danger)] border-[#f5b8bc]",
-  yellow: "bg-[#fdf3d0] text-[#855200] border-[#f5d67d]",
+  blue: "bg-blue-50 text-[#60a5fa] border-blue-200",
+  gray: "bg-slate-50 text-[#475569] border-slate-200",
+  green: "bg-emerald-50 text-[#059669] border-emerald-200",
+  red: "bg-red-50 text-red-600 border-red-200",
+  yellow: "bg-amber-50 text-amber-700 border-amber-200",
 };
 
-export default function Badge({
-  children,
-  variant = "blue",
-  className,
-}: BadgeProps) {
+export default function Badge({ children, variant = "blue", className }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1.5 py-0.5 text-xs font-medium rounded border",
+        "inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-md border",
         variantStyles[variant],
-        className,
+        className
       )}
     >
       {children}

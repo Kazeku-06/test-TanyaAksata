@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Bookmark } from "@/types";
-import { timeAgo, cn } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 import Pagination from "@/components/ui/Pagination";
@@ -34,10 +34,10 @@ export default function BookmarksView({
 
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
-        <BookmarkIcon className="w-5 h-5 text-[#f48024]" />
-        <h1 className="text-xl font-semibold text-[#232629]">Bookmark Saya</h1>
+        <BookmarkIcon className="w-5 h-5 text-[#60a5fa]" />
+        <h1 className="text-xl font-bold text-[#1e293b]">Bookmark Saya</h1>
         {!isLoading && (
-          <span className="text-sm text-[#6a737c]">({total} item)</span>
+          <span className="text-sm text-[#64748b]">({total} item)</span>
         )}
       </div>
 
@@ -47,7 +47,7 @@ export default function BookmarksView({
           <Spinner size="lg" />
         </div>
       ) : isError ? (
-        <div className="flex items-center gap-2 py-8 text-sm text-[#c91d2e] justify-center">
+        <div className="flex items-center gap-2 py-8 text-sm text-red-600 justify-center">
           <AlertCircle className="w-4 h-4" />
           Gagal memuat bookmark.
         </div>
@@ -57,22 +57,22 @@ export default function BookmarksView({
           description="Bookmark pertanyaan yang ingin kamu simpan untuk dibaca nanti."
         />
       ) : (
-        <div className="border border-[#e3e6eb] rounded divide-y divide-[#e3e6eb]">
+        <div className="border border-blue-200 rounded-xl divide-y divide-blue-100 overflow-hidden">
           {bookmarks.map((bookmark) => (
-            <div key={bookmark.id} className="p-4 hover:bg-[#fafafa] transition-colors">
+            <div key={bookmark.id} className="p-4 hover:bg-blue-50/50 transition-colors">
               <div className="flex items-start justify-between gap-3">
 
                 {/* Post info */}
                 <div className="flex-1 min-w-0">
                   <Link
                     href={`/questions/${bookmark.post_id}`}
-                    className="font-medium text-[#0074cc] hover:text-[#0a95ff] text-sm block mb-1 line-clamp-2"
+                    className="font-semibold text-[#60a5fa] hover:text-[#3b82f6] text-sm block mb-1 line-clamp-2"
                   >
                     {bookmark.post.title}
                   </Link>
 
                   {/* Meta */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#6a737c]">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#64748b]">
                     <span>{bookmark.post.category?.name}</span>
                     <span>·</span>
                     <span>oleh {bookmark.post.user.name}</span>
@@ -86,7 +86,7 @@ export default function BookmarksView({
                       {bookmark.post.tags.slice(0, 4).map((tag) => (
                         <span
                           key={tag.id}
-                          className="flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] rounded border border-[#9cc3db] bg-[#e1ecf4] text-[#39739d]"
+                          className="flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] rounded-md border border-blue-200 bg-blue-50 text-[#60a5fa] font-medium"
                         >
                           <Tag className="w-2.5 h-2.5" />
                           {tag.name}
@@ -101,7 +101,7 @@ export default function BookmarksView({
                   onClick={() => onDelete(bookmark.id)}
                   disabled={isDeleting}
                   aria-label="Hapus bookmark"
-                  className="flex-shrink-0 p-1.5 text-[#babfc4] hover:text-[#c91d2e] transition-colors disabled:opacity-40"
+                  className="flex-shrink-0 p-1.5 text-[#94a3b8] hover:text-red-600 transition-colors disabled:opacity-40"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
