@@ -35,7 +35,7 @@ function TagsWidget() {
     "typescript",
     "nextjs",
     "api",
-    "css",
+    "css"
   ];
   return (
     <div className="border border-blue-200 bg-white rounded-xl p-4 text-sm">

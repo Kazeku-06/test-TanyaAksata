@@ -1,5 +1,6 @@
+import { useState } from "react";
 import Link from "next/link";
-import type { Post, Comment, User } from "@/types";
+import type { Post, Comment, User, PostEditHistory } from "@/types";
 import {
   CheckCircle, Clock, Eye, Pencil, Trash2,
   Bookmark, BookmarkCheck, ThumbsUp, Flag,
@@ -22,6 +23,8 @@ interface QuestionDetailViewProps {
   isDeleting: boolean;
   isPostOwner: boolean;
   canEdit: boolean;
+  canModerate?: boolean;
+  postHistory?: PostEditHistory[];
   replyingToId: string | null;
   postId: string;
   onVotePost: (vote: 1 | -1) => void;
@@ -42,6 +45,8 @@ export default function QuestionDetailView({
   isDeleting,
   isPostOwner,
   canEdit,
+  canModerate = false,
+  postHistory = [],
   replyingToId,
   postId,
   onVotePost,
@@ -51,6 +56,7 @@ export default function QuestionDetailView({
   onAcceptAnswer,
   onSetReplyingTo,
 }: QuestionDetailViewProps) {
+  const [showHistory, setShowHistory] = useState(false);
 
   if (isLoadingPost) {
     return (
@@ -91,16 +97,77 @@ export default function QuestionDetailView({
             Ditanyakan {timeAgo(post.created_at)}
           </span>
           {post.is_edited && (
-            <span className="flex items-center gap-1">
-              <Pencil className="w-3.5 h-3.5" />
-              Pernah diedit
-            </span>
+            canModerate ? (
+              <button
+                onClick={() => setShowHistory((v) => !v)}
+                className="flex items-center gap-1 text-[#60a5fa] hover:underline font-medium focus:outline-none"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Pernah diedit (Lihat Riwayat)
+              </button>
+            ) : (
+              <span className="flex items-center gap-1">
+                <Pencil className="w-3.5 h-3.5" />
+                Pernah diedit
+              </span>
+            )
           )}
           <span className="flex items-center gap-1">
             <Eye className="w-3.5 h-3.5" />
             {formatCount(post.views_count)} kali dilihat
           </span>
         </div>
+
+        {/* Inline Post Edit History for Admins/Mods */}
+        {showHistory && canModerate && postHistory && (
+          <div className="mt-3 bg-blue-50/50 border border-blue-100 rounded-lg p-3 text-xs">
+            <div className="font-semibold text-slate-700 mb-2">Riwayat Edit Pertanyaan (Moderator View):</div>
+            {postHistory.length === 0 ? (
+              <p className="text-slate-500 italic">Tidak ada riwayat edit yang tercatat.</p>
+            ) : (
+              <div className="space-y-3">
+                {postHistory.map((h) => (
+                  <div key={h.id} className="bg-white rounded border border-blue-100 p-2.5">
+                    <div className="flex items-center gap-2 text-slate-500 mb-2 pb-1 border-b border-slate-100">
+                      <Clock className="w-3 h-3" />
+                      <span>{timeAgo(h.created_at)}</span>
+                      {h.editor && (
+                        <span>oleh <strong className="text-slate-700">{h.editor.name}</strong></span>
+                      )}
+                    </div>
+                    {h.title_before !== h.title_after && (
+                      <div className="grid grid-cols-2 gap-3 mb-2 bg-slate-50 p-1.5 rounded">
+                        <div>
+                          <p className="text-red-600 font-semibold mb-0.5">Judul Sebelum:</p>
+                          <p className="text-[#1e293b] font-medium">{h.title_before}</p>
+                        </div>
+                        <div>
+                          <p className="text-emerald-600 font-semibold mb-0.5">Judul Sesudah:</p>
+                          <p className="text-[#1e293b] font-medium">{h.title_after}</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-3 bg-slate-50 p-1.5 rounded">
+                      <div>
+                        <p className="text-red-600 font-semibold mb-0.5">Isi Sebelum:</p>
+                        <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">{h.body_before}</p>
+                      </div>
+                      <div>
+                        <p className="text-emerald-600 font-semibold mb-0.5">Isi Sesudah:</p>
+                        <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">{h.body_after}</p>
+                      </div>
+                    </div>
+                    {h.edit_summary && (
+                      <div className="mt-2 text-slate-500 italic bg-slate-100/50 p-1.5 rounded">
+                        "Alasan: {h.edit_summary}"
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Post Body + Vote */}
