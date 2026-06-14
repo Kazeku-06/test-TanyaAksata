@@ -8,16 +8,14 @@ interface RightSidebarProps {
 // Widget: Ask a question CTA
 function AskWidget() {
   return (
-    <div className="border border-[var(--primary-light)] bg-white rounded-[28px] p-5 text-sm">
-      <h3 className="font-semibold text-[var(--text-default)] text-base mb-2">
-        Punya Pertanyaan?
-      </h3>
-      <p className="text-[var(--text-default)] text-sm mb-4 leading-6">
-        Bagikan pengalaman dan dapatkan jawaban dari komunitas developer aktif.
+    <div className="border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-sm">
+      <h3 className="font-bold text-[#3b82f6] mb-1">Punya pertanyaan?</h3>
+      <p className="text-[#475569] text-xs mb-3">
+        Dapatkan jawaban dari komunitas pengembang aktif.
       </p>
       <Link
         href="/questions/ask"
-        className="block w-full text-center bg-[var(--primary)] hover:bg-[var(--primary-hover)] !text-white text-sm font-semibold py-3 rounded-2xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-light)]"
+        className="block w-full text-center bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-xs font-semibold py-2 rounded-lg transition-colors shadow-sm shadow-blue-200/30"
       >
         Ajukan Pertanyaan
       </Link>
@@ -40,19 +38,17 @@ function TagsWidget() {
     "css",
   ];
   return (
-    <div className="border border-[#e2e8f0] bg-white rounded-[28px] p-5 text-sm">
-      <div className="flex items-center gap-2 mb-4">
-        <Tag className="w-4 h-4 text-[var(--primary)]" />
-        <h3 className="font-semibold text-[var(--text-default)]">
-          Tag Populer
-        </h3>
+    <div className="border border-blue-200 bg-white rounded-xl p-4 text-sm">
+      <div className="flex items-center gap-1.5 mb-3">
+        <Tag className="w-4 h-4 text-[#3b82f6]" />
+        <h3 className="font-bold text-[#1e293b]">Tag Populer</h3>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {popularTags.map((tag) => (
           <Link
             key={tag}
             href={`/questions?tag=${tag}`}
-            className="px-3 py-1.5 text-xs font-semibold rounded-full border border-[var(--primary-light)] bg-[var(--primary-light)] text-[var(--primary)] hover:bg-[#d0e3f1] transition-colors duration-150"
+            className="px-2 py-0.5 text-xs rounded-md border border-blue-200 bg-blue-50 text-[#60a5fa] hover:bg-blue-100 hover:border-blue-300 transition-colors font-medium"
           >
             {tag}
           </Link>
@@ -64,7 +60,7 @@ function TagsWidget() {
 
 export default function RightSidebar({ children }: RightSidebarProps) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <AskWidget />
       <TagsWidget />
       {children}

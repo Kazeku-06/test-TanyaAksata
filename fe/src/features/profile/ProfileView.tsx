@@ -63,7 +63,6 @@ export default function ProfileView({
 }: ProfileViewProps) {
   const { register, formState: { errors } } = form;
 
-  // Komponen ini tidak di-SSR (ssr: false di page.tsx), jadi early return aman.
   if (isLoadingUser) {
     return (
       <div className="flex justify-center py-16">
@@ -74,9 +73,9 @@ export default function ProfileView({
 
   if (!user) {
     return (
-      <div className="py-8 text-center text-sm text-[#6a737c]">
+      <div className="py-8 text-center text-sm text-[#64748b]">
         Silakan{" "}
-        <Link href="/login" className="text-[#0074cc] hover:underline">
+        <Link href="/login" className="text-[#60a5fa] hover:underline">
           masuk
         </Link>{" "}
         untuk melihat profil.
@@ -89,12 +88,12 @@ export default function ProfileView({
   return (
     <div className="px-6 py-4">
 
-      {/* ── Header profil ── */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6 pb-6 border-b border-[#e3e6eb]">
+      {/* Header profil */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 pb-6 border-b border-blue-100">
 
             {/* Avatar + tombol upload */}
             <div className="relative flex-shrink-0">
-              <div className="w-20 h-20 rounded-sm overflow-hidden bg-[#e1ecf4]">
+              <div className="w-20 h-20 rounded-lg overflow-hidden bg-blue-50 ring-2 ring-blue-200">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={avatarSrc}
@@ -105,12 +104,11 @@ export default function ProfileView({
               <button
                 type="button"
                 onClick={onAvatarClick}
-                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#0a95ff] text-white flex items-center justify-center hover:bg-[#0074cc] transition-colors shadow"
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#60a5fa] text-white flex items-center justify-center hover:bg-[#3b82f6] transition-colors shadow"
                 aria-label="Ganti foto profil"
               >
                 <Camera className="w-3.5 h-3.5" />
               </button>
-              {/* Input file tersembunyi — dipicu oleh tombol kamera */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -122,20 +120,20 @@ export default function ProfileView({
 
             {/* Info singkat */}
             <div>
-              <h1 className="text-xl font-bold text-[#232629]">{user!.name}</h1>
-              <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-[#6a737c]">
-                <span className="font-semibold text-[#232629]">{user!.reputation}</span>
+              <h1 className="text-xl font-bold text-[#1e293b]">{user!.name}</h1>
+              <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-[#64748b]">
+                <span className="font-semibold text-[#1e293b]">{user!.reputation}</span>
                 <span>reputasi</span>
-                <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                  getReputationLevel(user!.reputation) === "Expert"  ? "bg-[#fdf3d0] text-[#a56600]" :
-                  getReputationLevel(user!.reputation) === "Pro"     ? "bg-[#e1ecf4] text-[#39739d]" :
-                  getReputationLevel(user!.reputation) === "Regular" ? "bg-[#d4edda] text-[#2e6d44]" :
-                                                                        "bg-[#e4e6e8] text-[#6a737c]"
+                <span className={`px-1.5 py-0.5 rounded-md text-xs font-semibold ${
+                  getReputationLevel(user!.reputation) === "Expert"  ? "bg-amber-50 text-amber-700" :
+                  getReputationLevel(user!.reputation) === "Pro"     ? "bg-blue-50 text-[#60a5fa]" :
+                  getReputationLevel(user!.reputation) === "Regular" ? "bg-emerald-50 text-emerald-700" :
+                                                                        "bg-slate-50 text-[#475569]"
                 }`}>
                   {getReputationLevel(user!.reputation)}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1 text-xs text-[#6a737c]">
+              <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1 text-xs text-[#64748b]">
                 {user!.location && (
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
@@ -147,7 +145,7 @@ export default function ProfileView({
                     href={user!.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-[#0074cc] hover:underline"
+                    className="flex items-center gap-1 text-[#60a5fa] hover:underline"
                   >
                     <Globe className="w-3 h-3" />
                     {user!.website.replace(/^https?:\/\//, "")}
@@ -161,16 +159,16 @@ export default function ProfileView({
             </div>
           </div>
 
-          {/* ── Tabs ── */}
-          <div className="flex gap-px border-b border-[#e3e6eb] mb-6">
+          {/* Tabs */}
+          <div className="flex gap-px border-b border-blue-100 mb-6">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => onTabChange(tab.key)}
                 className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
                   activeTab === tab.key
-                    ? "border-[#f48024] text-[#3b4045]"
-                    : "border-transparent text-[#6a737c] hover:text-[#3b4045]"
+                    ? "border-[#60a5fa] text-[#3b82f6]"
+                    : "border-transparent text-[#64748b] hover:text-[#1e293b]"
                 }`}
               >
                 {tab.label}
@@ -178,17 +176,17 @@ export default function ProfileView({
             ))}
           </div>
 
-          {/* ── Tab: Informasi ── */}
+          {/* Tab: Informasi */}
           {activeTab === "info" && (
             <div className="max-w-lg">
               {saveSuccess && (
-                <div className="mb-4 p-3 bg-[#d4edda] border border-[#9cd4b0] rounded text-sm text-[#2e6d44] flex items-center gap-2">
+                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4" />
                   Profil berhasil disimpan!
                 </div>
               )}
               {rootError && (
-                <div className="mb-4 p-3 bg-[#fce8e9] border border-[#f5b8bc] rounded text-sm text-[#c91d2e]">
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
                   {rootError}
                 </div>
               )}
@@ -202,17 +200,17 @@ export default function ProfileView({
 
                 {/* Bio */}
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[#232629]">Bio</label>
+                  <label className="text-sm font-medium text-[#1e293b]">Bio</label>
                   <textarea
                     rows={3}
                     placeholder="Ceritakan sedikit tentang dirimu..."
-                    className={`w-full px-3 py-2 text-sm border rounded resize-y focus:outline-none focus:border-[#0a95ff] focus:ring-2 focus:ring-[#0a95ff]/20 ${
-                      errors.bio ? "border-[#c91d2e]" : "border-[#babfc4]"
+                    className={`w-full px-3 py-2 text-sm border rounded-lg resize-y focus:outline-none focus:border-[#60a5fa] focus:ring-2 focus:ring-[#60a5fa]/20 ${
+                      errors.bio ? "border-red-400" : "border-blue-200"
                     }`}
                     {...register("bio")}
                   />
                   {errors.bio && (
-                    <p className="text-xs text-[#c91d2e]">{errors.bio.message}</p>
+                    <p className="text-xs text-red-600">{errors.bio.message}</p>
                   )}
                 </div>
 
@@ -231,8 +229,8 @@ export default function ProfileView({
                 />
 
                 {/* Ganti password */}
-                <div className="border-t border-[#e3e6eb] pt-4 mt-2">
-                  <h3 className="text-sm font-semibold text-[#232629] mb-3">Ganti Password</h3>
+                <div className="border-t border-blue-100 pt-4 mt-2">
+                  <h3 className="text-sm font-semibold text-[#1e293b] mb-3">Ganti Password</h3>
                   <div className="flex flex-col gap-3">
                     <Input
                       label="Password Saat Ini"
@@ -268,24 +266,24 @@ export default function ProfileView({
             </div>
           )}
 
-          {/* ── Tab: Badge ── */}
+          {/* Tab: Badge */}
           {activeTab === "badges" && (
             <div>
               {isLoadingBadges ? (
                 <Spinner />
               ) : badges.length === 0 ? (
-                <p className="text-sm text-[#6a737c]">Belum ada badge.</p>
+                <p className="text-sm text-[#64748b]">Belum ada badge.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {badges.map((badge) => (
                     <div
                       key={badge.id}
-                      className="flex items-center gap-3 p-3 border border-[#e3e6eb] rounded bg-white"
+                      className="flex items-center gap-3 p-3 border border-blue-200 rounded-lg bg-white"
                     >
                       <span className="text-2xl">{badge.icon}</span>
                       <div>
-                        <p className="font-medium text-sm text-[#232629]">{badge.name}</p>
-                        <p className="text-xs text-[#6a737c]">{badge.description}</p>
+                        <p className="font-semibold text-sm text-[#1e293b]">{badge.name}</p>
+                        <p className="text-xs text-[#64748b]">{badge.description}</p>
                       </div>
                     </div>
                   ))}
@@ -294,7 +292,7 @@ export default function ProfileView({
             </div>
           )}
 
-          {/* ── Tab: Mengikuti ── */}
+          {/* Tab: Mengikuti */}
           {activeTab === "following" && (
             <UserList
               users={following}
@@ -303,7 +301,7 @@ export default function ProfileView({
             />
           )}
 
-          {/* ── Tab: Pengikut ── */}
+          {/* Tab: Pengikut */}
           {activeTab === "followers" && (
             <UserList
               users={followers}
@@ -316,7 +314,6 @@ export default function ProfileView({
   );
 }
 
-// ── UserList ───────────────────────────────────────────────────
 function UserList({
   users,
   isLoading,
@@ -327,7 +324,7 @@ function UserList({
   emptyText: string;
 }) {
   if (isLoading) return <Spinner />;
-  if (users.length === 0) return <p className="text-sm text-[#6a737c]">{emptyText}</p>;
+  if (users.length === 0) return <p className="text-sm text-[#64748b]">{emptyText}</p>;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -335,12 +332,12 @@ function UserList({
         <Link
           key={u.id}
           href={`/users/${u.id}`}
-          className="flex items-center gap-3 p-3 border border-[#e3e6eb] rounded hover:border-[#babfc4] transition-colors bg-white"
+          className="flex items-center gap-3 p-3 border border-blue-200 rounded-lg hover:border-blue-300 transition-colors bg-white"
         >
           <Avatar name={u.name} avatar={u.avatar} size="sm" />
           <div className="min-w-0">
-            <p className="font-medium text-sm text-[#0074cc] truncate">{u.name}</p>
-            <p className="text-xs text-[#6a737c]">{u.reputation} reputasi</p>
+            <p className="font-medium text-sm text-[#60a5fa] truncate">{u.name}</p>
+            <p className="text-xs text-[#64748b]">{u.reputation} reputasi</p>
           </div>
         </Link>
       ))}
