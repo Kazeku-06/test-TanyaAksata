@@ -141,7 +141,9 @@ export function useVotePost(postId: string) {
         };
       };
       qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
-        old ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) } : old
+        old && Array.isArray(old.data)
+          ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) }
+          : old
       );
       qc.setQueryData<Post>(["posts", postId], updater);
     },
@@ -149,7 +151,9 @@ export function useVotePost(postId: string) {
       const updater = (old: Post | undefined) =>
         old ? { ...old, votes_count: res.votes_count, user_vote: res.user_vote } : old;
       qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
-        old ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) } : old
+        old && Array.isArray(old.data)
+          ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) }
+          : old
       );
       qc.setQueryData<Post>(["posts", postId], updater);
     },
@@ -235,7 +239,9 @@ export function useBookmarkPost(postId: string) {
       const updater = (old: Post | undefined) =>
         old ? { ...old, is_bookmarked: nextBookmarked } : old;
       qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
-        old ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) } : old
+        old && Array.isArray(old.data)
+          ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) }
+          : old
       );
       qc.setQueryData<Post>(["posts", postId], updater);
     },
@@ -243,7 +249,9 @@ export function useBookmarkPost(postId: string) {
       const updater = (old: Post | undefined) =>
         old ? { ...old, is_bookmarked: res.is_bookmarked, bookmark_id: res.bookmark_id } : old;
       qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
-        old ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) } : old
+        old && Array.isArray(old.data)
+          ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) }
+          : old
       );
       qc.setQueryData<Post>(["posts", postId], updater);
       qc.invalidateQueries({ queryKey: ["bookmarks"] });

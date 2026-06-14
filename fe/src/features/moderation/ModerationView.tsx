@@ -185,7 +185,7 @@ function ReportsTab({
                   <p className="text-sm font-medium text-[#1e293b]">{report.reason}</p>
                   {report.description && (
                     <p className="text-xs text-[#475569] mt-0.5 italic">
-                      Detail: "{report.description}"
+                      Detail: &quot;{report.description}&quot;
                     </p>
                   )}
                   {report.reporter && (
@@ -300,7 +300,7 @@ function ReportsTab({
                                 </div>
                               </div>
                               {h.edit_summary && (
-                                <p className="text-slate-500 italic mt-1 bg-slate-100/50 p-1 rounded">"Alasan: {h.edit_summary}"</p>
+                                <p className="text-slate-500 italic mt-1 bg-slate-100/50 p-1 rounded">&quot;Alasan: {h.edit_summary}&quot;</p>
                               )}
                             </div>
                           ))}
@@ -480,7 +480,7 @@ function TrashedPostsTab({
                             </div>
                           )}
                           {h.edit_summary && (
-                            <p className="text-[#64748b] mt-1 italic">"{h.edit_summary}"</p>
+                            <p className="text-[#64748b] mt-1 italic">&quot;{h.edit_summary}&quot;</p>
                           )}
                         </div>
                       ))}

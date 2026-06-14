@@ -7,7 +7,7 @@ import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
 import Avatar from "@/components/ui/Avatar";
 import { useUsers } from "@/hooks/useProfile";
-import { getAvatarUrl, getReputationLevel } from "@/lib/utils";
+import { getReputationLevel } from "@/lib/utils";
 import { Search, MapPin, Globe, Calendar, Award } from "lucide-react";
 
 export default function UsersPage() {
@@ -156,7 +156,7 @@ export default function UsersPage() {
                       {/* Bio */}
                       {u.bio ? (
                         <p className="text-xs text-[#525960] line-clamp-2 mb-3 min-h-[32px] italic">
-                          "{u.bio}"
+                          &quot;{u.bio}&quot;
                         </p>
                       ) : (
                         <p className="text-xs text-[#9199a1] mb-3 min-h-[32px] italic">

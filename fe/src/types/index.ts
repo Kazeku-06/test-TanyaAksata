@@ -283,6 +283,7 @@ export interface Report {
   created_at: string;
   reporter?: Pick<User, "id" | "name">;
   resolver?: Pick<User, "id" | "name"> | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   target?: any;
 }
 

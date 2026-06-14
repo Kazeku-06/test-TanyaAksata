@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePosts, useTrendingPosts } from "@/hooks/usePosts";
 import PostCard from "./PostCard";
 import Spinner from "@/components/ui/Spinner";
@@ -35,12 +36,12 @@ export default function PostList() {
           </p>
         </div>
 
-        <a
+        <Link
           href="/questions/ask"
           className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-[13px] font-semibold px-4 py-2.5 rounded-lg shadow-sm shadow-blue-200/20 text-center transition-colors whitespace-nowrap"
         >
           Ajukan Pertanyaan
-        </a>
+        </Link>
       </div>
 
       {/* FILTER BUTTON GROUP */}
@@ -76,12 +77,12 @@ export default function PostList() {
             title="Belum ada pertanyaan"
             description="Jadilah yang pertama bertanya kepada komunitas."
             action={
-              <a
+              <Link
                 href="/questions/ask"
                 className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
               >
                 Ajukan Pertanyaan
-              </a>
+              </Link>
             }
           />
         </div>

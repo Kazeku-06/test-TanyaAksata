@@ -159,7 +159,7 @@ export default function QuestionDetailView({
                     </div>
                     {h.edit_summary && (
                       <div className="mt-2 text-slate-500 italic bg-slate-100/50 p-1.5 rounded">
-                        "Alasan: {h.edit_summary}"
+                        &quot;Alasan: {h.edit_summary}&quot;
                       </div>
                     )}
                   </div>
@@ -177,7 +177,7 @@ export default function QuestionDetailView({
         <div className="flex-shrink-0 flex flex-col items-center gap-2 pt-1">
           <VoteButton
             count={post.votes_count}
-            userVote={null}
+            userVote={post.user_vote ?? null}
             onVote={onVotePost}
             disabled={!me || isPostOwner}
           />
