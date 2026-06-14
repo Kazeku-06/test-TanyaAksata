@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { usePost, useVotePost, useLikePost, useBookmarkPost, useDeletePost } from "@/hooks/usePosts";
+import { usePost, useVotePost, useLikePost, useBookmarkPost, useDeletePost, useUserPostVote, useUserPostLike } from "@/hooks/usePosts";
 import { useComments, useAcceptAnswer } from "@/hooks/useComments";
 import { useMe } from "@/hooks/useAuth";
 import QuestionDetailView from "./QuestionDetailView";
@@ -19,11 +19,20 @@ export default function QuestionDetailLogic({ postId }: QuestionDetailLogicProps
   const { data: comments, isLoading: isLoadingComments } = useComments(postId);
   const { data: me } = useMe();
 
+  // ── User interaction state ─────────────────────────────────
+  const isLoggedIn = !!me;
+  const { data: userVoteData } = useUserPostVote(postId, isLoggedIn);
+  const { data: likeData } = useUserPostLike(postId, isLoggedIn);
+  const userVote = userVoteData?.user_vote ?? null;
+  const isLiked = likeData?.is_liked ?? false;
+
   // ── Post mutations ──────────────────────────────────────────
-  const { mutate: votePost }     = useVotePost(postId);
-  const { mutate: likePost }     = useLikePost(postId);
+  const { mutate: votePost } = useVotePost(postId);
+  const { mutate: likePost } = useLikePost(postId);
   const { mutate: bookmarkPost } = useBookmarkPost(postId);
   const { mutate: deletePost, isPending: isDeleting } = useDeletePost();
+  // NOTE: tanstack version di project ini kemungkinan tidak mendukung overload mutate(postId, options)
+
   const { mutate: acceptAnswer } = useAcceptAnswer(postId);
 
   // ── Permission checks ───────────────────────────────────────
@@ -49,10 +58,11 @@ export default function QuestionDetailLogic({ postId }: QuestionDetailLogicProps
 
   function handleBookmark() {
     if (!me) { router.push("/login"); return; }
-    bookmarkPost();
+    if (!post) return;
+    bookmarkPost(post);
   }
 
-  function handleDeletePost() {
+  async function handleDeletePost() {
     if (!confirm("Yakin ingin menghapus pertanyaan ini?")) return;
     deletePost(postId, {
       onSuccess: () => router.replace("/"),
@@ -74,6 +84,8 @@ export default function QuestionDetailLogic({ postId }: QuestionDetailLogicProps
       isDeleting={isDeleting}
       isPostOwner={isPostOwner}
       canEdit={canEdit}
+      userVote={userVote}
+      isLiked={isLiked}
       replyingToId={replyingToId}
       postId={postId}
       onVotePost={handleVotePost}

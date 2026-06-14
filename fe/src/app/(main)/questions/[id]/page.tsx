@@ -1,6 +1,5 @@
 import MainLayout from "@/components/layout/MainLayout";
-import RightSidebar from "@/components/layout/RightSidebar";
-import QuestionDetailLogic from "@/features/questions/QuestionDetailLogic";
+import PostDetailClient from "@/components/post/PostDetailClient";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -9,8 +8,8 @@ interface PageProps {
 export default async function QuestionDetailPage({ params }: PageProps) {
   const { id } = await params;
   return (
-    <MainLayout rightSidebar={<RightSidebar />}>
-      <QuestionDetailLogic postId={id} />
+    <MainLayout>
+      <PostDetailClient postId={id} />
     </MainLayout>
   );
 }

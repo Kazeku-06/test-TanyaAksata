@@ -110,6 +110,7 @@ export function useUpdatePost(postId: string) {
 // ── Delete Post ─────────────────────────────────────────────
 export function useDeletePost() {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: async (postId: string) => {
       await api.delete(`/posts/${postId}`);
@@ -119,6 +120,9 @@ export function useDeletePost() {
     },
   });
 }
+
+
+
 
 // ── Vote Post ───────────────────────────────────────────────
 export function useVotePost(postId: string) {
@@ -152,6 +156,7 @@ export function useVotePost(postId: string) {
         old ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) } : old
       );
       qc.setQueryData<Post>(["posts", postId], updater);
+      qc.setQueryData(["posts", postId, "user-vote"], { user_vote: res.user_vote });
     },
   });
 }
@@ -214,20 +219,14 @@ export function useBookmarkPost(postId: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async (currentPost: Post) => {
-      if (currentPost.is_bookmarked && currentPost.bookmark_id) {
-        // Sudah disimpan → hapus
-        await api.delete(`/bookmarks/${currentPost.bookmark_id}`);
-        return { is_bookmarked: false, bookmark_id: null };
-      } else {
-        // Belum disimpan → tambah
-        const { data } = await api.post(`/posts/${postId}/bookmark`);
-        const result = data.data as { is_bookmarked: boolean; bookmark_id?: string; id?: string };
-        return {
-          is_bookmarked: true,
-          bookmark_id: result.bookmark_id ?? result.id ?? null,
-        };
-      }
+    mutationFn: async (_currentPost: Post) => {
+      // Always use POST toggle — backend handles add/remove
+      const { data } = await api.post(`/posts/${postId}/bookmark`);
+      const result = data.data as { is_bookmarked: boolean; bookmark_id?: string; post_id?: string };
+      return {
+        is_bookmarked: result.is_bookmarked,
+        bookmark_id: result.bookmark_id ?? null,
+      };
     },
     onMutate: async (currentPost) => {
       await qc.cancelQueries({ queryKey: ["posts"] });

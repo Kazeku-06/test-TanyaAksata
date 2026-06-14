@@ -22,6 +22,8 @@ interface QuestionDetailViewProps {
   isDeleting: boolean;
   isPostOwner: boolean;
   canEdit: boolean;
+  userVote: 1 | -1 | null;
+  isLiked: boolean;
   replyingToId: string | null;
   postId: string;
   onVotePost: (vote: 1 | -1) => void;
@@ -42,6 +44,8 @@ export default function QuestionDetailView({
   isDeleting,
   isPostOwner,
   canEdit,
+  userVote,
+  isLiked,
   replyingToId,
   postId,
   onVotePost,
@@ -110,7 +114,7 @@ export default function QuestionDetailView({
         <div className="flex-shrink-0 flex flex-col items-center gap-2 pt-1">
           <VoteButton
             count={post.votes_count}
-            userVote={null}
+            userVote={userVote}
             onVote={onVotePost}
             disabled={!me || isPostOwner}
           />
@@ -121,8 +125,10 @@ export default function QuestionDetailView({
             disabled={!me}
             aria-label={post.is_bookmarked ? "Hapus bookmark" : "Tambah bookmark"}
             className={cn(
-              "p-1 rounded-lg transition-colors mt-1",
-              post.is_bookmarked ? "text-[#60a5fa]" : "text-[#94a3b8] hover:text-[#475569]",
+              "p-1.5 rounded-lg transition-all duration-200 mt-1",
+              post.is_bookmarked
+                ? "text-[#60a5fa] bg-blue-50 shadow-sm shadow-blue-200/50"
+                : "text-[#94a3b8] hover:text-[#60a5fa] hover:bg-blue-50",
               !me && "opacity-40 cursor-not-allowed"
             )}
           >
@@ -136,9 +142,10 @@ export default function QuestionDetailView({
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Body */}
-          <div className="prose text-sm text-[#1e293b] mb-4 whitespace-pre-wrap">
-            {post.body}
-          </div>
+          <div
+            className="prose max-w-none text-sm text-[#1e293b] mb-4"
+            dangerouslySetInnerHTML={{ __html: post.body }}
+          />
 
           {/* Tags */}
           {post.tags.length > 0 && (
@@ -165,12 +172,13 @@ export default function QuestionDetailView({
                 disabled={!me || isPostOwner}
                 className={cn(
                   "flex items-center gap-1 hover:text-[#60a5fa] transition-colors",
+                  isLiked ? "text-[#60a5fa] font-medium" : "",
                   (!me || isPostOwner) && "opacity-40 cursor-not-allowed"
                 )}
               >
-                <ThumbsUp className="w-3.5 h-3.5" />
+                <ThumbsUp className={cn("w-3.5 h-3.5", isLiked && "fill-[#60a5fa]")} />
                 {post.likes_count > 0 && <span>{post.likes_count}</span>}
-                <span>Suka</span>
+                <span>{isLiked ? "Menyukai" : "Suka"}</span>
               </button>
 
               {/* Laporan */}
