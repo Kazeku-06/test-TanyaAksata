@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Search, Bell, Menu, X, ChevronDown } from "lucide-react";
 import { useMe, useLogout } from "@/hooks/useAuth";
+import { useUnreadCount } from "@/hooks/useNotifications";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { data: user } = useMe();
   const { mutate: logout, isPending: loggingOut } = useLogout();
+  const { data: unreadCount = 0 } = useUnreadCount();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");

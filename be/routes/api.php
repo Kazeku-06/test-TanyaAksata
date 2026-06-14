@@ -33,6 +33,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/posts/trending', [PostController::class, 'trending']);
         Route::get('/categories', [CategoryController::class, 'index']);
         Route::get('/categories/{id}', [CategoryController::class, 'show']);
+        Route::get('/users', [ProfileController::class, 'listUsers']);
         Route::get('/users/{id}', [ProfileController::class, 'showPublic']);
         Route::get('/posts', [PostController::class, 'index']);
         Route::get('/posts/search', [PostController::class, 'search']);

@@ -49,12 +49,12 @@ export function useUnreadCount() {
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<PaginatedData<Notification>>>(
         "/notifications",
-        { params: { page: 1 } }
+        { params: { page: 1, per_page: 999, is_read: 0 } }
       );
-      const notifications = data.data.data;
-      return notifications.filter((n) => !n.is_read).length;
+      // Coba dari total field dulu, fallback ke filter manual
+      return data.data.total ?? data.data.data.filter((n) => !n.is_read).length;
     },
     enabled: !!Cookies.get("auth_token"),
-    refetchInterval: 30_000, // poll every 30s
+    refetchInterval: 30_000,
   });
 }

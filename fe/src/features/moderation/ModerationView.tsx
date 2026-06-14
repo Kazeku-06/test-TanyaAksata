@@ -127,6 +127,9 @@ function ReportsTab({
   isResolvingReport, resolveForm,
   onReportStatusChange, onReportPageChange,
   onSelectReport, onResolveSubmit,
+  selectedPostHistoryId, selectedCommentHistoryId,
+  postHistory, commentHistory,
+  onSelectPostHistory, onSelectCommentHistory,
 }: ModerationViewProps) {
   const { register, formState: { errors } } = resolveForm;
 
@@ -180,8 +183,13 @@ function ReportsTab({
                     <span className="text-xs text-[#64748b]">{timeAgo(report.created_at)}</span>
                   </div>
                   <p className="text-sm font-medium text-[#1e293b]">{report.reason}</p>
+                  {report.description && (
+                    <p className="text-xs text-[#475569] mt-0.5 italic">
+                      Detail: &quot;{report.description}&quot;
+                    </p>
+                  )}
                   {report.reporter && (
-                    <p className="text-xs text-[#64748b] mt-0.5">
+                    <p className="text-xs text-[#64748b] mt-1">
                       Dilaporkan oleh: {report.reporter.name}
                     </p>
                   )}
@@ -200,6 +208,139 @@ function ReportsTab({
                   </Button>
                 )}
               </div>
+
+              {/* Render Target Content Details */}
+              {report.target && (
+                <div className="mt-3 text-xs bg-slate-50 border border-slate-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2 border-b border-slate-100 pb-1">
+                    <span className="font-semibold text-slate-700">
+                      Konten Dilaporkan ({report.target_type.split("\\").pop()}):
+                    </span>
+                    {/* Riwayat Edit Button */}
+                    {(report.target_type.includes("Post") || report.target_type.includes("Comment")) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (report.target_type.includes("Post")) {
+                            onSelectPostHistory(report.target_id);
+                          } else {
+                            onSelectCommentHistory(report.target_id);
+                          }
+                        }}
+                        className="text-[#60a5fa] hover:underline flex items-center gap-1 font-medium text-[11px]"
+                      >
+                        <Clock className="w-3 h-3" />
+                        {report.target_type.includes("Post")
+                          ? (selectedPostHistoryId === report.target_id ? "Sembunyikan Riwayat" : "Riwayat Edit")
+                          : (selectedCommentHistoryId === report.target_id ? "Sembunyikan Riwayat" : "Riwayat Edit")
+                        }
+                      </button>
+                    )}
+                  </div>
+
+                  {report.target_type.includes("Post") && (
+                    <div>
+                      <div className="font-bold text-[#1e293b] text-sm mb-1">{report.target.title}</div>
+                      <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{report.target.body}</div>
+                    </div>
+                  )}
+                  {report.target_type.includes("Comment") && (
+                    <div>
+                      <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{report.target.body}</div>
+                      {report.target.post && (
+                        <div className="text-slate-400 mt-2 border-t border-slate-100 pt-1.5">
+                          Pada post: <span className="font-medium text-slate-500">{report.target.post.title}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {report.target_type.includes("User") && (
+                    <div className="text-slate-600 space-y-1">
+                      <div>Nama: <span className="font-medium text-slate-700">{report.target.name}</span></div>
+                      <div>Email: <span className="font-medium text-slate-700">{report.target.email}</span></div>
+                      {report.target.bio && <div>Bio: <span className="text-slate-500 italic">{report.target.bio}</span></div>}
+                    </div>
+                  )}
+
+                  {/* Render Post Edit History Inline */}
+                  {report.target_type.includes("Post") && selectedPostHistoryId === report.target_id && (
+                    <div className="mt-3 pt-3 border-t border-slate-200">
+                      <div className="font-semibold text-slate-700 mb-2">Riwayat Perubahan:</div>
+                      {postHistory.length === 0 ? (
+                        <p className="text-[10px] text-slate-500">Tidak ada riwayat edit.</p>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          {postHistory.map((h) => (
+                            <div key={h.id} className="bg-blue-50/70 p-2.5 rounded border border-blue-100 text-[11px] space-y-1.5">
+                              <div className="flex items-center gap-1.5 text-slate-500 border-b border-blue-100/50 pb-1">
+                                <Clock className="w-2.5 h-2.5" />
+                                <span>{timeAgo(h.created_at)}</span>
+                                {h.editor && <span>oleh <strong>{h.editor.name}</strong></span>}
+                              </div>
+                              {h.title_before !== h.title_after && (
+                                <div className="grid grid-cols-2 gap-3 mb-1 bg-white/50 p-1.5 rounded border border-slate-100">
+                                  <div>
+                                    <p className="text-[#dc2626] font-semibold">Judul Sebelum:</p>
+                                    <p className="text-slate-700">{h.title_before}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-[#059669] font-semibold">Judul Sesudah:</p>
+                                    <p className="text-slate-700">{h.title_after}</p>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="grid grid-cols-2 gap-3 bg-white/50 p-1.5 rounded border border-slate-100">
+                                <div>
+                                  <p className="text-[#dc2626] font-semibold">Isi Sebelum:</p>
+                                  <p className="text-slate-600 whitespace-pre-wrap">{h.body_before}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[#059669] font-semibold">Isi Sesudah:</p>
+                                  <p className="text-slate-600 whitespace-pre-wrap">{h.body_after}</p>
+                                </div>
+                              </div>
+                              {h.edit_summary && (
+                                <p className="text-slate-500 italic mt-1 bg-slate-100/50 p-1 rounded">&quot;Alasan: {h.edit_summary}&quot;</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Render Comment Edit History Inline */}
+                  {report.target_type.includes("Comment") && selectedCommentHistoryId === report.target_id && (
+                    <div className="mt-3 pt-3 border-t border-slate-200">
+                      <div className="font-semibold text-slate-700 mb-2">Riwayat Perubahan:</div>
+                      {commentHistory.length === 0 ? (
+                        <p className="text-[10px] text-slate-500">Tidak ada riwayat edit.</p>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          {commentHistory.map((h) => (
+                            <div key={h.id} className="bg-blue-50/70 p-2.5 rounded border border-blue-100 text-[11px] space-y-1.5">
+                              <div className="flex items-center gap-1.5 text-slate-500 border-b border-blue-100/50 pb-1">
+                                <Clock className="w-2.5 h-2.5" />
+                                <span>{timeAgo(h.created_at)}</span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 bg-white/50 p-1.5 rounded border border-slate-100">
+                                <div>
+                                  <p className="text-[#dc2626] font-semibold">Sebelum:</p>
+                                  <p className="text-slate-600 whitespace-pre-wrap">{h.body_before}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[#059669] font-semibold">Sesudah:</p>
+                                  <p className="text-slate-600 whitespace-pre-wrap">{h.body_after}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Resolve form — expand in-place */}
               {selectedReportId === report.id && (
@@ -339,7 +480,7 @@ function TrashedPostsTab({
                             </div>
                           )}
                           {h.edit_summary && (
-                            <p className="text-[#64748b] mt-1 italic">"{h.edit_summary}"</p>
+                            <p className="text-[#64748b] mt-1 italic">&quot;{h.edit_summary}&quot;</p>
                           )}
                         </div>
                       ))}

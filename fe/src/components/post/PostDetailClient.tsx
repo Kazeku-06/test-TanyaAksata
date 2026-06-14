@@ -115,6 +115,20 @@ export default function PostDetail({ postId }: PostDetailProps) {
                   <span className="text-[#94a3b8] font-bold text-[11px]">
                     {post.user.reputation?.toLocaleString() || 0}
                   </span>
+                  <div className="flex items-center gap-2">
+                    <Avatar name={post.user.name} avatar={post.user.avatar} size="sm" />
+                    <div className="min-w-0">
+                      <Link
+                        href={`/users/${post.user.id}`}
+                        className="text-[var(--text-link)] hover:underline font-medium text-xs block truncate"
+                      >
+                        {post.user.name}
+                      </Link>
+                      <span className="text-[11px] font-bold text-[#525960]">
+                        {post.user.reputation} <span className="font-normal text-[#9199a1]">rep</span>
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -122,6 +136,29 @@ export default function PostDetail({ postId }: PostDetailProps) {
           </div>
 
         </div>
+
+        {/* KOLOM KANAN (Sidebar - Lebar 1/4 halaman di desktop) */}
+        <div className="lg:col-span-1 space-y-4">
+          {/* Box Aturan/Info Kuning ala Stack Overflow */}
+          <div className="bg-[#fdf7e2] border border-[#f1e5bc] rounded text-xs text-[#3b3a36]">
+            <div className="bg-[#fbf3d5] px-3 py-2 font-bold border-b border-[#f1e5bc] text-[#232629]">
+              The Overflow Blog
+            </div>
+            <ul className="p-3 space-y-2.5 list-disc list-inside text-[#3b3a36]">
+              <li className="hover:underline cursor-pointer">Panduan menulis pertanyaan yang baik dan mudah dipahami.</li>
+              <li className="hover:underline cursor-pointer">Mengapa reputasi poin itu penting di dalam forum?</li>
+            </ul>
+          </div>
+
+          {/* Box Informasi Tambahan */}
+          <div className="border border-[#e3e6eb] rounded p-4 text-xs">
+            <h3 className="font-semibold text-[#232629] mb-3 text-[13px]">Aturan Forum</h3>
+            <p className="text-[#525960] leading-relaxed">
+              Pastikan sebelum bertanya kamu sudah melakukan pencarian terlebih dahulu agar tidak terjadi duplikasi pertanyaan. Jaga kesantunan dalam berdiskusi.
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   );

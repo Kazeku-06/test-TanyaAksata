@@ -42,15 +42,25 @@ class PostController extends Controller
         $post->increment('views_count');
         Cache::forget(CacheService::postDetailKey($id));
 
-        $user = $request->user();
+        $user = auth('sanctum')->user();
         $data = $post->toArray();
         $data['is_edited']     = $post->is_edited;
         $data['is_bookmarked'] = false;
+        $data['bookmark_id']   = null;
 
         if ($user) {
-            $data['is_bookmarked'] = Bookmark::where('user_id', $user->id)
+            $bookmark = Bookmark::where('user_id', $user->id)
                 ->where('post_id', $post->id)
-                ->exists();
+                ->first();
+            $data['is_bookmarked'] = (bool) $bookmark;
+            $data['bookmark_id']   = $bookmark ? $bookmark->id : null;
+            $vote = \App\Models\Vote::where('user_id', $user->id)
+                ->where('target_type', Post::class)
+                ->where('target_id', $post->id)
+                ->first();
+            $data['user_vote'] = $vote ? (int) $vote->vote : null;
+        } else {
+            $data['user_vote'] = null;
         }
 
         return response()->json(['success' => true, 'data' => $data]);

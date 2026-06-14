@@ -21,23 +21,28 @@ class BookmarkController extends Controller
             ->where('post_id', $post->id)
             ->first();
 
+        $bookmarkId = null;
         if ($bookmark) {
             $bookmark->delete();
             $isBookmarked = false;
             $message = 'Bookmark removed';
         } else {
-            Bookmark::create([
+            $newBookmark = Bookmark::create([
                 'user_id' => $user->id,
                 'post_id' => $post->id
             ]);
             $isBookmarked = true;
+            $bookmarkId = $newBookmark->id;
             $message = 'Bookmark added';
         }
 
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => ['is_bookmarked' => $isBookmarked]
+            'data' => [
+                'is_bookmarked' => $isBookmarked,
+                'bookmark_id' => $bookmarkId
+            ]
         ]);
     }
 

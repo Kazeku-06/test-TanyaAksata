@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Bookmark } from "@/types";
-import { timeAgo, cn } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 import Pagination from "@/components/ui/Pagination";

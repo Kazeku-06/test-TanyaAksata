@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { usePost, useVotePost, useLikePost, useBookmarkPost, useDeletePost } from "@/hooks/usePosts";
 import { useComments, useAcceptAnswer } from "@/hooks/useComments";
 import { useMe } from "@/hooks/useAuth";
+import { usePostEditHistory } from "@/hooks/useModeration";
 import QuestionDetailView from "./QuestionDetailView";
 
 interface QuestionDetailLogicProps {
@@ -33,6 +34,8 @@ export default function QuestionDetailLogic({ postId }: QuestionDetailLogicProps
   );
   const canEdit = isPostOwner || canModerate;
 
+  const { data: postHistory } = usePostEditHistory(canModerate ? postId : "");
+
   // ── Local state ─────────────────────────────────────────────
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
 
@@ -49,7 +52,7 @@ export default function QuestionDetailLogic({ postId }: QuestionDetailLogicProps
 
   function handleBookmark() {
     if (!me) { router.push("/login"); return; }
-    bookmarkPost();
+    if (post) bookmarkPost(post);
   }
 
   function handleDeletePost() {
@@ -74,6 +77,8 @@ export default function QuestionDetailLogic({ postId }: QuestionDetailLogicProps
       isDeleting={isDeleting}
       isPostOwner={isPostOwner}
       canEdit={canEdit}
+      canModerate={canModerate}
+      postHistory={postHistory ?? []}
       replyingToId={replyingToId}
       postId={postId}
       onVotePost={handleVotePost}

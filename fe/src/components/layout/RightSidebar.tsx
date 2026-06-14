@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Tag } from "lucide-react";
+import { ReactNode } from "react";
 
 interface RightSidebarProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 // Widget: Ask a question CTA
@@ -13,6 +14,7 @@ function AskWidget() {
       <p className="text-[#475569] text-xs mb-3">
         Dapatkan jawaban dari komunitas pengembang aktif.
       </p>
+
       <Link
         href="/questions/ask"
         className="block w-full text-center bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-xs font-semibold py-2 rounded-lg transition-colors shadow-sm shadow-blue-200/30"
@@ -35,8 +37,9 @@ function TagsWidget() {
     "typescript",
     "nextjs",
     "api",
-    "css",
+    "css"
   ];
+
   return (
     <div className="border border-blue-200 bg-white rounded-xl p-4 text-sm">
       <div className="flex items-center gap-1.5 mb-3">

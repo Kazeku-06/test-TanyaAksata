@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePosts, useTrendingPosts } from "@/hooks/usePosts";
 import PostCard from "./PostCard";
 import Spinner from "@/components/ui/Spinner";
@@ -35,12 +36,12 @@ export default function PostList() {
           </p>
         </div>
 
-        <a
+        <Link
           href="/questions/ask"
           className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-[13px] font-semibold px-4 py-2.5 rounded-lg shadow-sm shadow-blue-200/20 text-center transition-colors whitespace-nowrap"
         >
           Ajukan Pertanyaan
-        </a>
+        </Link>
       </div>
 
       {/* FILTER BUTTON GROUP */}
@@ -65,6 +66,28 @@ export default function PostList() {
         </div>
       </div>
 
+      {/* FILTER BUTTON GROUP */}
+      <div className="flex items-center justify-end px-6 pb-3 border-b border-[#e3e6eb]">
+        <div className="inline-flex rounded border border-[#838c95] overflow-hidden text-[12px]">
+          {(["latest", "trending"] as FeedType[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => {
+                setFeed(f);
+                setPage(1);
+              }}
+              className={`px-3 py-1.5 font-normal transition-colors border-r border-[#838c95] last:border-r-0 ${
+                feed === f
+                  ? "bg-[#e3e6eb] text-[#3b4045] font-medium"
+                  : "bg-white text-[#6a737c] hover:bg-[#f8f9f9] hover:text-[#3b4045]"
+              }`}
+            >
+              {f === "latest" ? "Terbaru" : "Trending"}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* POST LIST CONTENT */}
       {isLoading ? (
         <div className="flex justify-center items-center py-24">
@@ -76,12 +99,12 @@ export default function PostList() {
             title="Belum ada pertanyaan"
             description="Jadilah yang pertama bertanya kepada komunitas."
             action={
-              <a
+              <Link
                 href="/questions/ask"
                 className="bg-[#60a5fa] hover:bg-[#3b82f6] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
               >
                 Ajukan Pertanyaan
-              </a>
+              </Link>
             }
           />
         </div>

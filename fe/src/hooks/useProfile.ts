@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
-import type { User, Badge, ApiResponse, UpdateProfilePayload } from "@/types";
+import type { User, Badge, ApiResponse, UpdateProfilePayload, PaginatedData } from "@/types";
 
 // ── Public profile ──────────────────────────────────────────
 export function usePublicProfile(userId: string) {
@@ -13,6 +13,18 @@ export function usePublicProfile(userId: string) {
       return data.data;
     },
     enabled: !!userId,
+  });
+}
+
+export function useUsers(params: { q?: string; sort?: "reputation" | "newest"; page?: number }) {
+  return useQuery({
+    queryKey: ["users", "list", params],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<PaginatedData<User>>>("/users", {
+        params,
+      });
+      return data.data;
+    },
   });
 }
 

@@ -157,4 +157,43 @@ class ProfileController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Get paginated list of users with search by name
+     * GET /api/v1/users
+     */
+    public function listUsers(Request $request)
+    {
+        $search = $request->get('q');
+        $query = \App\Models\User::query();
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $sort = $request->get('sort', 'reputation');
+        if ($sort === 'newest') {
+            $query->orderBy('created_at', 'desc');
+        } else {
+            $query->orderBy('reputation', 'desc');
+        }
+
+        $users = $query->paginate(24);
+
+        $users->getCollection()->transform(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'avatar' => $user->avatar,
+                'bio' => $user->bio,
+                'location' => $user->location,
+                'website' => $user->website,
+                'reputation' => $user->reputation,
+                'reputation_level' => $user->reputation_level,
+                'created_at' => $user->created_at,
+            ];
+        });
+
+        return response()->json(['success' => true, 'data' => $users]);
+    }
 }

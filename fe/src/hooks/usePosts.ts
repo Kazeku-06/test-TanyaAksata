@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import type {
   Post,
@@ -128,8 +128,34 @@ export function useVotePost(postId: string) {
       const { data } = await api.post(`/posts/${postId}/vote`, { vote });
       return data.data as { votes_count: number; user_vote: 1 | -1 | null };
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["posts", postId] });
+    onMutate: async (vote) => {
+      await qc.cancelQueries({ queryKey: ["posts"] });
+      const updater = (old: Post | undefined) => {
+        if (!old) return old;
+        const prev = old.user_vote;
+        const isUnvote = prev === vote;
+        return {
+          ...old,
+          user_vote: isUnvote ? null : vote,
+          votes_count: old.votes_count + (isUnvote ? -vote : prev ? vote - prev : vote),
+        };
+      };
+      qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
+        old && Array.isArray(old.data)
+          ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) }
+          : old
+      );
+      qc.setQueryData<Post>(["posts", postId], updater);
+    },
+    onSuccess: (res) => {
+      const updater = (old: Post | undefined) =>
+        old ? { ...old, votes_count: res.votes_count, user_vote: res.user_vote } : old;
+      qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
+        old && Array.isArray(old.data)
+          ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) }
+          : old
+      );
+      qc.setQueryData<Post>(["posts", postId], updater);
     },
   });
 }
@@ -153,10 +179,21 @@ export function useLikePost(postId: string) {
   return useMutation({
     mutationFn: async () => {
       const { data } = await api.post(`/posts/${postId}/like`);
+      console.log("[useLikePost] full data:", JSON.stringify(data));
       return data.data as { likes_count: number; is_liked: boolean };
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["posts", postId] });
+    onSuccess: (res) => {
+      console.log("[useLikePost] onSuccess:", res);
+      qc.setQueryData(["posts", postId, "user-like"], { is_liked: res.is_liked });
+      const updater = (old: Post | undefined) =>
+        old ? { ...old, is_liked: res.is_liked, likes_count: res.likes_count } : old;
+      qc.setQueryData<Post>(["posts", postId], updater);
+      qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
+        old && Array.isArray(old.data) ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) } : old
+      );
+    },
+    onError: (err) => {
+      console.error("[useLikePost] error:", err);
     },
   });
 }
@@ -168,40 +205,98 @@ export function useUserPostLike(postId: string, enabled = true) {
       const { data } = await api.get<ApiResponse<{ is_liked: boolean }>>(
         `/posts/${postId}/user-like`
       );
+      console.log("[useUserPostLike]", postId, data);
       return data.data;
     },
     enabled: enabled && !!postId,
+    staleTime: 1000 * 30,
   });
 }
 
 // ── Bookmark Post ───────────────────────────────────────────
 export function useBookmarkPost(postId: string) {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: async () => {
       const { data } = await api.post(`/posts/${postId}/bookmark`);
-      return data.data as { is_bookmarked: boolean };
+      const result = data.data as { is_bookmarked: boolean; bookmark_id?: string | null };
+      return {
+        is_bookmarked: result.is_bookmarked,
+        bookmark_id: result.bookmark_id ?? null,
+      };
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["posts", postId] });
+    onMutate: async (currentPost) => {
+      await qc.cancelQueries({ queryKey: ["posts"] });
+      const nextBookmarked = !currentPost.is_bookmarked;
+      const updater = (old: Post | undefined) =>
+        old ? { ...old, is_bookmarked: nextBookmarked } : old;
+      qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
+        old && Array.isArray(old.data)
+          ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) }
+          : old
+      );
+      qc.setQueryData<Post>(["posts", postId], updater);
+    },
+    onSuccess: (res) => {
+      const updater = (old: Post | undefined) =>
+        old ? { ...old, is_bookmarked: res.is_bookmarked, bookmark_id: res.bookmark_id } : old;
+      qc.setQueriesData<import("@/types").PaginatedData<Post>>({ queryKey: ["posts"] }, (old) =>
+        old && Array.isArray(old.data)
+          ? { ...old, data: old.data.map((p) => (p.id === postId ? (updater(p) ?? p) : p)) }
+          : old
+      );
+      qc.setQueryData<Post>(["posts", postId], updater);
       qc.invalidateQueries({ queryKey: ["bookmarks"] });
     },
   });
 }
 
-// ── Tags (dari PostTag model via categories endpoint) ───────
-// BE tidak punya dedicated /tags endpoint, tapi PostTag bisa
-// di-query via search. Kita ambil daftar tag dengan cara
-// memanggil endpoint khusus dari PostTag model.
+// ── Tags (ekstrak dari posts karena tidak ada dedicated /tags endpoint) ─
 export function useTags(page = 1, search = "") {
   return useQuery({
     queryKey: ["tags", page, search],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<PaginatedData<import("@/types").Tag & { posts_count: number }>>>(
-        "/tags",
-        { params: { page, search: search || undefined } }
-      );
-      return data.data;
+      // Ambil banyak posts sekaligus untuk ekstrak tag unik
+      const { data } = await api.get<ApiResponse<PaginatedData<Post>>>("/posts/search", {
+        params: { per_page: 200, page: 1, tag: search || undefined },
+      });
+
+      // Hitung frekuensi setiap tag
+      const countMap: Record<string, { tag: import("@/types").Tag; count: number }> = {};
+      for (const post of data.data.data) {
+        for (const tag of post.tags) {
+          if (!countMap[tag.name]) countMap[tag.name] = { tag, count: 0 };
+          countMap[tag.name].count++;
+        }
+      }
+
+      // Filter berdasarkan search
+      let entries = Object.values(countMap);
+      if (search) {
+        entries = entries.filter((e) =>
+          e.tag.name.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      // Sort by count desc
+      entries.sort((a, b) => b.count - a.count);
+
+      // Paginate manual (15 per page)
+      const perPage = 15;
+      const total = entries.length;
+      const lastPage = Math.max(1, Math.ceil(total / perPage));
+      const start = (page - 1) * perPage;
+      const paged = entries.slice(start, start + perPage);
+
+      return {
+        data: paged.map((e) => ({ ...e.tag, posts_count: e.count })),
+        total,
+        current_page: page,
+        last_page: lastPage,
+        per_page: perPage,
+      } as PaginatedData<import("@/types").Tag & { posts_count: number }>;
     },
+    staleTime: 1000 * 60 * 5, // cache 5 menit
   });
 }
