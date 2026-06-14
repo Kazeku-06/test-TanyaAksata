@@ -1,18 +1,37 @@
-"use client";
+﻿"use client";
 
-import { usePost } from "@/hooks/usePosts";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { usePost, useLikePost, useDeletePost, useUserPostLike } from "@/hooks/usePosts";
+import { useMe } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
-import { timeAgo } from "@/lib/utils";
+import { timeAgo, formatCount, cn } from "@/lib/utils";
 import Avatar from "@/components/ui/Avatar";
 import ReportButton from "./ReportButton"; // Sesuaikan path ini dengan struktur folder Anda
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Clock, Eye, Pencil, ThumbsUp, Trash2 } from "lucide-react";
 
 interface PostDetailProps {
   postId: string;
 }
 
 export default function PostDetail({ postId }: PostDetailProps) {
+  const router = useRouter();
   const { data: post, isLoading } = usePost(postId);
+  const { data: me } = useMe();
+  const { data: likeData } = useUserPostLike(postId, !!me);
+  const { mutate: like } = useLikePost(postId);
+  const { mutate: deletePost, isPending: deleting } = useDeletePost();
+
+  const isLiked = likeData?.is_liked ?? false;
+  const isOwner = !!me && !!post && me.id === post.user_id;
+  const canModerate = !!me?.roles?.some((role) => role.name === "admin" || role.name === "moderator");
+
+  function handleDelete() {
+    if (!confirm("Yakin ingin menghapus pertanyaan ini?")) return;
+    deletePost(postId, {
+      onSuccess: () => router.replace("/"),
+    });
+  }
 
   if (isLoading) {
     return (
@@ -32,7 +51,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
   return (
     <div className="w-full max-w-[1100px] mx-auto px-6 py-6 font-sans text-[#232629] bg-white">
-      
+
       {/* 1. HEADER UTAMA (Judul & Tombol Ask Question) */}
       <div className="border-b border-[#e3e6eb] pb-4 mb-6">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -42,8 +61,8 @@ export default function PostDetail({ postId }: PostDetailProps) {
             )}
             {post.title}
           </h1>
-          <Link 
-            href="/questions/ask" 
+          <Link
+            href="/questions/ask"
             className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-medium px-4 py-2.5 rounded shadow-sm transition whitespace-nowrap self-start"
           >
             Ask Question
@@ -71,7 +90,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
       {/* 2. AREA UTAMA: KIRI (VOTES) & KANAN (KONTEN) */}
       <div className="grid grid-cols-[auto_1fr] gap-4">
-        
+
         {/* Sisi Kiri: Tampilan Skor / Vote */}
         <div className="flex flex-col items-center gap-1 w-12 pt-1 text-[#6a737c]">
           <span className="text-2xl font-semibold text-[#232629] leading-none">
@@ -82,9 +101,9 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
         {/* Sisi Kanan: Isi Markdown/HTML Pertanyaan & Aksi */}
         <div className="flex flex-col justify-between min-w-0">
-          
+
           {/* Isi Deskripsi Pertanyaan */}
-          <div 
+          <div
             className="text-[15px] leading-relaxed break-words whitespace-pre-wrap mb-6 prose max-w-none text-[#232629]"
             dangerouslySetInnerHTML={{ __html: post.body }}
           />
@@ -103,7 +122,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
 
           {/* BARIS AKSI BAWAH */}
           <div className="flex flex-wrap items-end justify-between gap-4 pt-4 border-t border-[#f1f2f3]">
-            
+
             {/* Navigasi Aksi Kiri (Share, Edit, Report) */}
             <div className="flex items-center gap-3 text-[13px]">
               <button type="button" className="text-[#6a737c] hover:text-[#0a95ff] transition-colors">
@@ -112,7 +131,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
               <button type="button" className="text-[#6a737c] hover:text-[#0a95ff] transition-colors">
                 Edit
               </button>
-              
+
               {/* ⚠️ PANGGIL LANGSUNG TANPA DIBUNGKUS <Link> ATAU <a> */}
               <ReportButton targetType="post" targetId={post.id} />
             </div>
